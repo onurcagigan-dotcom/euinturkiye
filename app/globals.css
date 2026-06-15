@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --eu: #003399;
+  --eu-deep: #001F4D;
+  --tr: #E30613;
+}
+
+body {
+  font-family: 'Archivo', system-ui, sans-serif;
+  color: #0A0E27;
+  background: #ffffff;
+}
