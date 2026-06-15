@@ -58,10 +58,10 @@ export const listings: Listing[] = [
 ];
 
 export const events: EventItem[] = [
-  { id: "ev-1", title: "AB-Türkiye Koordinasyon Toplantısı", date: "2024-06-18", location: "Ankara, Dış Ticaret Kompleksi", isPublic: false, description: "Dönem değerlendirme toplantısı." },
-  { id: "ev-2", title: "Başvuru Çalıştayı 2024", date: "2024-06-22", location: "İstanbul, Çırağan", isPublic: true, description: "IPA III başvuru hazırlama çalıştayı." },
-  { id: "ev-3", title: "Gençlik İstihdam Fuarı", date: "2024-07-03", location: "Gaziantep, Sergi Alanı", isPublic: true, projectId: "genc-istihdam", description: "Genç işsizliğiyle mücadele fuarı." },
-  { id: "ev-4", title: "Çevre Sempozyumu", date: "2024-07-15", location: "İzmir, Alsancak", isPublic: true, projectId: "iklim-uyum", description: "İklim uyum stratejileri sempozyumu." },
+  { id: "ev-1", title: "AB-Türkiye Koordinasyon Toplantısı", date: "2026-06-25", location: "Ankara, Dış Ticaret Kompleksi", isPublic: false, description: "Dönem değerlendirme toplantısı." },
+  { id: "ev-2", title: "Başvuru Çalıştayı 2026", date: "2026-07-02", location: "İstanbul, Çırağan", isPublic: true, description: "IPA III başvuru hazırlama çalıştayı." },
+  { id: "ev-3", title: "Gençlik İstihdam Fuarı", date: "2026-07-10", location: "Gaziantep, Sergi Alanı", isPublic: true, projectId: "genc-istihdam", description: "Genç işsizliğiyle mücadele fuarı." },
+  { id: "ev-4", title: "Çevre Sempozyumu", date: "2026-07-18", location: "İzmir, Alsancak", isPublic: true, projectId: "iklim-uyum", description: "İklim uyum stratejileri sempozyumu." },
 ];
 
 export const blogPosts: BlogPost[] = [
