@@ -1,10 +1,8 @@
-// notFound()'ı `never` dönüşüyle saran yardımcı.
-// Next'in notFound() fonksiyonu zaten asla geri dönmez; bu sarmalayıcı
-// TypeScript'e bunu açıkça bildirir (sandbox tip kontrolü için).
 import { notFound } from "next/navigation";
 
+/** TypeScript'in notFound()'u never olarak tanımaması sorununu çözer */
 export function notFoundNever(): never {
   notFound();
-  // notFound() asla buraya ulaşmaz, ama tip güvenliği için:
-  throw new Error("NEXT_NOT_FOUND");
+  // Aşağıdaki satır çalışmaz ama TypeScript'i memnun eder
+  throw new Error("notFound");
 }

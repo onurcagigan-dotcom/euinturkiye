@@ -1,41 +1,16 @@
-// ============================================================
-// getDataProvider() — Veri kaynağı seçici (fabrika).
-//
-// Sayfalar veriye SADECE bu fonksiyon üzerinden erişir:
-//
-//   import { getDataProvider } from "@/lib/data";
-//   const db = getDataProvider();
-//   const sectors = await db.getSectors();
-//
-// Hangi kaynağın döndüğü NEXT_PUBLIC_DATA_SOURCE ile belirlenir.
-// "demo"     -> DemoDataProvider  (JSON)
-// "firebase" -> FirebaseDataProvider (Firestore)
-// ============================================================
-
 import type { DataProvider } from "./provider";
-import { DemoDataProvider } from "./demo";
-import { FirebaseDataProvider } from "./firebase";
-import { isFirebaseConfigured } from "../firebase/init";
 
-let instance: DataProvider | null = null;
+let _instance: DataProvider | null = null;
 
 export function getDataProvider(): DataProvider {
-  if (instance) return instance;
-
-  const source = process.env.NEXT_PUBLIC_DATA_SOURCE ?? "demo";
-
-  if (source === "firebase") {
-    if (isFirebaseConfigured()) {
-      instance = new FirebaseDataProvider();
-    } else {
-      console.warn("[data] Firebase config eksik, demo kullanılıyor.");
-      instance = new DemoDataProvider();
-    }
-  } else {
-    instance = new DemoDataProvider();
+  if (_instance) return _instance;
+  const src = process.env.NEXT_PUBLIC_DATA_SOURCE ?? "demo";
+  if (src === "firebase") {
+    throw new Error("Firebase provider must be loaded client-side via getClientProvider()");
   }
-
-  return instance;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { DemoDataProvider } = require("./demo");
+  const inst: DataProvider = new DemoDataProvider();
+  _instance = inst;
+  return inst;
 }
-
-export type { DataProvider, ProjectFilters } from "./provider";

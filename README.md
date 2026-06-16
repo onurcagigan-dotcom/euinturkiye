@@ -1,88 +1,56 @@
-# euinturkiye.com
+# EU in Türkiye — Proje Platformu
 
-AB ve Türkiye Mali İşbirliği Projeleri Portalı — çok-donörlü proje portföyü ve dijital araçlar platformu.
+Türkiye'deki AB finansmanlı projelerin çok-donörlü portföy platformu.
 
-## Kurulum
+## Hızlı Başlangıç
 
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
-```
+### Demo Modu (Firebase gerektirmez)
+Vercel'e yükleyin, çalışır. Ortam değişkeni gerekmez.
 
-Tarayıcıda: http://localhost:3000 — Panel: http://localhost:3000/admin
+### Firebase Modu (gerçek veri)
+1. `NEXT_PUBLIC_DATA_SOURCE=firebase` ortam değişkeni ekleyin (Vercel → Settings → Environment Variables)
+2. Firebase Console'da proje oluşturun, config değerlerini ekleyin:
+   ```
+   NEXT_PUBLIC_FIREBASE_API_KEY=...
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+   NEXT_PUBLIC_FIREBASE_APP_ID=...
+   ```
+3. `firestore.rules` içeriğini Firebase Console → Firestore → Rules'a yapıştırın
 
-## Mimari — Veri Kaynağı Soyutlaması
+## Sayfalar
 
-Tüm veri erişimi tek bir soyutlamadan geçer. Kaynak `.env.local` içindeki
-`NEXT_PUBLIC_DATA_SOURCE` ile seçilir:
+| URL | Açıklama |
+|-----|----------|
+| `/` | Ana sayfa |
+| `/projeler` | Proje listesi (sektör/dönem/durum filtreli) |
+| `/projeler/[id]` | Proje detayı |
+| `/ilanlar` | İlanlar (iş/satınalma/ihale) |
+| `/ilanlar/[id]` | İlan detayı |
+| `/etkinlikler` | Etkinlikler takvimi |
+| `/etkinlikler/[id]` | Etkinlik detayı + gündem |
+| `/gundem` | AB-Türkiye haberleri |
+| `/gundem/[slug]` | Haber detayı |
+| `/kayit` | Abonelik planları |
+| `/giris` | Giriş |
+| `/admin` | Yönetim paneli |
+| `/araclar` | Dijital araçlar |
 
-- `demo`     → Sahte JSON verisi (Firebase gerekmez)
-- `firebase` → Gerçek Firestore verisi + giriş sistemi
+## Dijital Araçlar
 
-Sayfa ve panel kodu hangi kaynağın aktif olduğunu **bilmez**:
+- `/araclar/etkinlik` — RSVP Yönetimi
+- `/araclar/dokuman` — E-Doküman Kütüphanesi
+- `/araclar/bulten` — Bülten Kampanyaları
+- `/araclar/paydas` — Paydaş İletişimi
+- `/araclar/rapor` — Raporlama & CSV
+- `/araclar/egitim` — E-Learning
 
-```ts
-import { getDataProvider } from "@/lib/data";
-const db = getDataProvider();
-const sectors = await db.getSectors();
-```
+## Teknoloji
 
-Demo → canlı geçiş tek config değişikliğidir.
-
-## Canlıya Geçiş (Firebase)
-
-1. **Firebase projesi oluştur** (console.firebase.google.com)
-   - Authentication → Email/Password yöntemini aç, bir admin kullanıcı ekle
-   - Firestore Database → oluştur
-   - Project Settings → Web App ekle, config değerlerini al
-
-2. **`.env.local` doldur**: `NEXT_PUBLIC_FIREBASE_*` değerleri + `NEXT_PUBLIC_DATA_SOURCE=firebase`
-   (Vercel'de: Settings → Environment Variables)
-
-3. **Güvenlik kuralları**: `firestore.rules` içeriğini Firebase Console →
-   Firestore → Rules'a yapıştır, yayınla.
-
-4. **Demo veriyi yükle (seed)**:
-   - Firebase Console → Service Accounts → "Generate new private key"
-     → `scripts/serviceAccount.json` olarak kaydet
-   - `npm install firebase-admin`
-   - `node scripts/seed.mjs`
-
-Artık panelden eklenen içerik Firestore'a kalıcı yazılır ve public sitede görünür.
-
-## Klasör Yapısı
-
-```
-app/
-  page.tsx           Ana sayfa (public)
-  giris/             Giriş sayfası
-  admin/             Yönetim paneli (projeler, ilanlar, etkinlikler, blog)
-components/
-  sections.tsx       Ana sayfa bölümleri
-  HeroCarousel.tsx   Banner
-  admin/             Panel bileşenleri (formlar, tablo, UI)
-lib/
-  types.ts           Veri tipleri
-  data/
-    provider.ts      DataProvider arayüzü
-    index.ts         getDataProvider() fabrikası
-    demo/            Demo (JSON) sağlayıcı
-    firebase/        Firestore sağlayıcı
-  firebase/
-    init.ts          Firebase başlatma
-    auth-context.tsx Giriş/oturum yönetimi
-  admin/
-    store.tsx        Panel veri yönetimi
-    writer.ts        Firestore yazma/silme
-scripts/seed.mjs     Demo veriyi Firestore'a yükler
-firestore.rules      Güvenlik kuralları
-```
-
-## Geliştirme Fazları
-
-- [x] **Faz 0** — İskelet + veri katmanı
-- [x] **Faz 1** — Demo veri + public ana sayfa
-- [x] **Faz 2** — Yönetim paneli (CRUD)
-- [x] **Faz 3** — Firebase + Auth (kalıcılık, giriş)
-- [ ] **Faz 4** — Liste/detay sayfaları, abonelik, alt kullanıcı, araçlar
+- **Next.js 15** (App Router)
+- **React 19**
+- **Tailwind CSS 3**
+- **TypeScript** (strict)
+- **Firebase 11** (opsiyonel)

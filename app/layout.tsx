@@ -1,23 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/lib/firebase/auth-context";
 
 export const metadata: Metadata = {
-  title: "euinturkiye.com — AB ve Türkiye Mali İşbirliği Projeleri Portalı",
-  description:
-    "Türkiye'deki AB faaliyetleri ve çok-donörlü proje portföyü platformu, dijital araçlar seti.",
+  title: "EU in Türkiye — AB Proje Portföy Platformu",
+  description: "Türkiye'deki AB finansmanlı projelerin kapsamlı portalı. Projeler, ilanlar, etkinlikler ve dijital araçlar.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

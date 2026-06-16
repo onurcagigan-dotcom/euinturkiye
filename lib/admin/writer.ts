@@ -1,33 +1,23 @@
-// ============================================================
-// Admin Writer — içerik yazma/silme katmanı.
-//
-// Demo modunda: hiçbir kalıcı işlem yok (sadece tarayıcı hafızası).
-// Firebase modunda: Firestore'a gerçekten yazar/siler.
-//
-// Panel bileşenleri bu fonksiyonları çağırır; nereye yazıldığını
-// bilmez. (Veri OKUMA tarafındaki DataProvider mantığının
-// YAZMA tarafındaki karşılığı.)
-// ============================================================
+/**
+ * Firestore yazma işlemleri — sadece admin tarafından kullanılır.
+ * Demo modunda import edilmez.
+ */
+import {
+  getFirestore, doc, setDoc, deleteDoc, updateDoc,
+} from "firebase/firestore";
+import { getFirebaseApp } from "../firebase/init";
+import type { Project, Listing, EventItem, BlogPost } from "../types";
 
-import { doc, setDoc, deleteDoc } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase/init";
+function db() { return getFirestore(getFirebaseApp()); }
 
-function firebaseActive(): boolean {
-  return (process.env.NEXT_PUBLIC_DATA_SOURCE ?? "demo") === "firebase" && isFirebaseConfigured();
-}
+export const writeProject = (p: Project) => setDoc(doc(db(), "projects", p.id), p);
+export const deleteProject = (id: string) => deleteDoc(doc(db(), "projects", id));
 
-/** Bir dökümanı kaydeder (varsa günceller, yoksa oluşturur). */
-export async function writeDoc<T extends { id: string }>(
-  collectionName: string,
-  item: T
-): Promise<void> {
-  if (!firebaseActive()) return; // demo: kalıcı yazma yok
-  const { id, ...rest } = item;
-  await setDoc(doc(db(), collectionName, id), rest, { merge: true });
-}
+export const writeListing = (l: Listing) => setDoc(doc(db(), "listings", l.id), l);
+export const deleteListing = (id: string) => deleteDoc(doc(db(), "listings", id));
 
-/** Bir dökümanı siler. */
-export async function removeDoc(collectionName: string, id: string): Promise<void> {
-  if (!firebaseActive()) return;
-  await deleteDoc(doc(db(), collectionName, id));
-}
+export const writeEvent = (e: EventItem) => setDoc(doc(db(), "events", e.id), e);
+export const deleteEvent = (id: string) => deleteDoc(doc(db(), "events", id));
+
+export const writeBlogPost = (p: BlogPost) => setDoc(doc(db(), "blogPosts", p.id), p);
+export const deleteBlogPost = (id: string) => deleteDoc(doc(db(), "blogPosts", id));

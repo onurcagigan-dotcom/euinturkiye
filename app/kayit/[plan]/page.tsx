@@ -1,52 +1,33 @@
 "use client";
-
-import { use, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
-import { plans } from "@/lib/data/demo/plans";
 
-function formatPrice(eur: number): string {
-  if (eur === 0) return "Ücretsiz";
-  return new Intl.NumberFormat("tr-TR").format(eur) + " € / yıl";
-}
+const PLAN_NAMES: Record<string, string> = {
+  ucretsiz: "Ücretsiz Plan",
+  paket1: "Paket 1",
+  paket2: "Paket 2",
+  tedarikci: "Tedarikçi Paketi",
+};
 
-export default function SignupFormPage({
-  params,
-}: {
-  params: Promise<{ plan: string }>;
-}) {
-  const { plan: planId } = use(params);
-  const plan = plans.find((p) => p.id === planId);
+export default function KayitFormPage({ params }: { params: { plan: string } }) {
   const [submitted, setSubmitted] = useState(false);
-  const [consent, setConsent] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", org: "", phone: "" });
 
-  if (!plan) {
-    return (
-      <PageShell>
-        <div className="max-w-xl mx-auto px-6 py-20 text-center">
-          <p className="text-slate">Paket bulunamadı.</p>
-          <Link href="/kayit" className="text-eu font-semibold mt-4 inline-block">← Paketlere dön</Link>
-        </div>
-      </PageShell>
-    );
-  }
+  const planName = PLAN_NAMES[params.plan] ?? params.plan;
 
   if (submitted) {
     return (
       <PageShell>
-        <div className="max-w-xl mx-auto px-6 py-20 text-center">
-          <div className="text-4xl mb-4">✓</div>
-          <h1 className="text-2xl font-bold text-ink">Başvurunuz Alındı</h1>
-          <p className="text-slate mt-3">
-            <strong>{plan.name}</strong> paketi için başvurunuz alındı. Başvurunuz
-            incelendikten sonra üyeliğiniz aktifleştirilecek ve size e-posta ile bilgi verilecektir.
+        <div className="max-w-md mx-auto px-6 py-16 text-center">
+          <div className="text-5xl mb-4">✅</div>
+          <h1 className="text-2xl font-bold text-ink mb-2">Başvurunuz Alındı</h1>
+          <p className="text-slate mb-6">
+            <strong>{planName}</strong> için başvurunuz alınmıştır. En kısa sürede size dönüş yapacağız.
           </p>
-          <Link href="/" className="inline-block mt-6 px-5 py-2.5 rounded-lg bg-eu text-white font-semibold">
-            Ana sayfaya dön
+          <Link href="/" className="inline-block px-6 py-3 bg-eu text-white font-bold rounded-xl">
+            Ana Sayfaya Dön
           </Link>
-          <p className="text-xs text-mist mt-6">
-            (Demo: gerçek ödeme ve kayıt, sistem canlıya alındığında devreye girer.)
-          </p>
         </div>
       </PageShell>
     );
@@ -54,57 +35,57 @@ export default function SignupFormPage({
 
   return (
     <PageShell>
-      <div className="max-w-xl mx-auto px-6 py-12">
-        <Link href="/kayit" className="text-eu text-sm hover:underline">← Paketler</Link>
+      <div className="max-w-md mx-auto px-6 py-12">
+        <Link href="/kayit" className="text-eu text-sm hover:underline">← Planlara Dön</Link>
+        <h1 className="text-2xl font-bold text-ink mt-4 mb-1">Kayıt Ol</h1>
+        <p className="text-slate mb-8">Seçilen plan: <strong>{planName}</strong></p>
 
-        <div className="mt-6 bg-eu-pale rounded-xl p-5 flex items-center justify-between">
+        <div className="space-y-4">
           <div>
-            <p className="text-sm text-slate">Seçilen paket</p>
-            <p className="font-bold text-ink text-lg">{plan.name}</p>
+            <label className="block text-sm font-semibold text-ink mb-1">Ad Soyad *</label>
+            <input
+              type="text" value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:border-eu"
+              placeholder="Ad Soyad"
+            />
           </div>
-          <p className="font-bold text-eu">{formatPrice(plan.priceEur)}</p>
-        </div>
-
-        <form
-          className="mt-8 space-y-4"
-          onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
-        >
-          <Field label="Kurum / Şirket Adı"><input required className={inp} /></Field>
-          <Field label="Yetkili Adı Soyadı"><input required className={inp} /></Field>
-          <Field label="E-posta"><input type="email" required className={inp} /></Field>
-          <Field label="Telefon"><input type="tel" className={inp} /></Field>
-          <Field label="Vergi No (opsiyonel)"><input className={inp} /></Field>
-
-          <label className="flex items-start gap-2 text-sm text-slate pt-2">
-            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" required />
-            <span>
-              <Link href="#" className="text-eu underline">Aydınlatma Metni</Link> ve{" "}
-              <Link href="#" className="text-eu underline">Kullanım Sözleşmesi</Link>&apos;ni
-              okudum, onaylıyorum.
-            </span>
-          </label>
+          <div>
+            <label className="block text-sm font-semibold text-ink mb-1">E-posta *</label>
+            <input
+              type="email" value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:border-eu"
+              placeholder="ornek@firma.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-ink mb-1">Kurum / Şirket</label>
+            <input
+              type="text" value={form.org}
+              onChange={(e) => setForm((f) => ({ ...f, org: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:border-eu"
+              placeholder="Kurum adı"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-ink mb-1">Telefon</label>
+            <input
+              type="tel" value={form.phone}
+              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:border-eu"
+              placeholder="+90 5xx xxx xx xx"
+            />
+          </div>
 
           <button
-            type="submit"
-            disabled={!consent}
-            className="w-full py-3 rounded-lg bg-eu text-white font-semibold disabled:opacity-50"
+            onClick={() => { if (form.name && form.email) setSubmitted(true); }}
+            className="w-full py-3 bg-eu text-white font-bold rounded-xl hover:bg-blue-800 transition-colors mt-2"
           >
-            {plan.priceEur > 0 ? "Ödemeye Geç" : "Ücretsiz Başvur"}
+            Başvuruyu Gönder
           </button>
-        </form>
+        </div>
       </div>
     </PageShell>
-  );
-}
-
-const inp =
-  "w-full px-3 py-2 rounded-lg border border-line text-sm focus:outline-none focus:ring-2 focus:ring-eu/30";
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="block text-sm font-medium text-ink mb-1.5">{label}</span>
-      {children}
-    </label>
   );
 }

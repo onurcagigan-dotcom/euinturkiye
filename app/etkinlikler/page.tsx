@@ -1,63 +1,72 @@
+import Link from "next/link";
 import { getDataProvider } from "@/lib/data";
-import { PageShell, PageBanner } from "@/components/PageShell";
+import { PageShell } from "@/components/PageShell";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
-const MONTHS = ["OCA","ŞUB","MAR","NIS","MAY","HAZ","TEM","AĞU","EYL","EKİ","KAS","ARA"];
+export const revalidate = 60;
 
-export default async function EventsPage() {
+export default async function EtkinliklerPage() {
   const db = getDataProvider();
-  const events = await db.getEvents(); // tümü (geçmiş + gelecek)
-  const today = new Date().toISOString().slice(0, 10);
+  const events = await db.getEvents();
 
-  const upcoming = events.filter((e) => e.date >= today);
-  const past = events.filter((e) => e.date < today);
+  const publicEvents = events
+    .filter((e) => e.isPublic)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const now = new Date();
+  const upcoming = publicEvents.filter((e) => new Date(e.date) >= now);
+  const past = publicEvents.filter((e) => new Date(e.date) < now);
 
   return (
     <PageShell>
-      <PageBanner
-        kicker="Takvim"
-        title="Etkinlikler"
-        desc="Projelere ait toplantı, çalıştay, fuar ve diğer etkinlikler."
-      />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <h2 className="text-lg font-bold text-ink mb-4">Yaklaşan Etkinlikler</h2>
-        {upcoming.length === 0 ? (
-          <p className="text-slate mb-10">Yaklaşan etkinlik bulunmuyor.</p>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {upcoming.map((e) => <EventCard key={e.id} e={e} />)}
-          </div>
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Etkinlikler" }]} />
+        <h1 className="text-3xl font-extrabold text-ink mb-8">Etkinlikler</h1>
+
+        {upcoming.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-lg font-bold text-ink mb-4">Yaklaşan Etkinlikler</h2>
+            <div className="space-y-4">
+              {upcoming.map((e) => <EventCard key={e.id} event={e} />)}
+            </div>
+          </section>
         )}
 
         {past.length > 0 && (
-          <>
-            <h2 className="text-lg font-bold text-ink mb-4">Geçmiş Etkinlikler</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 opacity-70">
-              {past.map((e) => <EventCard key={e.id} e={e} />)}
+          <section>
+            <h2 className="text-lg font-bold text-ink mb-4 text-mist">Geçmiş Etkinlikler</h2>
+            <div className="space-y-3 opacity-70">
+              {past.map((e) => <EventCard key={e.id} event={e} past />)}
             </div>
-          </>
+          </section>
         )}
       </div>
     </PageShell>
   );
 }
 
-function EventCard({ e }: { e: { id: string; title: string; date: string; location: string; isPublic: boolean } }) {
-  const d = new Date(e.date);
+function EventCard({ event, past = false }: { event: { id: string; title: string; date: string; location: string; description?: string; capacity?: number }; past?: boolean }) {
+  const d = new Date(event.date);
   return (
-    <article className="bg-white border border-line rounded-xl p-6">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="text-center bg-eu-pale rounded-lg px-3 py-2">
-          <div className="text-xl font-bold text-eu leading-none">{d.getDate()}</div>
-          <div className="text-xs text-slate">{MONTHS[d.getMonth()]}</div>
+    <Link href={`/etkinlikler/${event.id}`}
+      className={`flex gap-4 p-5 border rounded-xl hover:shadow-md transition-all ${past ? "border-line bg-surface" : "border-line bg-white hover:border-eu"}`}>
+      <div className="flex-shrink-0 text-center bg-eu-pale rounded-xl p-3 w-16">
+        <div className="text-2xl font-extrabold text-eu">{d.getDate()}</div>
+        <div className="text-xs text-eu font-semibold uppercase">
+          {d.toLocaleDateString("tr", { month: "short" })}
         </div>
+        <div className="text-xs text-mist">{d.getFullYear()}</div>
       </div>
-      <h3 className="font-bold text-[15px] text-ink leading-snug">{e.title}</h3>
-      <p className="text-xs text-slate mt-1">{e.location}</p>
-      {e.isPublic && (
-        <span className="inline-block mt-3 text-[10px] font-semibold tracking-wide text-eu bg-eu-pale px-2 py-1 rounded">
-          HERKESE AÇIK
-        </span>
-      )}
-    </article>
+      <div className="flex-1">
+        <h2 className="font-bold text-ink mb-1 leading-tight">{event.title}</h2>
+        <p className="text-sm text-mist">📍 {event.location}</p>
+        {event.description && (
+          <p className="text-sm text-slate mt-1 line-clamp-2">{event.description}</p>
+        )}
+        {event.capacity && (
+          <p className="text-xs text-mist mt-1">👥 Kapasite: {event.capacity} kişi</p>
+        )}
+      </div>
+    </Link>
   );
 }

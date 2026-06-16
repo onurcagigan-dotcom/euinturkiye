@@ -1,85 +1,86 @@
 import Link from "next/link";
 import { getDataProvider } from "@/lib/data";
-import { PageShell, PageBanner } from "@/components/PageShell";
+import { PageShell } from "@/components/PageShell";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import type { ListingType } from "@/lib/types";
 
-const TYPE_LABEL: Record<string, string> = {
-  is: "İş İlanları", satinalma: "Satınalma", ihale: "İhale",
+export const revalidate = 60;
+
+const TYPE_LABEL: Record<ListingType, string> = {
+  is: "İş İlanı",
+  satinalma: "Satınalma",
+  ihale: "İhale",
 };
 
-export default async function ListingsPage({
+const TYPE_COLOR: Record<ListingType, string> = {
+  is: "bg-blue-100 text-blue-700",
+  satinalma: "bg-orange-100 text-orange-700",
+  ihale: "bg-purple-100 text-purple-700",
+};
+
+export default async function IlanlarPage({
   searchParams,
 }: {
   searchParams: Promise<{ tur?: string }>;
 }) {
-  const { tur } = await searchParams;
+  const params = await searchParams;
   const db = getDataProvider();
-  const validType = (["is", "satinalma", "ihale"] as const).includes(tur as ListingType)
-    ? (tur as ListingType)
-    : undefined;
-
-  const listings = await db.getListings(validType);
+  const listings = await db.getListings(params.tur as ListingType | undefined);
 
   return (
     <PageShell>
-      <PageBanner
-        kicker="Açık İlanlar"
-        title="İş, Satınalma ve İhale"
-        desc="Projelere ait güncel iş ilanları, satınalma duyuruları ve ihaleler."
-      />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        {/* Tür filtre çipleri */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          <Chip href="/ilanlar" active={!validType} label="Tümü" />
-          <Chip href="/ilanlar?tur=is" active={validType === "is"} label="İş İlanları" />
-          <Chip href="/ilanlar?tur=satinalma" active={validType === "satinalma"} label="Satınalma" />
-          <Chip href="/ilanlar?tur=ihale" active={validType === "ihale"} label="İhale" />
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "İlanlar" }]} />
+
+        <h1 className="text-3xl font-extrabold text-ink mb-6">İlanlar</h1>
+
+        {/* Filtre */}
+        <div className="flex gap-2 mb-8">
+          {[
+            { tur: undefined, label: "Tümü" },
+            { tur: "is", label: "İş İlanları" },
+            { tur: "satinalma", label: "Satınalma" },
+            { tur: "ihale", label: "İhale" },
+          ].map((f) => (
+            <Link key={f.label}
+              href={f.tur ? `/ilanlar?tur=${f.tur}` : "/ilanlar"}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                params.tur === f.tur || (!params.tur && !f.tur)
+                  ? "bg-eu text-white"
+                  : "bg-surface text-slate hover:bg-line"
+              }`}>
+              {f.label}
+            </Link>
+          ))}
         </div>
 
-        {listings.length === 0 ? (
-          <p className="text-slate py-12 text-center">İlan bulunamadı.</p>
-        ) : (
-          <div className="space-y-4">
-            {listings.map((l) => (
-              <Link
-                key={l.id}
-                href={`/ilanlar/${l.id}`}
-                className="block bg-white border border-line rounded-xl p-5 hover:shadow-md transition"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-ink">{l.title}</span>
-                      {l.locked && <span title="Abonelik gerekli">🔒</span>}
-                    </div>
-                    <p className="text-sm text-slate mt-1">{l.organization}</p>
-                    {l.location && <p className="text-xs text-mist mt-1">{l.location}</p>}
-                  </div>
-                  <span className="shrink-0 text-xs font-semibold text-eu bg-eu-pale px-3 py-1.5 rounded-full">
+        <div className="space-y-4">
+          {listings.map((l) => (
+            <Link key={l.id} href={`/ilanlar/${l.id}`}
+              className="flex items-start gap-4 p-5 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TYPE_COLOR[l.type]}`}>
                     {TYPE_LABEL[l.type]}
                   </span>
+                  {l.locked && <span className="text-mist text-xs">🔒 Abonelik gerektirir</span>}
                 </div>
-                {l.deadline && (
-                  <p className="text-xs text-tr mt-3">Son başvuru: {l.deadline}</p>
-                )}
-              </Link>
-            ))}
-          </div>
+                <h2 className="font-bold text-ink mb-1">{l.title}</h2>
+                <p className="text-slate text-sm">{l.organization}</p>
+                <div className="flex flex-wrap gap-4 mt-2 text-xs text-mist">
+                  {l.location && <span>📍 {l.location}</span>}
+                  {l.deadline && <span className="text-tr font-semibold">Son başvuru: {l.deadline}</span>}
+                </div>
+              </div>
+              <div className="flex-shrink-0 text-eu font-semibold text-sm">Detay →</div>
+            </Link>
+          ))}
+        </div>
+
+        {listings.length === 0 && (
+          <div className="text-center py-16 text-slate">Bu türde ilan bulunamadı.</div>
         )}
       </div>
     </PageShell>
-  );
-}
-
-function Chip({ href, active, label }: { href: string; active: boolean; label: string }) {
-  return (
-    <Link
-      href={href}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-        active ? "bg-eu text-white" : "bg-white border border-line text-slate hover:border-eu/40"
-      }`}
-    >
-      {label}
-    </Link>
   );
 }

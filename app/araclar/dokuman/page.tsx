@@ -1,233 +1,143 @@
 "use client";
-
-import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
-import { getDataProvider } from "@/lib/data";
-import { uploadFile } from "@/lib/tools/upload";
+import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
-import type { DocItem, Project } from "@/lib/types";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import type { ProjectDocument } from "@/lib/types";
 
-const ACCESS: Record<DocItem["access"], { label: string; cls: string; icon: string }> = {
-  "ozel": { label: "Özel", cls: "bg-red-100 text-red-600", icon: "🔒" },
-  "ekip": { label: "Ekip", cls: "bg-amber-100 text-amber-700", icon: "👥" },
-  "herkese-acik": { label: "Herkese Açık", cls: "bg-green-100 text-green-700", icon: "🌐" },
-};
+const PROJECTS = [
+  { id: "all", name: "Tüm Projeler" },
+  { id: "tarim-modern", name: "Tarım Modernizasyon" },
+  { id: "genc-istihdam", name: "Genç İstihdam" },
+  { id: "cevre-iklim", name: "Çevre & İklim" },
+];
 
-const CATEGORIES = ["Rapor", "Sözleşme", "Sunum", "Görünürlük", "Mali", "Diğer"];
+const CATS = ["rapor", "sunum", "sozlesme", "diger"] as const;
+const CAT_LABEL = { rapor: "Rapor", sunum: "Sunum", sozlesme: "Sözleşme", diger: "Diğer" };
+const ACCESS_LABEL = { herkes: "Herkese Açık", uye: "Üyelere", ekip: "Ekip" };
+const ACCESS_COLOR = { herkes: "bg-green-100 text-green-700", uye: "bg-blue-100 text-blue-700", ekip: "bg-orange-100 text-orange-700" };
 
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
+const SEED: ProjectDocument[] = [
+  { id: "doc-1", projectId: "tarim-modern", name: "İlerleme Raporu Q1 2026.pdf", category: "rapor", accessLevel: "ekip", fileSize: "2.4 MB", uploadedAt: "2026-04-01T09:00:00Z", downloadCount: 12 },
+  { id: "doc-2", projectId: "tarim-modern", name: "Eğitim Materyalleri.pptx", category: "sunum", accessLevel: "uye", fileSize: "8.1 MB", uploadedAt: "2026-03-15T10:00:00Z", downloadCount: 45 },
+  { id: "doc-3", projectId: "genc-istihdam", name: "Proje Sözleşmesi.pdf", category: "sozlesme", accessLevel: "ekip", fileSize: "1.2 MB", uploadedAt: "2022-06-01T09:00:00Z", downloadCount: 5 },
+  { id: "doc-4", projectId: "cevre-iklim", name: "Çevre Durum Raporu.pdf", category: "rapor", accessLevel: "herkes", fileSize: "3.7 MB", uploadedAt: "2026-05-10T09:00:00Z", downloadCount: 78 },
+];
 
-export default function DocumentToolPage() {
-  const db = getDataProvider();
-  const fileInput = useRef<HTMLInputElement>(null);
+export default function DokumanAraciPage() {
+  const [docs, setDocs] = useState<ProjectDocument[]>(SEED);
+  const [activeProject, setActiveProject] = useState("all");
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", category: "rapor" as typeof CATS[number], accessLevel: "ekip" as "herkes" | "uye" | "ekip", projectId: "tarim-modern" });
 
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [activeProject, setActiveProject] = useState<string>("all");
-  const [docs, setDocs] = useState<DocItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const filtered = activeProject === "all" ? docs : docs.filter((d) => d.projectId === activeProject);
 
-  // Yükleme formu
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [access, setAccess] = useState<DocItem["access"]>("ekip");
+  const addDoc = () => {
+    if (!form.name) return;
+    setDocs((prev) => [{
+      id: `doc-${Date.now()}`, ...form,
+      fileSize: "—", uploadedAt: new Date().toISOString(), downloadCount: 0,
+    }, ...prev]);
+    setShowForm(false);
+    setForm({ name: "", category: "rapor", accessLevel: "ekip", projectId: "tarim-modern" });
+  };
 
-  useEffect(() => {
-    db.getProjects().then(setProjects);
-  }, [db]);
-
-  const load = useCallback(() => {
-    setLoading(true);
-    db.getDocs(activeProject === "all" ? undefined : activeProject).then((d) => {
-      setDocs(d);
-      setLoading(false);
-    });
-  }, [db, activeProject]);
-  useEffect(() => { load(); }, [load]);
-
-  async function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const projectId = activeProject === "all" ? undefined : activeProject;
-      const path = `documents/${projectId ?? "genel"}/${Date.now()}-${file.name}`;
-      const res = await uploadFile(file, path);
-      const item: DocItem = {
-        id: `doc-${Date.now()}`,
-        projectId,
-        name: file.name,
-        category,
-        sizeBytes: res.sizeBytes,
-        mimeType: res.mimeType,
-        url: res.url,
-        access,
-        uploadedAt: new Date().toISOString(),
-        downloads: 0,
-      };
-      await db.saveDoc(item);
-      load();
-    } finally {
-      setUploading(false);
-      if (fileInput.current) fileInput.current.value = "";
-    }
-  }
-
-  async function remove(id: string) {
-    if (!confirm("Doküman silinsin mi?")) return;
-    await db.removeDoc(id);
-    load();
-  }
-
-  async function download(d: DocItem) {
-    await db.incrementDownload(d.id);
-    if (d.url) {
-      window.open(d.url, "_blank");
-    } else {
-      alert("Demo modunda dosya içeriği yoktur. Sistem canlıya alındığında gerçek dosya indirilir.");
-    }
-    load();
-  }
-
-  async function toggleLearning(d: DocItem) {
-    if (!d.isLearning) {
-      // Öğrenmeye eklerken konu ve sektör iste
-      const topic = prompt("Öğrenme konu başlığı:", d.learningTopic ?? d.category);
-      if (topic === null) return;
-      const sectorId = prompt(
-        "Sektör kodu (örn: yargi, istihdam, cevre — boş bırakılabilir):",
-        d.learningSectorId ?? (activeProject !== "all" ? "" : "")
-      );
-      await db.saveDoc({ ...d, isLearning: true, learningTopic: topic || undefined, learningSectorId: sectorId || undefined });
-    } else {
-      await db.saveDoc({ ...d, isLearning: false });
-    }
-    load();
-  }
-
-  const projectName = (id?: string) =>
-    id ? projects.find((p) => p.id === id)?.title ?? id : "Genel";
+  const incrementDownload = (id: string) => {
+    setDocs((prev) => prev.map((d) => d.id === id ? { ...d, downloadCount: d.downloadCount + 1 } : d));
+  };
 
   return (
     <PageShell>
-      <div className="bg-eu-deep text-white">
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <Link href="/araclar" className="text-white/70 text-sm hover:text-white">← Araçlar</Link>
-          <h1 className="text-2xl md:text-3xl font-bold mt-3">E-Doküman Yönetimi</h1>
-          <p className="text-white/80 mt-2">Proje belgelerini yükleyin, kategorize edin, erişim izinlerini yönetin.</p>
-        </div>
-      </div>
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar", href: "/araclar" }, { label: "E-Doküman Yönetimi" }]} />
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+        <h1 className="text-2xl font-bold text-ink mb-6">E-Doküman Yönetimi</h1>
+
         {/* Proje filtresi */}
         <div className="flex flex-wrap gap-2 mb-6">
-          <Chip active={activeProject === "all"} onClick={() => setActiveProject("all")} label="Tüm Projeler" />
-          {projects.map((p) => (
-            <Chip key={p.id} active={activeProject === p.id} onClick={() => setActiveProject(p.id)} label={p.title} />
+          {PROJECTS.map((p) => (
+            <button key={p.id} onClick={() => setActiveProject(p.id)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeProject === p.id ? "bg-eu text-white" : "bg-surface text-slate hover:bg-line"}`}>
+              {p.name}
+            </button>
           ))}
         </div>
 
-        {/* Yükleme kutusu */}
-        <div className="bg-white border border-line rounded-xl p-5 mb-6">
-          <div className="flex flex-wrap items-end gap-4">
-            <div>
-              <label className="block text-xs text-slate mb-1">Kategori</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className={inp}>
-                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-slate mb-1">Erişim</label>
-              <select value={access} onChange={(e) => setAccess(e.target.value as DocItem["access"])} className={inp}>
-                <option value="ozel">Özel (sadece ben)</option>
-                <option value="ekip">Ekip</option>
-                <option value="herkese-acik">Herkese Açık</option>
-              </select>
-            </div>
-            <input ref={fileInput} type="file" onChange={onFileSelected} className="hidden" />
-            <button
-              onClick={() => fileInput.current?.click()}
-              disabled={uploading}
-              className="px-5 py-2 rounded-lg bg-eu text-white text-sm font-semibold disabled:opacity-60"
-            >
-              {uploading ? "Yükleniyor…" : "+ Dosya Yükle"}
-            </button>
-            {activeProject !== "all" && (
-              <span className="text-xs text-mist">Yüklenecek proje: <strong>{projectName(activeProject)}</strong></span>
-            )}
-          </div>
-          <p className="text-xs text-mist mt-3">
-            Demo modunda dosya meta-verisi kaydedilir; sistem canlıya alındığında dosyalar Firebase Storage&apos;a gerçek yüklenir.
-          </p>
+        {/* Ekle butonu */}
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm text-mist">{filtered.length} doküman</span>
+          <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+            + Doküman Ekle
+          </button>
         </div>
 
-        {/* Doküman listesi */}
-        {loading ? (
-          <p className="text-slate">Yükleniyor…</p>
-        ) : docs.length === 0 ? (
-          <p className="text-slate text-sm py-10 text-center bg-white border border-line rounded-xl">
-            Bu seçimde doküman yok. Yukarıdan dosya yükleyin.
-          </p>
-        ) : (
-          <div className="bg-white border border-line rounded-xl overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-[#f4f6fa] text-left">
-                <tr>
-                  {["Dosya", "Proje", "Kategori", "Erişim", "Boyut", "İndirme", ""].map((h) => (
-                    <th key={h} className="px-4 py-3 text-xs uppercase tracking-wide text-slate font-semibold whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {docs.map((d) => (
-                  <tr key={d.id} className="hover:bg-[#f9fafb]">
-                    <td className="px-4 py-3 font-medium text-ink">
-                      {d.name}
-                      {d.isLearning && <span className="ml-2 text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full align-middle">E-Learning</span>}
-                    </td>
-                    <td className="px-4 py-3 text-slate whitespace-nowrap">{projectName(d.projectId)}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs bg-eu-pale text-eu px-2 py-1 rounded">{d.category}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${ACCESS[d.access].cls}`}>
-                        {ACCESS[d.access].icon} {ACCESS[d.access].label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate whitespace-nowrap">{formatSize(d.sizeBytes)}</td>
-                    <td className="px-4 py-3 text-slate text-center">{d.downloads}</td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
-                      <button onClick={() => toggleLearning(d)} className="text-purple-700 text-sm font-semibold hover:underline" title="E-Learning materyali olarak işaretle">
-                        {d.isLearning ? "Eğitimden Çıkar" : "Eğitime Ekle"}
-                      </button>
-                      <button onClick={() => download(d)} className="text-eu text-sm font-semibold hover:underline ml-3">İndir</button>
-                      <button onClick={() => remove(d.id)} className="text-tr text-sm hover:underline ml-3">Sil</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Ekle formu */}
+        {showForm && (
+          <div className="bg-eu-pale border border-eu/20 rounded-xl p-5 mb-5">
+            <h3 className="font-bold text-ink mb-3">Yeni Doküman</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Dosya adı *" className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+              <select value={form.projectId} onChange={(e) => setForm(f => ({ ...f, projectId: e.target.value }))}
+                className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu bg-white">
+                {PROJECTS.filter(p => p.id !== "all").map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <select value={form.category} onChange={(e) => setForm(f => ({ ...f, category: e.target.value as typeof CATS[number] }))}
+                className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu bg-white">
+                {CATS.map(c => <option key={c} value={c}>{CAT_LABEL[c]}</option>)}
+              </select>
+              <select value={form.accessLevel} onChange={(e) => setForm(f => ({ ...f, accessLevel: e.target.value as "herkes" | "uye" | "ekip" }))}
+                className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu bg-white">
+                <option value="herkes">Herkese Açık</option>
+                <option value="uye">Üyelere</option>
+                <option value="ekip">Ekip</option>
+              </select>
+            </div>
+            <p className="text-xs text-mist mb-3">Demo modunda dosya meta-verisi kaydedilir; Firebase bağlanınca gerçek yükleme aktif olur.</p>
+            <div className="flex gap-2">
+              <button onClick={addDoc} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Kaydet</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-line text-slate rounded-lg text-sm">İptal</button>
+            </div>
           </div>
         )}
+
+        {/* Doküman listesi */}
+        <div className="bg-white border border-line rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-surface border-b border-line">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Dosya Adı</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Kategori</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Erişim</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Boyut</th>
+                <th className="text-right px-4 py-3 font-semibold text-slate">İndirme</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-mist">Doküman bulunamadı.</td></tr>
+              ) : filtered.map((d) => (
+                <tr key={d.id} className="border-t border-line hover:bg-surface/50">
+                  <td className="px-4 py-3">
+                    <span className="font-medium text-ink">📄 {d.name}</span>
+                  </td>
+                  <td className="px-4 py-3 text-slate">{CAT_LABEL[d.category]}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${ACCESS_COLOR[d.accessLevel]}`}>
+                      {ACCESS_LABEL[d.accessLevel]}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-mist text-xs">{d.fileSize ?? "—"}</td>
+                  <td className="px-4 py-3 text-right text-slate font-semibold">{d.downloadCount}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button onClick={() => incrementDownload(d.id)} className="text-eu text-xs font-semibold hover:underline">İndir</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </PageShell>
-  );
-}
-
-const inp = "px-3 py-2 rounded-lg border border-line text-sm focus:outline-none focus:ring-2 focus:ring-eu/30";
-
-function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-        active ? "bg-eu text-white" : "bg-white border border-line text-slate hover:border-eu/40"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

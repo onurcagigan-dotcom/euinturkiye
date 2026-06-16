@@ -1,135 +1,117 @@
 import Link from "next/link";
-import { notFoundNever } from "@/lib/not-found-helper";
 import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
-import { projectProgress } from "@/lib/project-progress";
-import { OwnershipRequestBox } from "./OwnershipRequestBox";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { notFoundNever } from "@/lib/not-found-helper";
 
-const IPA_LABEL: Record<string, string> = {
-  "ipa-oncesi": "IPA Öncesi (2002–2006)",
-  "ipa-1": "IPA I (2007–2013)",
-  "ipa-2": "IPA II (2014–2020)",
-  "ipa-3": "IPA III (2021–2027)",
-};
-const STATUS_LABEL: Record<string, string> = {
-  planlama: "Planlama", devam: "Devam ediyor", tamamlandi: "Tamamlandı",
-};
+export const revalidate = 60;
 
-export default async function ProjectDetail({
+export default async function ProjectDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   const db = getDataProvider();
-  const found = await db.getProject(id);
-  if (!found) notFoundNever();
-  const project = found;
-
-  const [sector, donor, allListings, allEvents] = await Promise.all([
-    db.getSector(project.sectorId),
-    db.getDonor(project.donorId),
-    db.getListings(),
-    db.getEvents(),
+  const [project, sectors, donors] = await Promise.all([
+    db.getProject(id),
+    db.getSectors(),
+    db.getDonors(),
   ]);
 
-  const relatedListings = allListings.filter((l) => l.projectId === project.id);
-  const relatedEvents = allEvents.filter((e) => e.projectId === project.id);
+  if (!project) notFoundNever();
+
+  const sector = sectors.find((s) => s.id === project.sectorId);
+  const donor = donors.find((d) => d.id === project.donorId);
+
+  // Projeden haberler
+  const allPosts = await db.getBlogPosts();
+  const relatedPosts = allPosts.filter((p) => p.projectId === project.id).slice(0, 3);
 
   return (
     <PageShell>
-      {/* Başlık bandı */}
-      <div className="bg-eu-deep text-white">
-        <div className="max-w-4xl mx-auto px-6 py-14">
-          <Link href="/projeler" className="text-white/70 text-sm hover:text-white">← Projeler</Link>
-          <span className="inline-block text-xs font-semibold text-eu-deep bg-[#FFCC00] px-3 py-1 rounded-full mt-4">
-            {sector?.name ?? project.sectorId}
-          </span>
-          <h1 className="text-3xl md:text-4xl font-bold mt-3 leading-tight">{project.title}</h1>
-          <p className="text-white/80 mt-3 max-w-2xl">{project.summary}</p>
-        </div>
-      </div>
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Breadcrumb items={[
+          { label: "Ana Sayfa", href: "/" },
+          { label: "Projeler", href: "/projeler" },
+          { label: project.title },
+        ]} />
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
-        {/* Künye */}
-        <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5 bg-white border border-line rounded-xl p-6">
-          <Info label="Yararlanıcı" value={project.beneficiary} />
+        {/* Başlık */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+            project.status === "devam" ? "bg-green-100 text-green-700" :
+            project.status === "tamamlandi" ? "bg-gray-100 text-gray-600" :
+            "bg-yellow-100 text-yellow-700"
+          }`}>
+            {project.status === "devam" ? "Devam Ediyor" : project.status === "tamamlandi" ? "Tamamlandı" : "Planlama"}
+          </span>
+          <span className="text-xs text-mist">{project.ipaPeriod}</span>
+          {sector && (
+            <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${sector.color}20`, color: sector.color }}>
+              {sector.name}
+            </span>
+          )}
+        </div>
+
+        <h1 className="text-3xl font-extrabold text-ink leading-tight mb-4">{project.title}</h1>
+        <p className="text-slate text-lg leading-relaxed mb-8">{project.summary}</p>
+
+        {/* Künyesi */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface rounded-2xl p-6 mb-10">
           <Info label="Donör" value={donor?.name ?? project.donorId} />
-          <Info label="IPA Dönemi" value={IPA_LABEL[project.ipaPeriod]} />
-          <Info label="Durum" value={STATUS_LABEL[project.status]} />
-          <Info label="İller" value={project.locations.join(", ")} />
+          <Info label="Yararlanıcı" value={project.beneficiary} />
           {project.budget && <Info label="Bütçe" value={project.budget} />}
           {project.startDate && <Info label="Başlangıç" value={project.startDate} />}
           {project.endDate && <Info label="Bitiş" value={project.endDate} />}
+          {project.locations.length > 0 && (
+            <Info label="Uygulama Bölgesi" value={project.locations.join(", ")} />
+          )}
         </div>
 
-        {/* İlerleme çubuğu */}
-        {(() => {
-          const prog = projectProgress(project);
-          return (
-            <div className="bg-white border border-line rounded-xl p-6 mt-6">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-bold text-ink uppercase tracking-wide">Proje İlerlemesi</h2>
-                <span className="text-sm font-semibold text-eu">%{prog.percent}</span>
-              </div>
-              <div className="w-full bg-eu-pale rounded-full h-4 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${prog.percent >= 100 ? "bg-green-500" : "bg-eu"}`}
-                  style={{ width: `${prog.percent}%` }}
-                />
-              </div>
-              <div className="flex items-center justify-between mt-3 text-sm">
-                <span className="text-slate">{prog.label}</span>
-                {prog.daysLeft !== null && prog.daysLeft > 0 && (
-                  <span className="text-slate">{prog.daysLeft} gün kaldı</span>
-                )}
-              </div>
-              {!prog.hasTimeline && (
-                <p className="text-xs text-mist mt-2">
-                  Daha hassas ilerleme için başlangıç ve bitiş tarihi tanımlanmalıdır.
-                </p>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* Sahipsiz arşiv projesi: portföye ekleme talebi */}
-        {!project.ownerSubscriberId && (
-          <OwnershipRequestBox projectId={project.id} projectTitle={project.title} />
+        {/* Proje amaç / çıktı / faaliyet */}
+        {project.objective && (
+          <Section title="Amaç ve Hedefler" content={project.objective} />
+        )}
+        {project.expectedOutputs && (
+          <Section title="Beklenen Çıktılar" content={project.expectedOutputs} />
+        )}
+        {project.activities && (
+          <Section title="Faaliyetler" content={project.activities} />
         )}
 
-        {/* İlgili ilanlar */}
-        {relatedListings.length > 0 && (
-          <section className="mt-10">
-            <h2 className="text-lg font-bold text-ink mb-4">Bu Projenin İlanları</h2>
+        {/* Projeden haberler */}
+        {relatedPosts.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold text-ink mb-5">Projeden Haberler</h2>
             <div className="space-y-3">
-              {relatedListings.map((l) => (
-                <div key={l.id} className="bg-white border border-line rounded-lg p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-ink">{l.title}</span>
-                    {l.locked && <span title="Abonelik gerekli">🔒</span>}
+              {relatedPosts.map((post) => (
+                <Link key={post.id} href={`/gundem/${post.slug}`}
+                  className="flex items-start gap-4 p-4 border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
+                  <div className="flex-shrink-0 text-xs text-eu font-semibold bg-eu-pale px-2 py-1 rounded">
+                    {post.category}
                   </div>
-                  <p className="text-sm text-slate mt-1">{l.organization}</p>
-                </div>
+                  <div>
+                    <h3 className="font-semibold text-ink text-sm">{post.title}</h3>
+                    <p className="text-xs text-mist mt-1">{new Date(post.publishedAt).toLocaleDateString("tr")}</p>
+                  </div>
+                </Link>
               ))}
             </div>
-          </section>
+          </div>
         )}
 
-        {/* İlgili etkinlikler */}
-        {relatedEvents.length > 0 && (
-          <section className="mt-10">
-            <h2 className="text-lg font-bold text-ink mb-4">Bu Projenin Etkinlikleri</h2>
-            <div className="space-y-3">
-              {relatedEvents.map((e) => (
-                <div key={e.id} className="bg-white border border-line rounded-lg p-4">
-                  <span className="font-medium text-ink">{e.title}</span>
-                  <p className="text-sm text-slate mt-1">{e.date} · {e.location}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Bu projeyi siz mi yürüttünüz? */}
+        <div className="mt-12 bg-eu-pale border border-eu/20 rounded-xl p-6 flex items-start gap-4">
+          <div className="text-3xl">🏢</div>
+          <div>
+            <h3 className="font-bold text-ink mb-1">Bu projeyi siz mi yürüttünüz?</h3>
+            <p className="text-slate text-sm mb-3">Portföyünüze eklemek ve ekibinizle paylaşmak için hesap açın.</p>
+            <Link href="/kayit" className="inline-block px-4 py-2 bg-eu text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-colors">
+              Kayıt Ol ve Talep Et
+            </Link>
+          </div>
+        </div>
       </div>
     </PageShell>
   );
@@ -138,8 +120,17 @@ export default async function ProjectDetail({
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wide text-mist">{label}</p>
-      <p className="text-ink font-medium mt-0.5">{value}</p>
+      <p className="text-xs uppercase tracking-wide text-mist font-semibold">{label}</p>
+      <p className="text-ink font-medium mt-0.5 text-sm">{value}</p>
+    </div>
+  );
+}
+
+function Section({ title, content }: { title: string; content: string }) {
+  return (
+    <div className="mb-8">
+      <h2 className="text-xl font-bold text-ink mb-3">{title}</h2>
+      <p className="text-slate leading-relaxed whitespace-pre-line">{content}</p>
     </div>
   );
 }

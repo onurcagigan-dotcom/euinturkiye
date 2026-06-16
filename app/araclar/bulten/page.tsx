@@ -1,285 +1,148 @@
 "use client";
-
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { getDataProvider } from "@/lib/data";
-import { sendBulkEmail } from "@/lib/tools/email";
+import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
-import type { Subscriber, Campaign } from "@/lib/types";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import type { Campaign, Subscriber } from "@/lib/types";
 
-type Tab = "kampanyalar" | "aboneler";
+const SEED_SUBS: Subscriber[] = [
+  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2026-01-15T09:00:00Z" },
+  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
+  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
+];
 
-export default function NewsletterToolPage() {
-  const [tab, setTab] = useState<Tab>("kampanyalar");
+const SEED_CAMPS: Campaign[] = [
+  { id: "camp-1", subject: "Haziran Proje Bülteni", body: "Bu ay projede tamamlanan faaliyetler ve yaklaşan etkinlikler...", targetTags: [], status: "gonderildi", createdAt: "2026-06-01T08:00:00Z", sentAt: "2026-06-02T10:00:00Z", recipientCount: 3, openCount: 2 },
+  { id: "camp-2", subject: "Yeni İhale Duyurusu", body: "Yeni satınalma ilanımız yayınlandı. Detaylar için platforma giriş yapın.", targetTags: ["tedarikci"], status: "taslak", createdAt: "2026-06-10T08:00:00Z", recipientCount: 0, openCount: 0 },
+];
+
+export default function BultenPage() {
+  const [campaigns, setCampaigns] = useState<Campaign[]>(SEED_CAMPS);
+  const [subscribers] = useState<Subscriber[]>(SEED_SUBS);
+  const [form, setForm] = useState({ subject: "", body: "", targetTags: "" });
+  const [creating, setCreating] = useState(false);
+
+  const allTags = Array.from(new Set(subscribers.flatMap((s) => s.tags)));
+
+  const targetedSubs = (tags: string[]) =>
+    tags.length === 0 ? subscribers : subscribers.filter((s) => tags.some((t) => s.tags.includes(t)));
+
+  const createCamp = () => {
+    if (!form.subject || !form.body) return;
+    const tags = form.targetTags.split(",").map((t) => t.trim()).filter(Boolean);
+    const camp: Campaign = {
+      id: `camp-${Date.now()}`, subject: form.subject, body: form.body,
+      targetTags: tags, status: "taslak",
+      createdAt: new Date().toISOString(), recipientCount: 0, openCount: 0,
+    };
+    setCampaigns((prev) => [camp, ...prev]);
+    setForm({ subject: "", body: "", targetTags: "" });
+    setCreating(false);
+  };
+
+  const sendCamp = (id: string) => {
+    setCampaigns((prev) => prev.map((c) => {
+      if (c.id !== id || c.status !== "taslak") return c;
+      const recs = targetedSubs(c.targetTags);
+      return { ...c, status: "gonderildi", sentAt: new Date().toISOString(), recipientCount: recs.length, openCount: 0 };
+    }));
+  };
+
+  const deleteCamp = (id: string) => setCampaigns((prev) => prev.filter((c) => c.id !== id));
 
   return (
     <PageShell>
-      <div className="bg-eu-deep text-white">
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <Link href="/araclar" className="text-white/70 text-sm hover:text-white">← Araçlar</Link>
-          <h1 className="text-2xl md:text-3xl font-bold mt-3">Bülten Gönderimi</h1>
-          <p className="text-white/80 mt-2">Alıcı listenizi yönetin, hedefli kampanyalar oluşturun ve gönderin.</p>
-        </div>
-      </div>
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar", href: "/araclar" }, { label: "Bülten Gönderimi" }]} />
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex gap-1 mb-6 bg-white border border-line rounded-lg p-1 w-fit">
-          <TabBtn active={tab === "kampanyalar"} onClick={() => setTab("kampanyalar")} label="Kampanyalar" />
-          <TabBtn active={tab === "aboneler"} onClick={() => setTab("aboneler")} label="Aboneler" />
-        </div>
+        <h1 className="text-2xl font-bold text-ink mb-2">Bülten Gönderimi</h1>
+        <p className="text-slate text-sm mb-6">Abonelere hedefli e-posta kampanyaları oluşturun ve gönderin.</p>
 
-        {tab === "kampanyalar" ? <CampaignsTab /> : <SubscribersTab />}
-      </div>
-    </PageShell>
-  );
-}
-
-function TabBtn({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
-  return (
-    <button onClick={onClick}
-      className={`px-4 py-2 rounded-md text-sm font-semibold transition ${active ? "bg-eu text-white" : "text-slate hover:bg-line/40"}`}>
-      {label}
-    </button>
-  );
-}
-
-const inp = "px-3 py-2 rounded-lg border border-line text-sm focus:outline-none focus:ring-2 focus:ring-eu/30";
-
-/* ============== ABONELER ============== */
-function SubscribersTab() {
-  const db = getDataProvider();
-  const [list, setList] = useState<Subscriber[]>([]);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [org, setOrg] = useState("");
-  const [tags, setTags] = useState("");
-
-  const load = useCallback(() => { db.getSubscribers().then(setList); }, [db]);
-  useEffect(() => { load(); }, [load]);
-
-  async function add(e: React.FormEvent) {
-    e.preventDefault();
-    const sub: Subscriber = {
-      id: `sub-${Date.now()}`, email, name: name || undefined, organization: org || undefined,
-      tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-      subscribed: true, addedAt: new Date().toISOString(),
-    };
-    await db.saveSubscriber(sub);
-    setEmail(""); setName(""); setOrg(""); setTags(""); load();
-  }
-  async function toggleSub(s: Subscriber) {
-    await db.saveSubscriber({ ...s, subscribed: !s.subscribed }); load();
-  }
-  async function remove(id: string) {
-    if (!confirm("Abone silinsin mi?")) return;
-    await db.removeSubscriber(id); load();
-  }
-
-  const active = list.filter((s) => s.subscribed).length;
-
-  return (
-    <div>
-      <form onSubmit={add} className="bg-white border border-line rounded-xl p-4 mb-5 grid sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-3">
-        <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-posta" className={inp} />
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ad (ops.)" className={inp} />
-        <input value={org} onChange={(e) => setOrg(e.target.value)} placeholder="Kurum (ops.)" className={inp} />
-        <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Etiket (virgülle)" className={inp} />
-        <button className="px-4 py-2 rounded-lg bg-eu text-white text-sm font-semibold whitespace-nowrap">+ Ekle</button>
-      </form>
-
-      {list.length === 0 ? (
-        <Empty text="Henüz abone yok." />
-      ) : (
-        <>
-          <div className="bg-white border border-line rounded-xl overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-[#f4f6fa] text-left">
-                <tr>{["E-posta", "Ad", "Kurum", "Etiketler", "Durum", ""].map((h) => (
-                  <th key={h} className="px-4 py-3 text-xs uppercase tracking-wide text-slate font-semibold">{h}</th>
-                ))}</tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {list.map((s) => (
-                  <tr key={s.id} className="hover:bg-[#f9fafb]">
-                    <td className="px-4 py-3 font-medium text-ink">{s.email}</td>
-                    <td className="px-4 py-3 text-slate">{s.name ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate">{s.organization ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {s.tags.map((t) => <span key={t} className="text-[10px] bg-eu-pale text-eu px-2 py-0.5 rounded-full">{t}</span>)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button onClick={() => toggleSub(s)}
-                        className={`text-xs px-2.5 py-1 rounded-full font-medium ${s.subscribed ? "bg-green-100 text-green-700" : "bg-line text-slate"}`}>
-                        {s.subscribed ? "Aktif" : "Pasif"}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button onClick={() => remove(s.id)} className="text-tr text-sm hover:underline">Sil</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Özet */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-surface rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-ink">{subscribers.length}</div>
+            <div className="text-xs text-mist">Toplam Abone</div>
           </div>
-          <p className="text-sm text-slate mt-4">{list.length} abone · <strong className="text-green-700">{active} aktif</strong></p>
-        </>
-      )}
-    </div>
-  );
-}
+          <div className="bg-surface rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">{campaigns.filter(c => c.status === "gonderildi").length}</div>
+            <div className="text-xs text-mist">Gönderilen Kampanya</div>
+          </div>
+          <div className="bg-surface rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-yellow-600">{campaigns.filter(c => c.status === "taslak").length}</div>
+            <div className="text-xs text-mist">Taslak</div>
+          </div>
+        </div>
 
-/* ============== KAMPANYALAR ============== */
-function CampaignsTab() {
-  const db = getDataProvider();
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [composing, setComposing] = useState(false);
-  const [sending, setSending] = useState(false);
+        <div className="flex justify-end mb-4">
+          <button onClick={() => setCreating(true)} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+            + Yeni Kampanya
+          </button>
+        </div>
 
-  // Form
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
-  const [targetTags, setTargetTags] = useState("");
-
-  const load = useCallback(() => {
-    Promise.all([db.getCampaigns(), db.getSubscribers()]).then(([c, s]) => {
-      setCampaigns(c); setSubscribers(s);
-    });
-  }, [db]);
-  useEffect(() => { load(); }, [load]);
-
-  // Hedef etiketlere göre alıcı sayısı
-  function recipientsFor(tags: string[]): Subscriber[] {
-    const active = subscribers.filter((s) => s.subscribed);
-    if (tags.length === 0) return active;
-    return active.filter((s) => s.tags.some((t) => tags.includes(t)));
-  }
-
-  const parsedTags = targetTags.split(",").map((t) => t.trim()).filter(Boolean);
-  const previewCount = recipientsFor(parsedTags).length;
-
-  async function saveDraft() {
-    const c: Campaign = {
-      id: `camp-${Date.now()}`, subject, body, targetTags: parsedTags,
-      status: "taslak", createdAt: new Date().toISOString(),
-      recipientCount: 0, openCount: 0,
-    };
-    await db.saveCampaign(c);
-    resetForm(); load();
-  }
-
-  async function sendNow() {
-    const recipients = recipientsFor(parsedTags);
-    if (recipients.length === 0) { alert("Hedef kitlede aktif alıcı yok."); return; }
-    setSending(true);
-    try {
-      const res = await sendBulkEmail(recipients.map((r) => r.email), subject, body);
-      const c: Campaign = {
-        id: `camp-${Date.now()}`, subject, body, targetTags: parsedTags,
-        status: "gonderildi", createdAt: new Date().toISOString(),
-        sentAt: new Date().toISOString(),
-        recipientCount: res.delivered, openCount: 0,
-      };
-      await db.saveCampaign(c);
-      resetForm(); load();
-      alert(res.simulated
-        ? `Demo: ${res.delivered} alıcıya gönderim simüle edildi. (E-posta servisi canlıda devreye girer.)`
-        : `${res.delivered} alıcıya gönderildi.`);
-    } finally {
-      setSending(false);
-    }
-  }
-
-  async function sendExisting(c: Campaign) {
-    const recipients = recipientsFor(c.targetTags);
-    if (recipients.length === 0) { alert("Hedef kitlede aktif alıcı yok."); return; }
-    setSending(true);
-    try {
-      const res = await sendBulkEmail(recipients.map((r) => r.email), c.subject, c.body);
-      await db.saveCampaign({ ...c, status: "gonderildi", sentAt: new Date().toISOString(), recipientCount: res.delivered });
-      load();
-      alert(res.simulated
-        ? `Demo: ${res.delivered} alıcıya gönderim simüle edildi.`
-        : `${res.delivered} alıcıya gönderildi.`);
-    } finally {
-      setSending(false);
-    }
-  }
-
-  async function remove(id: string) {
-    if (!confirm("Kampanya silinsin mi?")) return;
-    await db.removeCampaign(id); load();
-  }
-
-  function resetForm() { setSubject(""); setBody(""); setTargetTags(""); setComposing(false); }
-
-  return (
-    <div>
-      {!composing ? (
-        <button onClick={() => setComposing(true)} className="mb-5 px-5 py-2 rounded-lg bg-eu text-white text-sm font-semibold">
-          + Yeni Kampanya
-        </button>
-      ) : (
-        <div className="bg-white border border-line rounded-xl p-5 mb-6">
-          <h3 className="font-bold text-ink mb-4">Yeni Kampanya</h3>
-          <div className="space-y-3">
-            <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Konu" className={`${inp} w-full`} />
-            <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Mesaj içeriği" className={`${inp} w-full min-h-[140px]`} />
-            <div className="flex flex-wrap items-center gap-3">
-              <input value={targetTags} onChange={(e) => setTargetTags(e.target.value)} placeholder="Hedef etiketler (boş = herkes)" className={`${inp} flex-1 min-w-[200px]`} />
-              <span className="text-sm text-slate">Hedef kitle: <strong className="text-eu">{previewCount} alıcı</strong></span>
+        {/* Yeni kampanya formu */}
+        {creating && (
+          <div className="bg-eu-pale border border-eu/20 rounded-xl p-5 mb-5">
+            <h3 className="font-bold text-ink mb-3">Yeni Kampanya</h3>
+            <div className="space-y-3">
+              <input value={form.subject} onChange={(e) => setForm(f => ({ ...f, subject: e.target.value }))}
+                placeholder="E-posta konusu *" className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+              <textarea value={form.body} onChange={(e) => setForm(f => ({ ...f, body: e.target.value }))}
+                placeholder="E-posta içeriği *" rows={4} className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu resize-none" />
+              <div>
+                <input value={form.targetTags} onChange={(e) => setForm(f => ({ ...f, targetTags: e.target.value }))}
+                  placeholder={`Hedef etiketler (virgülle ayır, boş = herkese). Mevcut: ${allTags.join(", ")}`}
+                  className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+                <p className="text-xs text-mist mt-1">
+                  Hedef abone sayısı: <strong>{targetedSubs(form.targetTags.split(",").map(t => t.trim()).filter(Boolean)).length}</strong>
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button onClick={createCamp} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Taslak Oluştur</button>
+              <button onClick={() => setCreating(false)} className="px-4 py-2 border border-line text-slate rounded-lg text-sm">İptal</button>
             </div>
           </div>
-          <div className="flex gap-3 mt-5">
-            <button onClick={sendNow} disabled={sending || !subject} className="px-5 py-2 rounded-lg bg-eu text-white text-sm font-semibold disabled:opacity-50">
-              {sending ? "Gönderiliyor…" : "Şimdi Gönder"}
-            </button>
-            <button onClick={saveDraft} disabled={!subject} className="px-5 py-2 rounded-lg border border-line text-sm font-semibold text-ink disabled:opacity-50">
-              Taslak Kaydet
-            </button>
-            <button onClick={resetForm} className="px-5 py-2 rounded-lg text-sm text-slate">Vazgeç</button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {campaigns.length === 0 ? (
-        <Empty text="Henüz kampanya yok." />
-      ) : (
+        {/* Kampanya listesi */}
         <div className="space-y-3">
           {campaigns.map((c) => (
             <div key={c.id} className="bg-white border border-line rounded-xl p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-ink">{c.subject}</h3>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${c.status === "gonderildi" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                      {c.status === "gonderildi" ? "Gönderildi" : "Taslak"}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.status === "gonderildi" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                      {c.status === "gonderildi" ? "Gönderildi ✓" : "Taslak"}
                     </span>
+                    {c.targetTags.length > 0 && c.targetTags.map(t => (
+                      <span key={t} className="text-xs bg-surface text-mist px-2 py-0.5 rounded">{t}</span>
+                    ))}
                   </div>
+                  <h3 className="font-bold text-ink">{c.subject}</h3>
                   <p className="text-sm text-slate mt-1 line-clamp-2">{c.body}</p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-mist">
-                    {c.targetTags.length > 0 ? <span>Hedef: {c.targetTags.join(", ")}</span> : <span>Hedef: Tüm aktif aboneler</span>}
-                    {c.status === "gonderildi" && <span>{c.recipientCount} alıcı</span>}
-                    {c.status === "gonderildi" && c.sentAt && <span>{c.sentAt.slice(0, 10)}</span>}
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  {c.status === "taslak" && (
-                    <button onClick={() => sendExisting(c)} disabled={sending} className="text-eu text-sm font-semibold hover:underline disabled:opacity-50">Gönder</button>
+                  {c.status === "gonderildi" && (
+                    <div className="flex gap-4 mt-2 text-xs text-mist">
+                      <span>Alıcı: <strong className="text-ink">{c.recipientCount}</strong></span>
+                      <span>Açılma: <strong className="text-ink">{c.openCount}</strong> ({c.recipientCount > 0 ? Math.round(c.openCount / c.recipientCount * 100) : 0}%)</span>
+                      {c.sentAt && <span>{new Date(c.sentAt).toLocaleDateString("tr")}</span>}
+                    </div>
                   )}
-                  <button onClick={() => remove(c.id)} className="text-tr text-sm hover:underline">Sil</button>
+                </div>
+                <div className="flex gap-2">
+                  {c.status === "taslak" && (
+                    <button onClick={() => sendCamp(c.id)} className="px-3 py-1.5 bg-eu text-white rounded-lg text-xs font-semibold">
+                      Gönder
+                    </button>
+                  )}
+                  <button onClick={() => deleteCamp(c.id)} className="px-3 py-1.5 border border-line text-mist rounded-lg text-xs hover:text-tr">
+                    Sil
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      )}
-    </div>
+      </div>
+    </PageShell>
   );
-}
-
-function Empty({ text }: { text: string }) {
-  return <p className="text-slate text-sm py-8 text-center bg-white border border-line rounded-xl">{text}</p>;
 }

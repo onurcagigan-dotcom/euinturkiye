@@ -1,52 +1,103 @@
 import Link from "next/link";
-import { PageShell, PageBanner } from "@/components/PageShell";
+import { PageShell } from "@/components/PageShell";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 const TOOLS = [
-  { slug: "etkinlik", img: "etkinlik-yonetimi", title: "Etkinlik Yönetimi", desc: "Etkinlik oluşturun, katılımcıları yönetin, RSVP takibi yapın.", ready: true },
-  { slug: "gorunurluk", img: "gorunurluk-ciktilari", title: "Görünürlük Çıktıları", desc: "AB standartlarında antetli kağıt, rapor ve sunum şablonları.", ready: false },
-  { slug: "dokuman", img: "e-dokuman-yonetimi", title: "E-Doküman Yönetimi", desc: "Belgeleri kategorize edin, erişim izinlerini yönetin.", ready: true },
-  { slug: "website", img: "proje-websitesi", title: "Proje Web Sitesi", desc: "Şablon seçin, verileriniz otomatik yüklensin, siteniz aktif olsun.", ready: false },
-  { slug: "bulten", img: "bulten-gonderimi", title: "Bülten Gönderimi", desc: "Hedef kitle seçin, toplu e-posta gönderin, istatistik görün.", ready: true },
-  { slug: "elearning", img: "e-learning", title: "E-Learning", desc: "Eğitim materyallerini ve video kaynaklarını sektöre göre yönetin.", ready: true },
-  { slug: "paydas", img: "paydas-iletisimi", title: "Paydaş İletişimi", desc: "Ekip, uzman ve tedarikçileri yönetin, rol tanımlayın.", ready: true },
-  { slug: "raporlama", img: "raporlama", title: "Raporlama", desc: "Portföy, ilan ve etkinlik istatistiklerini raporlayın.", ready: true },
+  {
+    href: "/araclar/etkinlik",
+    title: "Etkinlik Yönetimi",
+    desc: "Açık etkinlik RSVP takibi, kapalı toplantı gündemi, davetli yönetimi ve müsaitlik anketi.",
+    color: "#0E7490",
+    icon: "📅",
+    badge: "Tam Çalışır",
+  },
+  {
+    href: "/araclar/dokuman",
+    title: "E-Doküman Yönetimi",
+    desc: "Proje bazlı doküman kütüphanesi, erişim seviyeleri ve indirme istatistikleri.",
+    color: "#1D7A5F",
+    icon: "📁",
+    badge: "Tam Çalışır",
+  },
+  {
+    href: "/araclar/bulten",
+    title: "Bülten Gönderimi",
+    desc: "Abone segmentasyonu, toplu e-posta kampanyaları ve açılma istatistikleri.",
+    color: "#7C5710",
+    icon: "📧",
+    badge: "Tam Çalışır",
+  },
+  {
+    href: "/araclar/paydas",
+    title: "Paydaş İletişimi",
+    desc: "Proje ekibi, uzmanlar ve tedarikçi yönetimi; rol ve yetki tanımları.",
+    color: "#3730A3",
+    icon: "🤝",
+    badge: "Tam Çalışır",
+  },
+  {
+    href: "/araclar/rapor",
+    title: "Raporlama",
+    desc: "Portföy analizi, ilan istatistikleri ve Excel/CSV dışa aktarım.",
+    color: "#0F766E",
+    icon: "📊",
+    badge: "Tam Çalışır",
+  },
+  {
+    href: "/araclar/egitim",
+    title: "E-Learning",
+    desc: "Proje yönetimi eğitim videoları, kategoriler ve izleme takibi.",
+    color: "#7C3AED",
+    icon: "🎓",
+    badge: "Tam Çalışır",
+  },
+  {
+    href: "/araclar/harita",
+    title: "Proje Haritası",
+    desc: "Türkiye haritasında il bazlı proje dağılımı görselleştirme.",
+    color: "#B45309",
+    icon: "🗺️",
+    badge: "Yakında",
+  },
+  {
+    href: "/kayit",
+    title: "Uzman CV Havuzu",
+    desc: "Uzman profilleri oluşturun, proje deneyimlerinizi ekleyin, ekip kurun.",
+    color: "#0369A1",
+    icon: "👤",
+    badge: "Yakında",
+  },
 ];
 
-export default function ToolsHome() {
+export default function AraclarPage() {
   return (
     <PageShell>
-      <PageBanner
-        kicker="Dijital Araçlar"
-        title="Projeleriniz için Hazır Çözümler"
-        desc="Proje yönetiminin tüm dijital ihtiyaçları tek platformda. Aşağıdan bir araç seçin."
-      />
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {TOOLS.map((t) => {
-            const card = (
-              <div className={`bg-white border rounded-xl overflow-hidden h-full flex flex-col transition ${
-                t.ready ? "border-line hover:shadow-lg hover:-translate-y-0.5" : "border-line opacity-75"
-              }`}>
-                <div
-                  className="w-full h-36 bg-cover bg-center"
-                  style={{ backgroundImage: `url('/images/homepage/tools/${t.img}.png')` }}
-                />
-                <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-[15px] text-ink">{t.title}</h3>
-                    {!t.ready && <span className="text-[10px] bg-line text-slate px-2 py-0.5 rounded-full">Yakında</span>}
-                  </div>
-                  <p className="text-sm text-slate mt-2 leading-relaxed flex-1">{t.desc}</p>
-                  {t.ready && <span className="text-eu font-semibold text-sm mt-3">Aracı Aç →</span>}
-                </div>
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar" }]} />
+
+        <h1 className="text-3xl font-extrabold text-ink mb-2">Dijital Araçlar</h1>
+        <p className="text-slate mb-10">Proje yönetiminizi kolaylaştıran entegre araç seti.</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {TOOLS.map((t) => (
+            <Link key={t.href} href={t.href}
+              className="border border-line rounded-2xl overflow-hidden hover:shadow-lg transition-all group">
+              <div className="h-24 flex items-center justify-center text-4xl" style={{ background: `linear-gradient(135deg, ${t.color}, ${t.color}cc)` }}>
+                {t.icon}
               </div>
-            );
-            return t.ready ? (
-              <Link key={t.slug} href={`/araclar/${t.slug}`}>{card}</Link>
-            ) : (
-              <div key={t.slug}>{card}</div>
-            );
-          })}
+              <div className="p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-bold text-ink text-sm">{t.title}</h2>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    t.badge === "Tam Çalışır" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                  }`}>
+                    {t.badge}
+                  </span>
+                </div>
+                <p className="text-xs text-slate leading-relaxed">{t.desc}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </PageShell>

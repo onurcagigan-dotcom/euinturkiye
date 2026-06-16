@@ -1,75 +1,23 @@
 rules_version = '2';
-
-// ============================================================
-// Firestore Güvenlik Kuralları
-//
-// - Herkese açık içerik (projeler, ilanlar, etkinlikler, blog,
-//   sektörler, donörler, haberler): HERKES OKUYABİLİR.
-// - Yazma/güncelleme/silme: SADECE giriş yapmış kullanıcı.
-//
-// NOT (ileride): rol bazlı kontrol (proje admin, EU admin vb.)
-// eklenebilir. Şimdilik "giriş yapmış = yazabilir" yeterli.
-// ============================================================
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Public okunabilir koleksiyonlar
-    match /sectors/{doc}    { allow read: if true; allow write: if request.auth != null; }
-    match /donors/{doc}     { allow read: if true; allow write: if request.auth != null; }
-    match /projects/{doc}   { allow read: if true; allow write: if request.auth != null; }
-    match /listings/{doc}   { allow read: if true; allow write: if request.auth != null; }
-    match /events/{doc}     { allow read: if true; allow write: if request.auth != null; }
+    // Okuma: herkese açık koleksiyonlar
+    match /projects/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /listings/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /events/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /blogPosts/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /sectors/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /donors/{id} { allow read: if true; allow write: if request.auth != null; }
 
-    // Etkinlik kayıtları: herkes kayıt oluşturabilir (RSVP),
-    // okuma/güncelleme/silme sadece giriş yapmış kullanıcı (etkinlik sahibi)
-    match /eventRegistrations/{doc} {
-      allow read: if request.auth != null;
-      allow create: if true;
-      allow update, delete: if request.auth != null;
-    }
-
-    // Kapalı toplantı: gündem, davetliler, zaman seçenekleri — giriş gerekli
-    match /agendaItems/{doc}  { allow read, write: if request.auth != null; }
-    match /invitees/{doc}     { allow read, write: if request.auth != null; }
-    match /timeOptions/{doc}  { allow read, write: if request.auth != null; }
-    // Müsaitlik oyları: davetli oy verebilsin (create/update açık), okuma giriş gerekli
-    match /availabilityVotes/{doc} {
-      allow read: if request.auth != null;
-      allow create, update: if true;
-      allow delete: if request.auth != null;
-    }
-
-    // E-Doküman meta-verileri: yönetim giriş gerektirir.
-    // (Herkese açık dosyalar uygulama katmanında filtrelenir.)
-    match /documents/{doc} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-
-    // Bülten: aboneler ve kampanyalar — yönetim giriş gerektirir.
-    // (Herkese açık abonelik formu eklenirse create:true yapılabilir.)
-    match /subscribers/{doc} { allow read, write: if request.auth != null; }
-    match /campaigns/{doc}   { allow read, write: if request.auth != null; }
-
-    // Paydaş İletişimi: yönetim giriş gerektirir.
-    match /stakeholders/{doc} { allow read, write: if request.auth != null; }
-
-    // E-Learning: eğitim videoları — herkes okuyabilir, yönetim giriş gerektirir.
-    match /trainingVideos/{doc} { allow read: if true; allow write: if request.auth != null; }
-
-    // Proje sahiplenme talepleri: giriş yapmış kullanıcı oluşturabilir, yönetim onaylar.
-    match /ownershipRequests/{doc} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
-    }
-    match /blogPosts/{doc}  { allow read: if true; allow write: if request.auth != null; }
-    match /news/{doc}       { allow read: if true; allow write: if request.auth != null; }
-
-    // Diğer her şey kapalı
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    // Yalnızca giriş yapmış kullanıcı
+    match /rsvps/{id} { allow read, write: if request.auth != null; }
+    match /documents/{id} { allow read, write: if request.auth != null; }
+    match /subscribers/{id} { allow read, write: if request.auth != null; }
+    match /campaigns/{id} { allow read, write: if request.auth != null; }
+    match /stakeholders/{id} { allow read, write: if request.auth != null; }
+    match /trainingVideos/{id} { allow read: if true; allow write: if request.auth != null; }
+    match /ownershipRequests/{id} { allow read, write: if request.auth != null; }
+    match /expertProfiles/{id} { allow read: if true; allow write: if request.auth != null; }
   }
 }

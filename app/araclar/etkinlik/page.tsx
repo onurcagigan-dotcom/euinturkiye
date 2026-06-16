@@ -1,241 +1,151 @@
 "use client";
-
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { getDataProvider } from "@/lib/data";
+import { useState, useEffect } from "react";
 import { PageShell } from "@/components/PageShell";
-import { ClosedMeetingPanel } from "./ClosedMeetingPanel";
-import type { EventItem, EventRegistration } from "@/lib/types";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import type { EventRsvp } from "@/lib/types";
 
-const STATUS: Record<EventRegistration["status"], { label: string; cls: string }> = {
-  kayitli: { label: "Kayıtlı", cls: "bg-eu-pale text-eu" },
-  katildi: { label: "Katıldı", cls: "bg-green-100 text-green-700" },
-  iptal: { label: "İptal", cls: "bg-red-100 text-red-600" },
-};
+type Status = "onaylandi" | "bekliyor" | "iptal";
+const STATUS_NEXT: Record<Status, Status> = { bekliyor: "onaylandi", onaylandi: "iptal", iptal: "bekliyor" };
+const STATUS_LABEL: Record<Status, string> = { onaylandi: "Onaylandı ✓", bekliyor: "Bekliyor ⏳", iptal: "İptal ✕" };
+const STATUS_COLOR: Record<Status, string> = { onaylandi: "bg-green-100 text-green-700", bekliyor: "bg-yellow-100 text-yellow-700", iptal: "bg-red-100 text-red-600" };
 
-export default function EventToolPage() {
-  const db = getDataProvider();
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [activeId, setActiveId] = useState<string>("");
-  const [regs, setRegs] = useState<EventRegistration[]>([]);
-  const [loading, setLoading] = useState(true);
+const DEMO_EVENTS = [
+  { id: "etk-1", title: "AB Proje Yönetimi Konferansı 2026" },
+  { id: "etk-2", title: "Tarım Modernizasyon — Teknik Toplantı" },
+  { id: "etk-3", title: "Kadın Girişimciler Zirvesi" },
+];
 
-  // Form
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [org, setOrg] = useState("");
+const SEED_RSVPS: EventRsvp[] = [
+  { id: "r1", eventId: "etk-1", name: "Ahmet Yılmaz", email: "ahmet@bakanlik.gov.tr", organization: "Kalkınma Bakanlığı", status: "onaylandi", createdAt: new Date().toISOString() },
+  { id: "r2", eventId: "etk-1", name: "Fatma Demir", email: "fatma@kosgeb.gov.tr", organization: "KOSGEB", status: "bekliyor", createdAt: new Date().toISOString() },
+  { id: "r3", eventId: "etk-2", name: "Zeynep Kaya", email: "zeynep@iskur.gov.tr", organization: "İŞKUR", status: "onaylandi", createdAt: new Date().toISOString() },
+];
 
-  // Etkinlikleri yükle
-  useEffect(() => {
-    db.getEvents().then((evs) => {
-      setEvents(evs);
-      if (evs.length) setActiveId(evs[0].id);
-      setLoading(false);
-    });
-  }, [db]);
+export default function EtkinlikAraciPage() {
+  const [activeEvent, setActiveEvent] = useState(DEMO_EVENTS[0].id);
+  const [rsvps, setRsvps] = useState<EventRsvp[]>(SEED_RSVPS);
+  const [form, setForm] = useState({ name: "", email: "", org: "" });
+  const [adding, setAdding] = useState(false);
 
-  // Aktif etkinliğin kayıtlarını yükle
-  const loadRegs = useCallback(
-    (eventId: string) => {
-      if (!eventId) return;
-      db.getRegistrations(eventId).then(setRegs);
-    },
-    [db]
-  );
-  useEffect(() => { loadRegs(activeId); }, [activeId, loadRegs]);
+  const filtered = rsvps.filter((r) => r.eventId === activeEvent);
+  const counts = { onaylandi: filtered.filter(r => r.status === "onaylandi").length, bekliyor: filtered.filter(r => r.status === "bekliyor").length, iptal: filtered.filter(r => r.status === "iptal").length };
 
-  const activeEvent = events.find((e) => e.id === activeId);
+  const addRsvp = () => {
+    if (!form.name || !form.email) return;
+    setRsvps((prev) => [...prev, { id: `r${Date.now()}`, eventId: activeEvent, name: form.name, email: form.email, organization: form.org, status: "bekliyor", createdAt: new Date().toISOString() }]);
+    setForm({ name: "", email: "", org: "" });
+    setAdding(false);
+  };
 
-  async function addReg(e: React.FormEvent) {
-    e.preventDefault();
-    if (!activeId) return;
-    const reg: EventRegistration = {
-      id: `reg-${Date.now()}`,
-      eventId: activeId,
-      name, email, organization: org || undefined,
-      status: "kayitli",
-      createdAt: new Date().toISOString(),
-    };
-    await db.addRegistration(reg);
-    setName(""); setEmail(""); setOrg("");
-    loadRegs(activeId);
-  }
+  const cycleStatus = (id: string) => {
+    setRsvps((prev) => prev.map((r) => r.id === id ? { ...r, status: STATUS_NEXT[r.status] } : r));
+  };
 
-  async function cycleStatus(reg: EventRegistration) {
-    const order: EventRegistration["status"][] = ["kayitli", "katildi", "iptal"];
-    const next = order[(order.indexOf(reg.status) + 1) % order.length];
-    await db.updateRegistration({ ...reg, status: next });
-    loadRegs(activeId);
-  }
+  const remove = (id: string) => setRsvps((prev) => prev.filter((r) => r.id !== id));
 
-  async function remove(id: string) {
-    if (!confirm("Bu kayıt silinsin mi?")) return;
-    await db.removeRegistration(id);
-    loadRegs(activeId);
-  }
-
-  function exportCsv() {
-    const rows = [
-      ["Ad Soyad", "E-posta", "Kurum", "Durum", "Kayıt Tarihi"],
-      ...regs.map((r) => [r.name, r.email, r.organization ?? "", STATUS[r.status].label, r.createdAt.slice(0, 10)]),
-    ];
-    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+  const exportCSV = () => {
+    const header = "Ad,E-posta,Kurum,Durum";
+    const rows = filtered.map((r) => `${r.name},${r.email},${r.organization ?? ""},${r.status}`);
+    const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `katilimcilar-${activeId}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  const counts = {
-    kayitli: regs.filter((r) => r.status === "kayitli").length,
-    katildi: regs.filter((r) => r.status === "katildi").length,
-    iptal: regs.filter((r) => r.status === "iptal").length,
+    const a = document.createElement("a"); a.href = url; a.download = "katilimcilar.csv"; a.click();
   };
 
   return (
     <PageShell>
-      <div className="bg-eu-deep text-white">
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <Link href="/araclar" className="text-white/70 text-sm hover:text-white">← Araçlar</Link>
-          <h1 className="text-2xl md:text-3xl font-bold mt-3">Etkinlik Yönetimi</h1>
-          <p className="text-white/80 mt-2">Etkinlik seçin, katılımcıları yönetin, RSVP takibi yapın.</p>
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar", href: "/araclar" }, { label: "Etkinlik Yönetimi" }]} />
+
+        <h1 className="text-2xl font-bold text-ink mb-6">Etkinlik Yönetimi</h1>
+
+        {/* Etkinlik seçimi */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {DEMO_EVENTS.map((e) => (
+            <button key={e.id} onClick={() => setActiveEvent(e.id)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeEvent === e.id ? "bg-eu text-white" : "bg-surface text-slate hover:bg-line"}`}>
+              {e.title}
+            </button>
+          ))}
         </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        {loading ? (
-          <p className="text-slate">Yükleniyor…</p>
-        ) : events.length === 0 ? (
-          <p className="text-slate">Henüz etkinlik yok. Yönetim panelinden etkinlik ekleyebilirsiniz.</p>
-        ) : (
-          <div className="grid lg:grid-cols-[260px_1fr] gap-8">
-            {/* Etkinlik seçici */}
-            <aside>
-              <p className="text-xs uppercase tracking-wide text-mist mb-3">Etkinlikler</p>
-              <div className="space-y-2">
-                {events.map((e) => (
-                  <button
-                    key={e.id}
-                    onClick={() => setActiveId(e.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg border transition ${
-                      activeId === e.id ? "border-eu bg-eu-pale" : "border-line bg-white hover:border-eu/40"
-                    }`}
-                  >
-                    <span className="block text-sm font-medium text-ink leading-snug">{e.title}</span>
-                    <span className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-slate">{e.date}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                        e.isPublic ? "bg-eu-pale text-eu" : "bg-amber-100 text-amber-700"
-                      }`}>
-                        {e.isPublic ? "Açık" : "Kapalı"}
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </aside>
+        {/* İstatistikler */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {(["onaylandi", "bekliyor", "iptal"] as const).map((s) => (
+            <div key={s} className={`rounded-xl p-4 text-center ${STATUS_COLOR[s]}`}>
+              <div className="text-2xl font-bold">{counts[s]}</div>
+              <div className="text-xs font-semibold">{STATUS_LABEL[s]}</div>
+            </div>
+          ))}
+        </div>
 
-            {/* Katılımcı yönetimi */}
-            <div>
-              {activeEvent && activeEvent.isPublic && (
-                <>
-                  <div className="flex items-start justify-between gap-4 mb-6">
-                    <div>
-                      <h2 className="text-xl font-bold text-ink">{activeEvent.title}</h2>
-                      <p className="text-sm text-slate mt-1">{activeEvent.date} · {activeEvent.location}</p>
-                    </div>
-                    <button onClick={exportCsv} className="shrink-0 px-4 py-2 rounded-lg border border-line text-sm font-semibold text-ink hover:bg-line/40">
-                      CSV İndir
-                    </button>
-                  </div>
+        {/* Eylemler */}
+        <div className="flex gap-3 mb-6">
+          <button onClick={() => setAdding(true)} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+            + Katılımcı Ekle
+          </button>
+          <button onClick={exportCSV} className="px-4 py-2 border border-line text-slate rounded-lg text-sm font-semibold hover:bg-surface">
+            CSV İndir
+          </button>
+        </div>
 
-                  {/* Sayaçlar */}
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    <Counter label="Kayıtlı" value={counts.kayitli} />
-                    <Counter label="Katıldı" value={counts.katildi} />
-                    <Counter label="İptal" value={counts.iptal} />
-                  </div>
-
-                  {/* Katılımcı ekleme */}
-                  <form onSubmit={addReg} className="bg-white border border-line rounded-xl p-4 mb-6 grid sm:grid-cols-4 gap-3">
-                    <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Ad Soyad" className={inp} />
-                    <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-posta" className={inp} />
-                    <input value={org} onChange={(e) => setOrg(e.target.value)} placeholder="Kurum (ops.)" className={inp} />
-                    <button type="submit" className="px-4 py-2 rounded-lg bg-eu text-white text-sm font-semibold">+ Ekle</button>
-                  </form>
-
-                  {/* Katılımcı tablosu */}
-                  {regs.length === 0 ? (
-                    <p className="text-slate text-sm py-8 text-center bg-white border border-line rounded-xl">
-                      Bu etkinlikte henüz katılımcı yok. Yukarıdan ekleyin.
-                    </p>
-                  ) : (
-                    <div className="bg-white border border-line rounded-xl overflow-x-auto">
-                      <table className="w-full text-sm min-w-[560px]">
-                        <thead className="bg-[#f4f6fa] text-left">
-                          <tr>
-                            {["Ad Soyad", "E-posta", "Kurum", "Durum", ""].map((h) => (
-                              <th key={h} className="px-4 py-3 text-xs uppercase tracking-wide text-slate font-semibold">{h}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-line">
-                          {regs.map((r) => (
-                            <tr key={r.id} className="hover:bg-[#f9fafb]">
-                              <td className="px-4 py-3 font-medium text-ink">{r.name}</td>
-                              <td className="px-4 py-3 text-slate">{r.email}</td>
-                              <td className="px-4 py-3 text-slate">{r.organization ?? "—"}</td>
-                              <td className="px-4 py-3">
-                                <button
-                                  onClick={() => cycleStatus(r)}
-                                  title="Durumu değiştir"
-                                  className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS[r.status].cls}`}
-                                >
-                                  {STATUS[r.status].label}
-                                </button>
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <button onClick={() => remove(r.id)} className="text-tr text-sm hover:underline">Sil</button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {activeEvent && !activeEvent.isPublic && (
-                <>
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-bold text-ink">{activeEvent.title}</h2>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">KAPALI TOPLANTI</span>
-                    </div>
-                    <p className="text-sm text-slate mt-1">{activeEvent.date} · {activeEvent.location}</p>
-                  </div>
-                  <ClosedMeetingPanel event={activeEvent} />
-                </>
-              )}
+        {/* Ekle formu */}
+        {adding && (
+          <div className="bg-eu-pale border border-eu/20 rounded-xl p-5 mb-6">
+            <h3 className="font-bold text-ink mb-3">Yeni Katılımcı</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Ad Soyad *" className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+              <input value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="E-posta *" type="email" className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+              <input value={form.org} onChange={(e) => setForm(f => ({ ...f, org: e.target.value }))}
+                placeholder="Kurum" className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button onClick={addRsvp} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Ekle</button>
+              <button onClick={() => setAdding(false)} className="px-4 py-2 border border-line text-slate rounded-lg text-sm">İptal</button>
             </div>
           </div>
         )}
+
+        {/* Katılımcı listesi */}
+        <div className="bg-white border border-line rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-surface border-b border-line">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Ad Soyad</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate">E-posta</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Kurum</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate">Durum</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8 text-mist">Kayıtlı katılımcı yok.</td></tr>
+              ) : (
+                filtered.map((r) => (
+                  <tr key={r.id} className="border-t border-line hover:bg-surface/50">
+                    <td className="px-4 py-3 font-medium text-ink">{r.name}</td>
+                    <td className="px-4 py-3 text-slate">{r.email}</td>
+                    <td className="px-4 py-3 text-slate">{r.organization ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => cycleStatus(r.id)}
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full cursor-pointer ${STATUS_COLOR[r.status]}`}>
+                        {STATUS_LABEL[r.status]}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button onClick={() => remove(r.id)} className="text-mist hover:text-tr text-xs">Sil</button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="text-xs text-mist mt-3">Durum etiketine tıklayarak döngüsel olarak değiştirebilirsiniz. Değişiklikler oturum süresince korunur.</p>
       </div>
     </PageShell>
-  );
-}
-
-const inp = "px-3 py-2 rounded-lg border border-line text-sm focus:outline-none focus:ring-2 focus:ring-eu/30";
-
-function Counter({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="bg-white border border-line rounded-xl p-4 text-center">
-      <div className="text-2xl font-bold text-eu">{value}</div>
-      <div className="text-xs text-slate mt-0.5">{label}</div>
-    </div>
   );
 }
