@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { projectProgress } from "@/lib/project-progress";
 import type {
-  NewsItem, Sector, EventItem, Project, Listing, BlogPost,
+  NewsItem, Sector, EventItem, Project, Listing, BlogPost, Donor,
 } from "@/lib/types";
 
 /* ---------- Ortak başlık ---------- */
@@ -124,6 +125,20 @@ export function FeaturedProjects({ projects, sectorNames }: {
               </span>
               <h3 className="font-bold text-[15px] text-ink leading-snug">{p.title}</h3>
               <p className="text-xs text-slate mt-2">{p.beneficiary} · {p.locations.join(", ")}</p>
+              {(() => {
+                const prog = projectProgress(p);
+                return (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-slate">{prog.label}</span>
+                      <span className="font-semibold text-eu">%{prog.percent}</span>
+                    </div>
+                    <div className="w-full bg-eu-pale rounded-full h-1.5 overflow-hidden">
+                      <div className={`h-full rounded-full ${prog.percent >= 100 ? "bg-green-500" : "bg-eu"}`} style={{ width: `${prog.percent}%` }} />
+                    </div>
+                  </div>
+                );
+              })()}
               <Link href={`/projeler/${p.id}`} className="inline-block mt-3 text-eu font-semibold text-sm">
                 Proje Detayı →
               </Link>
@@ -145,22 +160,26 @@ export function ListingsSection({ listings }: { listings: Listing[] }) {
   return (
     <section id="ilanlar" className="py-20 bg-eu-pale">
       <div className="max-w-6xl mx-auto px-6">
-        <SectionHead kicker="Açık İlanlar" title="İş, Satınalma ve İhale" />
+        <SectionHead kicker="Açık İlanlar" title="İş, Satınalma ve İhale" moreHref="/ilanlar" moreLabel="Tüm ilanlar" />
         <div className="grid md:grid-cols-3 gap-6">
           {groups.map((g) => {
             const items = listings.filter((l) => l.type === g.type);
             return (
               <div key={g.type} className="bg-white border border-line rounded-xl p-6">
-                <h3 className="font-bold text-ink mb-4">{g.icon} {g.title}</h3>
+                <h3 className="font-bold text-ink mb-4">
+                  <Link href={`/ilanlar?tur=${g.type}`} className="hover:text-eu">{g.icon} {g.title}</Link>
+                </h3>
                 <ul className="space-y-3">
                   {items.length === 0 && <li className="text-sm text-slate">İlan yok.</li>}
                   {items.map((l) => (
                     <li key={l.id} className="border-b border-line pb-3 last:border-0">
-                      <div className="flex items-start gap-2">
-                        <span className="text-sm font-medium text-ink">{l.title}</span>
-                        {l.locked && <span title="Abonelik gerekli">🔒</span>}
-                      </div>
-                      <p className="text-xs text-slate mt-0.5">{l.organization}</p>
+                      <Link href={`/ilanlar/${l.id}`} className="block hover:opacity-80">
+                        <div className="flex items-start gap-2">
+                          <span className="text-sm font-medium text-ink">{l.title}</span>
+                          {l.locked && <span title="Abonelik gerekli">🔒</span>}
+                        </div>
+                        <p className="text-xs text-slate mt-0.5">{l.organization}</p>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -203,7 +222,7 @@ const TOOLS = [
   { img: "e-dokuman-yonetimi", title: "E-Doküman Yönetimi", desc: "Proje belgelerinizi kategorize edin, erişim izinlerini tanımlayın ve indirmeleri takip edin." },
   { img: "proje-websitesi", title: "Proje Web Sitesi", desc: "Üç tasarım şablonundan birini seçin, proje verileriniz otomatik yüklensin, siteniz hemen aktif olsun." },
   { img: "bulten-gonderimi", title: "Bülten Gönderimi", desc: "Hedef kitlenizi filtreleyin, toplu e-posta gönderin ve okuma istatistiklerini görüntüleyin." },
-  { img: "e-learning", title: "E-Learning", desc: "Eğitim materyallerini yönetin, katılımcı ilerlemesini takip edin ve sertifikalar verin." },
+  { img: "e-learning", title: "E-Learning", desc: "Eğitim materyallerini ve video kaynaklarını sektöre göre düzenleyin ve paylaşın." },
   { img: "paydas-iletisimi", title: "Paydaş İletişimi", desc: "Proje ekibinizi, uzmanlarınızı ve tedarikçilerinizi yönetin, roller ve yetkiler tanımlayın." },
   { img: "raporlama", title: "Raporlama", desc: "Proje portföyü, ilan analizi ve etkinlik istatistikleri raporlarını oluşturun ve dışa aktarın." },
 ];
@@ -212,7 +231,7 @@ export function ToolsSection() {
   return (
     <section id="araclar" className="py-20 bg-gradient-to-br from-eu-pale to-[#F5F0FF]">
       <div className="max-w-6xl mx-auto px-6">
-        <SectionHead kicker="Araçlar" title="Projeleriniz için Hazır Çözümler" />
+        <SectionHead kicker="Araçlar" title="Projeleriniz için Hazır Çözümler" moreHref="/araclar" moreLabel="Tüm araçlar" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {TOOLS.map((t) => (
             <div key={t.img} className="bg-white border border-line rounded-xl overflow-hidden">
@@ -224,6 +243,39 @@ export function ToolsSection() {
                 <h3 className="font-bold text-[15px] text-ink">{t.title}</h3>
                 <p className="text-sm text-slate mt-2 leading-relaxed">{t.desc}</p>
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Diğer Donörler ---------- */
+export function OtherDonorsSection({ donors }: { donors: Donor[] }) {
+  const others = donors.filter((d) => d.type === "other");
+  if (others.length === 0) return null;
+  return (
+    <section id="diger" className="py-20">
+      <div className="max-w-6xl mx-auto px-6">
+        <SectionHead
+          kicker="Çok-Donörlü Portföy"
+          title="Diğer Donör Projeleri"
+        />
+        <p className="text-slate -mt-6 mb-10 max-w-2xl">
+          AB&apos;nin yanı sıra Türkiye&apos;de faaliyet gösteren diğer kalkınma
+          donörlerinin projeleri de portföyde yer alır.
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {others.map((d) => (
+            <div
+              key={d.id}
+              className="bg-white border border-line rounded-xl p-6 flex flex-col items-center justify-center text-center min-h-[120px] hover:border-eu/40 hover:shadow-md transition"
+            >
+              <div className="w-12 h-12 rounded-lg bg-eu-pale flex items-center justify-center mb-3">
+                <span className="font-bold text-eu text-sm">{d.shortName}</span>
+              </div>
+              <p className="text-sm font-medium text-ink leading-snug">{d.name}</p>
             </div>
           ))}
         </div>
@@ -247,9 +299,25 @@ export function Footer() {
             Türkiye&apos;deki AB faaliyetleri ve çok-donörlü proje portföyü platformu, dijital araçlar seti.
           </p>
         </div>
-        <FooterCol title="Platform" links={["Projeler", "Gündemi", "İş İlanları", "Etkinlikler", "Araçlar"]} />
-        <FooterCol title="Hukuki" links={["Gizlilik Politikası", "Kullanım Koşulları", "KVKK", "İçerik Yayın Onayı"]} />
-        <FooterCol title="Bağlantılar" links={["Diğer Donör Projeleri", "AB Delegasyonu", "Destekler", "İletişim"]} />
+        <FooterCol title="Platform" links={[
+          { label: "Projeler", href: "/projeler" },
+          { label: "Gündem", href: "/gundem" },
+          { label: "İş İlanları", href: "/ilanlar" },
+          { label: "Etkinlikler", href: "/etkinlikler" },
+          { label: "Araçlar", href: "/araclar" },
+        ]} />
+        <FooterCol title="Hukuki" links={[
+          { label: "Gizlilik Politikası", href: "#" },
+          { label: "Kullanım Koşulları", href: "#" },
+          { label: "KVKK", href: "#" },
+          { label: "İçerik Yayın Onayı", href: "#" },
+        ]} />
+        <FooterCol title="Bağlantılar" links={[
+          { label: "Diğer Donör Projeleri", href: "/#diger" },
+          { label: "AB Delegasyonu", href: "https://www.avrupa.info.tr" },
+          { label: "Kayıt Ol", href: "/kayit" },
+          { label: "Giriş", href: "/giris" },
+        ]} />
       </div>
       <div className="border-t border-white/10 pt-6 text-center text-xs text-white/60">
         © 2026 euinturkiye.com · Bir Design for Good LLC projesidir.
@@ -258,13 +326,15 @@ export function Footer() {
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: string[] }) {
+function FooterCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
     <div>
       <h4 className="font-bold text-sm mb-4">{title}</h4>
       <ul className="space-y-2">
         {links.map((l) => (
-          <li key={l}><a href="#" className="text-sm text-white/70 hover:text-white">{l}</a></li>
+          <li key={l.label}>
+            <Link href={l.href} className="text-sm text-white/70 hover:text-white">{l.label}</Link>
+          </li>
         ))}
       </ul>
     </div>

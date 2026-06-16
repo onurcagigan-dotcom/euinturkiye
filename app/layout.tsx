@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/firebase/auth-context";
 
 export const metadata: Metadata = {
   title: "euinturkiye.com — AB ve Türkiye Mali İşbirliği Projeleri Portalı",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body>{children}</body>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,541 @@
+{
+  "sectors": [
+    {
+      "id": "yargi",
+      "name": "Yargı",
+      "icon": "/images/homepage/sectors/yargi.png",
+      "projectCount": 38,
+      "order": 1
+    },
+    {
+      "id": "temel-haklar",
+      "name": "Temel Haklar",
+      "icon": "/images/homepage/sectors/temel-haklar.png",
+      "projectCount": 24,
+      "order": 2
+    },
+    {
+      "id": "icisleri",
+      "name": "İçişleri",
+      "icon": "/images/homepage/sectors/icisleri.png",
+      "projectCount": 41,
+      "order": 3
+    },
+    {
+      "id": "sivil-toplum",
+      "name": "Sivil Toplum",
+      "icon": "/images/homepage/sectors/sivil-toplum.png",
+      "projectCount": 112,
+      "order": 4
+    },
+    {
+      "id": "cevre",
+      "name": "Çevre & İklim",
+      "icon": "/images/homepage/sectors/cevre.png",
+      "projectCount": 56,
+      "order": 5
+    },
+    {
+      "id": "ulasim",
+      "name": "Ulaştırma",
+      "icon": "/images/homepage/sectors/ulasim.png",
+      "projectCount": 19,
+      "order": 6
+    },
+    {
+      "id": "enerji",
+      "name": "Enerji",
+      "icon": "/images/homepage/sectors/enerji.png",
+      "projectCount": 14,
+      "order": 7
+    },
+    {
+      "id": "rekabet",
+      "name": "Rekabetçilik",
+      "icon": "/images/homepage/sectors/rekabet.png",
+      "projectCount": 63,
+      "order": 8
+    },
+    {
+      "id": "istihdam",
+      "name": "İstihdam & Eğitim",
+      "icon": "/images/homepage/sectors/istihdam.png",
+      "projectCount": 87,
+      "order": 9
+    },
+    {
+      "id": "tarim",
+      "name": "Tarım & Kırsal",
+      "icon": "/images/homepage/sectors/tarim.png",
+      "projectCount": 45,
+      "order": 10
+    }
+  ],
+  "donors": [
+    {
+      "id": "eu",
+      "name": "Avrupa Birliği",
+      "shortName": "AB",
+      "logo": "/images/homepage/donors/eu.png",
+      "type": "eu"
+    },
+    {
+      "id": "undp",
+      "name": "Birleşmiş Milletler Kalkınma Programı",
+      "shortName": "UNDP",
+      "logo": "/images/homepage/donors/undp.png",
+      "type": "other"
+    },
+    {
+      "id": "wb",
+      "name": "Dünya Bankası",
+      "shortName": "WB",
+      "logo": "/images/homepage/donors/wb.png",
+      "type": "other"
+    },
+    {
+      "id": "kfw",
+      "name": "KfW Kalkınma Bankası",
+      "shortName": "KfW",
+      "logo": "/images/homepage/donors/kfw.png",
+      "type": "other"
+    },
+    {
+      "id": "ka",
+      "name": "Kalkınma Ajansları",
+      "shortName": "KA",
+      "logo": "/images/homepage/donors/ka.png",
+      "type": "other"
+    }
+  ],
+  "projects": [
+    {
+      "id": "adli-tebligat",
+      "title": "Adli Tebligat Sisteminin İyileştirilmesi",
+      "summary": "Elektronik tebligat altyapısının güçlendirilmesi ve mahkeme süreçlerinin hızlandırılması.",
+      "sectorId": "yargi",
+      "donorId": "eu",
+      "ipaPeriod": "ipa-3",
+      "beneficiary": "Adalet Bakanlığı",
+      "locations": [
+        "Ankara",
+        "İzmir",
+        "Bursa"
+      ],
+      "budget": "4.200.000 €",
+      "startDate": "2023-01-15",
+      "endDate": "2025-12-31",
+      "status": "devam",
+      "featured": true,
+      "ownerSubscriberId": "sub-1"
+    },
+    {
+      "id": "aile-mahkemeleri",
+      "title": "Aile Mahkemelerinin Etkinliğinin Artırılması",
+      "summary": "Aile mahkemesi hakim ve uzmanlarına yönelik kapasite geliştirme programı.",
+      "sectorId": "yargi",
+      "donorId": "eu",
+      "ipaPeriod": "ipa-3",
+      "beneficiary": "Adalet Akademisi",
+      "locations": [
+        "Ankara",
+        "İstanbul",
+        "Antalya"
+      ],
+      "budget": "2.800.000 €",
+      "startDate": "2023-06-01",
+      "endDate": "2025-06-01",
+      "status": "devam",
+      "featured": true
+    },
+    {
+      "id": "iklim-uyum",
+      "title": "Yerel İklim Uyum Stratejileri",
+      "summary": "Belediyelerin iklim değişikliğine uyum kapasitesinin güçlendirilmesi.",
+      "sectorId": "cevre",
+      "donorId": "eu",
+      "ipaPeriod": "ipa-3",
+      "beneficiary": "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı",
+      "locations": [
+        "İzmir",
+        "Konya",
+        "Samsun",
+        "Eskişehir"
+      ],
+      "budget": "6.500.000 €",
+      "startDate": "2022-09-01",
+      "endDate": "2025-09-01",
+      "status": "devam",
+      "featured": true
+    },
+    {
+      "id": "genc-istihdam",
+      "title": "Genç İstihdamı için Beceri Geliştirme",
+      "summary": "Genç işsizliğiyle mücadele için mesleki eğitim ve beceri programları.",
+      "sectorId": "istihdam",
+      "donorId": "eu",
+      "ipaPeriod": "ipa-3",
+      "beneficiary": "Çalışma ve Sosyal Güvenlik Bakanlığı",
+      "locations": [
+        "Gaziantep",
+        "Şanlıurfa",
+        "Diyarbakır",
+        "Adana"
+      ],
+      "budget": "8.100.000 €",
+      "startDate": "2023-03-01",
+      "endDate": "2026-03-01",
+      "status": "devam",
+      "featured": true,
+      "ownerSubscriberId": "sub-2"
+    },
+    {
+      "id": "stk-diyalog",
+      "title": "Sivil Toplum Diyaloğu VII",
+      "summary": "AB ve Türkiye sivil toplum kuruluşları arasında işbirliğinin geliştirilmesi.",
+      "sectorId": "sivil-toplum",
+      "donorId": "eu",
+      "ipaPeriod": "ipa-3",
+      "beneficiary": "Dışişleri Bakanlığı AB Başkanlığı",
+      "locations": [
+        "İstanbul",
+        "Ankara",
+        "İzmir"
+      ],
+      "budget": "5.000.000 €",
+      "startDate": "2023-01-01",
+      "endDate": "2025-12-31",
+      "status": "devam",
+      "featured": false
+    },
+    {
+      "id": "tarim-modern",
+      "title": "Tarımda Su Verimliliği",
+      "summary": "Sulama altyapısının modernizasyonu ve çiftçi eğitimleri.",
+      "sectorId": "tarim",
+      "donorId": "wb",
+      "ipaPeriod": "ipa-2",
+      "beneficiary": "Tarım ve Orman Bakanlığı",
+      "locations": [
+        "Konya",
+        "Şanlıurfa",
+        "Aydın"
+      ],
+      "budget": "12.000.000 €",
+      "startDate": "2019-05-01",
+      "endDate": "2023-05-01",
+      "status": "tamamlandi",
+      "featured": false,
+      "isArchive": true
+    },
+    {
+      "id": "enerji-verim",
+      "title": "Kamu Binalarında Enerji Verimliliği",
+      "summary": "Kamu binalarının enerji verimliliğinin artırılmasına yönelik pilot uygulamalar.",
+      "sectorId": "enerji",
+      "donorId": "kfw",
+      "ipaPeriod": "ipa-2",
+      "beneficiary": "Enerji ve Tabii Kaynaklar Bakanlığı",
+      "locations": [
+        "Ankara",
+        "Kayseri",
+        "Trabzon"
+      ],
+      "budget": "9.300.000 €",
+      "startDate": "2020-02-01",
+      "endDate": "2024-02-01",
+      "status": "tamamlandi",
+      "featured": false,
+      "isArchive": true
+    },
+    {
+      "id": "goc-uyum",
+      "title": "Göçmenlerin Sosyal Uyumu",
+      "summary": "Geçici koruma altındaki bireylerin yerel topluma uyumunun desteklenmesi.",
+      "sectorId": "temel-haklar",
+      "donorId": "undp",
+      "ipaPeriod": "ipa-3",
+      "beneficiary": "Göç İdaresi Başkanlığı",
+      "locations": [
+        "Gaziantep",
+        "Hatay",
+        "Mersin",
+        "İstanbul"
+      ],
+      "budget": "15.000.000 €",
+      "startDate": "2023-09-01",
+      "endDate": "2026-09-01",
+      "status": "devam",
+      "featured": false
+    },
+    {
+      "id": "kobi-rekabet",
+      "title": "KOBİ'lerin Rekabetçiliği",
+      "summary": "Küçük ve orta ölçekli işletmelerin ihracat ve dijitalleşme kapasitesinin artırılması.",
+      "sectorId": "rekabet",
+      "donorId": "eu",
+      "ipaPeriod": "ipa-2",
+      "beneficiary": "KOSGEB",
+      "locations": [
+        "Bursa",
+        "Denizli",
+        "Gaziantep",
+        "Kayseri"
+      ],
+      "budget": "10.500.000 €",
+      "startDate": "2018-04-01",
+      "endDate": "2022-04-01",
+      "status": "tamamlandi",
+      "featured": false,
+      "isArchive": true
+    }
+  ],
+  "listings": [
+    {
+      "id": "is-1",
+      "type": "is",
+      "title": "Proje Koordinatörü",
+      "organization": "Yeşil Dönüşüm Atölyeleri",
+      "location": "Gaziantep",
+      "deadline": "2026-07-20",
+      "locked": false,
+      "description": "İklim projeleri koordinasyonu için deneyimli proje koordinatörü aranıyor."
+    },
+    {
+      "id": "is-2",
+      "type": "is",
+      "title": "İzleme ve Değerlendirme Uzmanı",
+      "organization": "Genç İstihdamı Beceri Programı",
+      "location": "Ankara",
+      "deadline": "2026-07-15",
+      "locked": false,
+      "description": "Proje çıktılarının izlenmesi ve raporlanması için M&E uzmanı."
+    },
+    {
+      "id": "satinalma-1",
+      "type": "satinalma",
+      "title": "Eğitim Hizmeti Alımı",
+      "organization": "Adalet Akademisi",
+      "location": "Ankara",
+      "deadline": "2026-07-25",
+      "locked": true,
+      "description": "Hakim ve savcılara yönelik eğitim hizmeti alımı ihalesi."
+    },
+    {
+      "id": "ihale-1",
+      "type": "ihale",
+      "title": "Bilişim Donanımı Tedariki",
+      "organization": "Adli Tebligat Projesi",
+      "location": "Ankara",
+      "deadline": "2026-08-01",
+      "locked": false,
+      "description": "Elektronik tebligat altyapısı için sunucu ve ağ donanımı tedariki."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev-1",
+      "title": "AB-Türkiye Koordinasyon Toplantısı",
+      "date": "2026-06-25",
+      "location": "Ankara, Dış Ticaret Kompleksi",
+      "isPublic": false,
+      "description": "Dönem değerlendirme toplantısı."
+    },
+    {
+      "id": "ev-2",
+      "title": "Başvuru Çalıştayı 2026",
+      "date": "2026-07-02",
+      "location": "İstanbul, Çırağan",
+      "isPublic": true,
+      "description": "IPA III başvuru hazırlama çalıştayı."
+    },
+    {
+      "id": "ev-3",
+      "title": "Gençlik İstihdam Fuarı",
+      "date": "2026-07-10",
+      "location": "Gaziantep, Sergi Alanı",
+      "isPublic": true,
+      "projectId": "genc-istihdam",
+      "description": "Genç işsizliğiyle mücadele fuarı."
+    },
+    {
+      "id": "ev-4",
+      "title": "Çevre Sempozyumu",
+      "date": "2026-07-18",
+      "location": "İzmir, Alsancak",
+      "isPublic": true,
+      "projectId": "iklim-uyum",
+      "description": "İklim uyum stratejileri sempozyumu."
+    },
+    {
+      "id": "ev-5",
+      "title": "Proje Ekip Toplantısı (Q3)",
+      "date": "2026-07-08",
+      "location": "Çevrimiçi / Ankara",
+      "isPublic": false,
+      "projectId": "adli-tebligat",
+      "description": "Üçüncü çeyrek ilerleme ve planlama toplantısı."
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": "b1",
+      "slug": "ipa-3-proje-hazirlama",
+      "title": "IPA III'te proje hazırlamanın incelikleri",
+      "category": "IPA III",
+      "excerpt": "IPA III döneminde başarılı proje başvurusu için bilinmesi gerekenler.",
+      "content": "IPA III dönemi, Türkiye'nin AB katılım öncesi mali yardımının üçüncü aşamasıdır...",
+      "publishedAt": "2026-06-08",
+      "readMinutes": 6
+    },
+    {
+      "id": "b2",
+      "slug": "gorunurluk-7-hata",
+      "title": "AB projelerinde görünürlük: 7 hata",
+      "category": "Görünürlük",
+      "excerpt": "Görünürlük kurallarında en sık yapılan hatalar ve çözümleri.",
+      "content": "AB tarafından finanse edilen projelerde görünürlük kuralları zorunludur...",
+      "publishedAt": "2026-06-02",
+      "readMinutes": 5
+    },
+    {
+      "id": "b3",
+      "slug": "hibe-sonrasi-surdurulebilirlik",
+      "title": "Hibe sonrası sürdürülebilirlik",
+      "category": "Proje Yönetimi",
+      "excerpt": "Proje bittikten sonra çıktıların sürdürülebilirliği nasıl sağlanır.",
+      "content": "Sürdürülebilirlik, projenin finansmanı bittikten sonra da devam etmesidir...",
+      "publishedAt": "2026-05-26",
+      "readMinutes": 8
+    }
+  ],
+  "news": [
+    {
+      "id": "n1",
+      "kind": "haber",
+      "title": "Gaziantep'te ilk yeşil dönüşüm atölyesi 60 KOBİ temsilcisiyle tamamlandı",
+      "excerpt": "Dört oturumda enerji verimliliği, döngüsel ekonomi ve yeşil finansman başlıkları ele alındı.",
+      "source": "Yeşil Dönüşüm Atölyeleri",
+      "publishedAt": "2026-06-12"
+    },
+    {
+      "id": "n2",
+      "kind": "duyuru",
+      "title": "Hibe başvuru sonuçları açıklandı: 38 proje desteklenecek",
+      "excerpt": "142 başvurudan 38'i ön değerlendirme aşamasını geçti.",
+      "source": "Kırsal Kadın Girişimciliği",
+      "publishedAt": "2026-06-12"
+    },
+    {
+      "id": "n3",
+      "kind": "duyuru",
+      "title": "Eğitici eğitimi ikinci dönem kayıtları açıldı",
+      "excerpt": "Gençlik İstihdamı Beceri Programı modülü açılmıştır.",
+      "source": "Genç İstihdamı Beceri Prog.",
+      "publishedAt": "2026-06-10"
+    },
+    {
+      "id": "n4",
+      "kind": "haber",
+      "title": "Sivil toplum işbirliği çağrısı yayında",
+      "excerpt": "VII. Döneme katılmak isteyen örgütler için başvuru 20 Temmuz'a kadar açık.",
+      "source": "Sivil Toplum Diyaloğu VII",
+      "publishedAt": "2026-06-10"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-1",
+      "projectId": "adli-tebligat",
+      "name": "Q2 Ara Raporu.pdf",
+      "category": "Rapor",
+      "sizeBytes": 2400000,
+      "mimeType": "application/pdf",
+      "access": "ekip",
+      "uploadedAt": "2026-05-20T10:00:00Z",
+      "downloads": 14
+    },
+    {
+      "id": "doc-2",
+      "projectId": "adli-tebligat",
+      "name": "Hibe Sözleşmesi.pdf",
+      "category": "Sözleşme",
+      "sizeBytes": 1100000,
+      "mimeType": "application/pdf",
+      "access": "ozel",
+      "uploadedAt": "2026-01-15T09:00:00Z",
+      "downloads": 3
+    },
+    {
+      "id": "doc-3",
+      "projectId": "adli-tebligat",
+      "name": "Tanıtım Sunumu.pptx",
+      "category": "Sunum",
+      "sizeBytes": 5800000,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "access": "herkese-acik",
+      "uploadedAt": "2026-04-02T13:30:00Z",
+      "downloads": 42
+    },
+    {
+      "id": "doc-4",
+      "projectId": "genc-istihdam",
+      "name": "Görünürlük Kılavuzu.pdf",
+      "category": "Görünürlük",
+      "sizeBytes": 3200000,
+      "mimeType": "application/pdf",
+      "access": "herkese-acik",
+      "uploadedAt": "2026-03-10T11:00:00Z",
+      "downloads": 28
+    },
+    {
+      "id": "doc-5",
+      "projectId": "adli-tebligat",
+      "name": "E-Tebligat Kullanım Eğitimi.pdf",
+      "category": "Eğitim",
+      "sizeBytes": 4500000,
+      "mimeType": "application/pdf",
+      "access": "herkese-acik",
+      "uploadedAt": "2026-05-01T09:00:00Z",
+      "downloads": 67,
+      "isLearning": true,
+      "learningSectorId": "yargi",
+      "learningTopic": "E-Tebligat Sistemi"
+    },
+    {
+      "id": "doc-6",
+      "projectId": "genc-istihdam",
+      "name": "İş Arama Becerileri Modülü.pdf",
+      "category": "Eğitim",
+      "sizeBytes": 2800000,
+      "mimeType": "application/pdf",
+      "access": "herkese-acik",
+      "uploadedAt": "2026-04-20T09:00:00Z",
+      "downloads": 51,
+      "isLearning": true,
+      "learningSectorId": "istihdam",
+      "learningTopic": "İstihdam Becerileri"
+    }
+  ],
+  "trainingVideos": [
+    {
+      "id": "vid-1",
+      "title": "AB Görünürlük Kuralları Webinarı",
+      "topic": "Görünürlük & İletişim",
+      "url": "https://www.youtube.com/watch?v=example1",
+      "sectorId": "sivil-toplum",
+      "projectId": "genc-istihdam",
+      "description": "AB destekli projelerde görünürlük yükümlülükleri.",
+      "addedAt": "2026-05-15T10:00:00Z"
+    },
+    {
+      "id": "vid-2",
+      "title": "Proje Döngüsü Yönetimi (PCM)",
+      "topic": "Proje Yönetimi",
+      "url": "https://vimeo.com/example2",
+      "sectorId": "rekabet",
+      "description": "Mantıksal çerçeve ve PCM temelleri.",
+      "addedAt": "2026-04-10T10:00:00Z"
+    }
+  ]
+}

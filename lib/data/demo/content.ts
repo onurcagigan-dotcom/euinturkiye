@@ -10,7 +10,7 @@ export const projects: Project[] = [
     sectorId: "yargi", donorId: "eu", ipaPeriod: "ipa-3",
     beneficiary: "Adalet Bakanlığı", locations: ["Ankara", "İzmir", "Bursa"],
     budget: "4.200.000 €", startDate: "2023-01-15", endDate: "2025-12-31",
-    status: "devam", featured: true,
+    status: "devam", featured: true, ownerSubscriberId: "sub-1",
   },
   {
     id: "aile-mahkemeleri",
@@ -26,7 +26,7 @@ export const projects: Project[] = [
     title: "Yerel İklim Uyum Stratejileri",
     summary: "Belediyelerin iklim değişikliğine uyum kapasitesinin güçlendirilmesi.",
     sectorId: "cevre", donorId: "eu", ipaPeriod: "ipa-3",
-    beneficiary: "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı", locations: ["12 il"],
+    beneficiary: "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı", locations: ["İzmir", "Konya", "Samsun", "Eskişehir"],
     budget: "6.500.000 €", startDate: "2022-09-01", endDate: "2025-09-01",
     status: "devam", featured: true,
   },
@@ -35,26 +35,62 @@ export const projects: Project[] = [
     title: "Genç İstihdamı için Beceri Geliştirme",
     summary: "Genç işsizliğiyle mücadele için mesleki eğitim ve beceri programları.",
     sectorId: "istihdam", donorId: "eu", ipaPeriod: "ipa-3",
-    beneficiary: "Çalışma ve Sosyal Güvenlik Bakanlığı", locations: ["Türkiye geneli"],
+    beneficiary: "Çalışma ve Sosyal Güvenlik Bakanlığı", locations: ["Gaziantep", "Şanlıurfa", "Diyarbakır", "Adana"],
     budget: "8.100.000 €", startDate: "2023-03-01", endDate: "2026-03-01",
-    status: "devam", featured: true,
+    status: "devam", featured: true, ownerSubscriberId: "sub-2",
   },
   {
     id: "stk-diyalog",
     title: "Sivil Toplum Diyaloğu VII",
     summary: "AB ve Türkiye sivil toplum kuruluşları arasında işbirliğinin geliştirilmesi.",
     sectorId: "sivil-toplum", donorId: "eu", ipaPeriod: "ipa-3",
-    beneficiary: "Dışişleri Bakanlığı AB Başkanlığı", locations: ["Türkiye geneli"],
+    beneficiary: "Dışişleri Bakanlığı AB Başkanlığı", locations: ["İstanbul", "Ankara", "İzmir"],
     budget: "5.000.000 €", startDate: "2023-01-01", endDate: "2025-12-31",
     status: "devam", featured: false,
+  },
+  {
+    id: "tarim-modern",
+    title: "Tarımda Su Verimliliği",
+    summary: "Sulama altyapısının modernizasyonu ve çiftçi eğitimleri.",
+    sectorId: "tarim", donorId: "wb", ipaPeriod: "ipa-2",
+    beneficiary: "Tarım ve Orman Bakanlığı", locations: ["Konya", "Şanlıurfa", "Aydın"],
+    budget: "12.000.000 €", startDate: "2019-05-01", endDate: "2023-05-01",
+    status: "tamamlandi", featured: false, isArchive: true,
+  },
+  {
+    id: "enerji-verim",
+    title: "Kamu Binalarında Enerji Verimliliği",
+    summary: "Kamu binalarının enerji verimliliğinin artırılmasına yönelik pilot uygulamalar.",
+    sectorId: "enerji", donorId: "kfw", ipaPeriod: "ipa-2",
+    beneficiary: "Enerji ve Tabii Kaynaklar Bakanlığı", locations: ["Ankara", "Kayseri", "Trabzon"],
+    budget: "9.300.000 €", startDate: "2020-02-01", endDate: "2024-02-01",
+    status: "tamamlandi", featured: false, isArchive: true,
+  },
+  {
+    id: "goc-uyum",
+    title: "Göçmenlerin Sosyal Uyumu",
+    summary: "Geçici koruma altındaki bireylerin yerel topluma uyumunun desteklenmesi.",
+    sectorId: "temel-haklar", donorId: "undp", ipaPeriod: "ipa-3",
+    beneficiary: "Göç İdaresi Başkanlığı", locations: ["Gaziantep", "Hatay", "Mersin", "İstanbul"],
+    budget: "15.000.000 €", startDate: "2023-09-01", endDate: "2026-09-01",
+    status: "devam", featured: false,
+  },
+  {
+    id: "kobi-rekabet",
+    title: "KOBİ'lerin Rekabetçiliği",
+    summary: "Küçük ve orta ölçekli işletmelerin ihracat ve dijitalleşme kapasitesinin artırılması.",
+    sectorId: "rekabet", donorId: "eu", ipaPeriod: "ipa-2",
+    beneficiary: "KOSGEB", locations: ["Bursa", "Denizli", "Gaziantep", "Kayseri"],
+    budget: "10.500.000 €", startDate: "2018-04-01", endDate: "2022-04-01",
+    status: "tamamlandi", featured: false, isArchive: true,
   },
 ];
 
 export const listings: Listing[] = [
-  { id: "is-1", type: "is", title: "Proje Koordinatörü", organization: "Yeşil Dönüşüm Atölyeleri", location: "Gaziantep", deadline: "2024-07-20", locked: false, description: "İklim projeleri koordinasyonu için deneyimli proje koordinatörü aranıyor." },
-  { id: "is-2", type: "is", title: "İzleme ve Değerlendirme Uzmanı", organization: "Genç İstihdamı Beceri Programı", location: "Ankara", deadline: "2024-07-15", locked: false, description: "Proje çıktılarının izlenmesi ve raporlanması için M&E uzmanı." },
-  { id: "satinalma-1", type: "satinalma", title: "Eğitim Hizmeti Alımı", organization: "Adalet Akademisi", location: "Ankara", deadline: "2024-07-25", locked: true, description: "Hakim ve savcılara yönelik eğitim hizmeti alımı ihalesi." },
-  { id: "ihale-1", type: "ihale", title: "Bilişim Donanımı Tedariki", organization: "Adli Tebligat Projesi", location: "Ankara", deadline: "2024-08-01", locked: false, description: "Elektronik tebligat altyapısı için sunucu ve ağ donanımı tedariki." },
+  { id: "is-1", type: "is", title: "Proje Koordinatörü", organization: "Yeşil Dönüşüm Atölyeleri", location: "Gaziantep", deadline: "2026-07-20", locked: false, description: "İklim projeleri koordinasyonu için deneyimli proje koordinatörü aranıyor." },
+  { id: "is-2", type: "is", title: "İzleme ve Değerlendirme Uzmanı", organization: "Genç İstihdamı Beceri Programı", location: "Ankara", deadline: "2026-07-15", locked: false, description: "Proje çıktılarının izlenmesi ve raporlanması için M&E uzmanı." },
+  { id: "satinalma-1", type: "satinalma", title: "Eğitim Hizmeti Alımı", organization: "Adalet Akademisi", location: "Ankara", deadline: "2026-07-25", locked: true, description: "Hakim ve savcılara yönelik eğitim hizmeti alımı ihalesi." },
+  { id: "ihale-1", type: "ihale", title: "Bilişim Donanımı Tedariki", organization: "Adli Tebligat Projesi", location: "Ankara", deadline: "2026-08-01", locked: false, description: "Elektronik tebligat altyapısı için sunucu ve ağ donanımı tedariki." },
 ];
 
 export const events: EventItem[] = [
@@ -62,17 +98,18 @@ export const events: EventItem[] = [
   { id: "ev-2", title: "Başvuru Çalıştayı 2026", date: "2026-07-02", location: "İstanbul, Çırağan", isPublic: true, description: "IPA III başvuru hazırlama çalıştayı." },
   { id: "ev-3", title: "Gençlik İstihdam Fuarı", date: "2026-07-10", location: "Gaziantep, Sergi Alanı", isPublic: true, projectId: "genc-istihdam", description: "Genç işsizliğiyle mücadele fuarı." },
   { id: "ev-4", title: "Çevre Sempozyumu", date: "2026-07-18", location: "İzmir, Alsancak", isPublic: true, projectId: "iklim-uyum", description: "İklim uyum stratejileri sempozyumu." },
+  { id: "ev-5", title: "Proje Ekip Toplantısı (Q3)", date: "2026-07-08", location: "Çevrimiçi / Ankara", isPublic: false, projectId: "adli-tebligat", description: "Üçüncü çeyrek ilerleme ve planlama toplantısı." },
 ];
 
 export const blogPosts: BlogPost[] = [
-  { id: "b1", slug: "ipa-3-proje-hazirlama", title: "IPA III'te proje hazırlamanın incelikleri", category: "IPA III", excerpt: "IPA III döneminde başarılı proje başvurusu için bilinmesi gerekenler.", content: "IPA III dönemi, Türkiye'nin AB katılım öncesi mali yardımının üçüncü aşamasıdır...", publishedAt: "2024-06-08", readMinutes: 6 },
-  { id: "b2", slug: "gorunurluk-7-hata", title: "AB projelerinde görünürlük: 7 hata", category: "Görünürlük", excerpt: "Görünürlük kurallarında en sık yapılan hatalar ve çözümleri.", content: "AB tarafından finanse edilen projelerde görünürlük kuralları zorunludur...", publishedAt: "2024-06-02", readMinutes: 5 },
-  { id: "b3", slug: "hibe-sonrasi-surdurulebilirlik", title: "Hibe sonrası sürdürülebilirlik", category: "Proje Yönetimi", excerpt: "Proje bittikten sonra çıktıların sürdürülebilirliği nasıl sağlanır.", content: "Sürdürülebilirlik, projenin finansmanı bittikten sonra da devam etmesidir...", publishedAt: "2024-05-26", readMinutes: 8 },
+  { id: "b1", slug: "ipa-3-proje-hazirlama", title: "IPA III'te proje hazırlamanın incelikleri", category: "IPA III", excerpt: "IPA III döneminde başarılı proje başvurusu için bilinmesi gerekenler.", content: "IPA III dönemi, Türkiye'nin AB katılım öncesi mali yardımının üçüncü aşamasıdır...", publishedAt: "2026-06-08", readMinutes: 6 },
+  { id: "b2", slug: "gorunurluk-7-hata", title: "AB projelerinde görünürlük: 7 hata", category: "Görünürlük", excerpt: "Görünürlük kurallarında en sık yapılan hatalar ve çözümleri.", content: "AB tarafından finanse edilen projelerde görünürlük kuralları zorunludur...", publishedAt: "2026-06-02", readMinutes: 5 },
+  { id: "b3", slug: "hibe-sonrasi-surdurulebilirlik", title: "Hibe sonrası sürdürülebilirlik", category: "Proje Yönetimi", excerpt: "Proje bittikten sonra çıktıların sürdürülebilirliği nasıl sağlanır.", content: "Sürdürülebilirlik, projenin finansmanı bittikten sonra da devam etmesidir...", publishedAt: "2026-05-26", readMinutes: 8 },
 ];
 
 export const news: NewsItem[] = [
-  { id: "n1", kind: "haber", title: "Gaziantep'te ilk yeşil dönüşüm atölyesi 60 KOBİ temsilcisiyle tamamlandı", excerpt: "Dört oturumda enerji verimliliği, döngüsel ekonomi ve yeşil finansman başlıkları ele alındı.", source: "Yeşil Dönüşüm Atölyeleri", publishedAt: "2024-06-15" },
-  { id: "n2", kind: "duyuru", title: "Hibe başvuru sonuçları açıklandı: 38 proje desteklenecek", excerpt: "142 başvurudan 38'i ön değerlendirme aşamasını geçti.", source: "Kırsal Kadın Girişimciliği", publishedAt: "2024-06-15" },
-  { id: "n3", kind: "duyuru", title: "Eğitici eğitimi ikinci dönem kayıtları açıldı", excerpt: "Gençlik İstihdamı Beceri Programı modülü açılmıştır.", source: "Genç İstihdamı Beceri Prog.", publishedAt: "2024-06-14" },
-  { id: "n4", kind: "haber", title: "Sivil toplum işbirliği çağrısı yayında", excerpt: "VII. Döneme katılmak isteyen örgütler için başvuru 20 Temmuz'a kadar açık.", source: "Sivil Toplum Diyaloğu VII", publishedAt: "2024-06-14" },
+  { id: "n1", kind: "haber", title: "Gaziantep'te ilk yeşil dönüşüm atölyesi 60 KOBİ temsilcisiyle tamamlandı", excerpt: "Dört oturumda enerji verimliliği, döngüsel ekonomi ve yeşil finansman başlıkları ele alındı.", source: "Yeşil Dönüşüm Atölyeleri", publishedAt: "2026-06-12" },
+  { id: "n2", kind: "duyuru", title: "Hibe başvuru sonuçları açıklandı: 38 proje desteklenecek", excerpt: "142 başvurudan 38'i ön değerlendirme aşamasını geçti.", source: "Kırsal Kadın Girişimciliği", publishedAt: "2026-06-12" },
+  { id: "n3", kind: "duyuru", title: "Eğitici eğitimi ikinci dönem kayıtları açıldı", excerpt: "Gençlik İstihdamı Beceri Programı modülü açılmıştır.", source: "Genç İstihdamı Beceri Prog.", publishedAt: "2026-06-10" },
+  { id: "n4", kind: "haber", title: "Sivil toplum işbirliği çağrısı yayında", excerpt: "VII. Döneme katılmak isteyen örgütler için başvuru 20 Temmuz'a kadar açık.", source: "Sivil Toplum Diyaloğu VII", publishedAt: "2026-06-10" },
 ];

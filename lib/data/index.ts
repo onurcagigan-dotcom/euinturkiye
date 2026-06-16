@@ -9,11 +9,13 @@
 //
 // Hangi kaynağın döndüğü NEXT_PUBLIC_DATA_SOURCE ile belirlenir.
 // "demo"     -> DemoDataProvider  (JSON)
-// "firebase" -> FirebaseDataProvider (Faz 3'te eklenecek)
+// "firebase" -> FirebaseDataProvider (Firestore)
 // ============================================================
 
 import type { DataProvider } from "./provider";
 import { DemoDataProvider } from "./demo";
+import { FirebaseDataProvider } from "./firebase";
+import { isFirebaseConfigured } from "../firebase/init";
 
 let instance: DataProvider | null = null;
 
@@ -22,24 +24,18 @@ export function getDataProvider(): DataProvider {
 
   const source = process.env.NEXT_PUBLIC_DATA_SOURCE ?? "demo";
 
-  switch (source) {
-    case "firebase":
-      // Faz 3'te:
-      //   const { FirebaseDataProvider } = await import("./firebase");
-      //   instance = new FirebaseDataProvider();
-      // Şimdilik demo'ya düş (Firebase henüz yok)
-      console.warn("[data] firebase kaynağı henüz hazır değil, demo kullanılıyor.");
+  if (source === "firebase") {
+    if (isFirebaseConfigured()) {
+      instance = new FirebaseDataProvider();
+    } else {
+      console.warn("[data] Firebase config eksik, demo kullanılıyor.");
       instance = new DemoDataProvider();
-      break;
-
-    case "demo":
-    default:
-      instance = new DemoDataProvider();
-      break;
+    }
+  } else {
+    instance = new DemoDataProvider();
   }
 
   return instance;
 }
 
-export type { DataProvider } from "./provider";
-export type { ProjectFilters } from "./provider";
+export type { DataProvider, ProjectFilters } from "./provider";

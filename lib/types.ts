@@ -42,6 +42,19 @@ export interface Project {
   status: "devam" | "tamamlandi" | "planlama";
   featured: boolean;        // ana sayfa vitrininde mi
   coverImage?: string;
+  ownerSubscriberId?: string; // projeyi yürüten abone (şirket/STK); boşsa "sahipsiz" arşiv
+  isArchive?: boolean;        // admin'in eklediği geçmiş dönem projesi
+}
+
+/** Proje sahiplenme talebi — şirket bir arşiv projesini portföyüne ister */
+export interface OwnershipRequest {
+  id: string;
+  projectId: string;
+  subscriberId: string;       // talebi yapan abone
+  subscriberName: string;     // gösterim için
+  note?: string;              // şirketin açıklaması (rol/katkı)
+  status: "bekliyor" | "onaylandi" | "reddedildi";
+  createdAt: string;          // ISO
 }
 
 /** İlan tipleri: iş / satınalma / ihale */
@@ -68,6 +81,123 @@ export interface EventItem {
   projectId?: string;
   isPublic: boolean;        // herkese açık mı
   description?: string;
+  capacity?: number;        // kontenjan (opsiyonel)
+}
+
+/** Etkinlik katılımcısı / RSVP kaydı (açık etkinlikler) */
+export interface EventRegistration {
+  id: string;
+  eventId: string;
+  name: string;
+  email: string;
+  organization?: string;
+  status: "kayitli" | "katildi" | "iptal";
+  createdAt: string;        // ISO
+}
+
+/** Kapalı toplantı gündem maddesi */
+export interface AgendaItem {
+  id: string;
+  eventId: string;
+  order: number;
+  title: string;
+  durationMin?: number;     // süre (dakika)
+  presenter?: string;       // sunan kişi
+}
+
+/** Kapalı toplantı davetlisi */
+export interface Invitee {
+  id: string;
+  eventId: string;
+  name: string;
+  email: string;
+  role?: string;            // ekipteki rolü
+  inviteStatus: "bekliyor" | "kabul" | "ret";   // davet durumu
+  invitedAt: string;        // ISO
+}
+
+/** Müsaitlik anketi — önerilen zaman seçeneği */
+export interface TimeOption {
+  id: string;
+  eventId: string;
+  start: string;            // ISO datetime
+  label?: string;           // "1. seçenek" gibi opsiyonel etiket
+}
+
+/** Müsaitlik oyu — bir davetlinin bir zaman seçeneğine uygunluğu */
+export interface AvailabilityVote {
+  id: string;
+  eventId: string;
+  optionId: string;
+  inviteeId: string;
+  available: boolean;       // uygun (true) / uygun değil (false)
+}
+
+/** E-Doküman: proje belgesi */
+export interface DocItem {
+  id: string;
+  projectId?: string;       // hangi projeye ait (opsiyonel)
+  name: string;             // dosya adı
+  category: string;         // "Rapor", "Sözleşme", "Sunum", "Görünürlük"...
+  sizeBytes: number;
+  mimeType: string;
+  url?: string;             // Firebase Storage indirme linki (canlıda)
+  access: "ozel" | "ekip" | "herkese-acik";  // erişim seviyesi
+  uploadedAt: string;       // ISO
+  downloads: number;        // indirme sayısı
+  isLearning?: boolean;     // E-Learning materyali olarak işaretli mi
+  learningSectorId?: string; // E-Learning'de sınıflandırma sektörü
+  learningTopic?: string;   // öğrenme konu başlığı
+}
+
+/** E-Learning: harici eğitim videosu */
+export interface TrainingVideo {
+  id: string;
+  title: string;            // eğitim adı
+  topic: string;            // konu başlığı
+  url: string;              // harici video linki (YouTube/Vimeo vb.)
+  sectorId?: string;        // sektör sınıflandırması
+  projectId?: string;
+  description?: string;
+  addedAt: string;          // ISO
+}
+
+/** Bülten abonesi / alıcı */
+export interface Subscriber {
+  id: string;
+  email: string;
+  name?: string;
+  organization?: string;
+  tags: string[];           // hedefleme etiketleri ("tedarikci", "ekip", "kamu"...)
+  subscribed: boolean;      // abonelik aktif mi
+  addedAt: string;          // ISO
+}
+
+/** Bülten kampanyası */
+export interface Campaign {
+  id: string;
+  subject: string;
+  body: string;             // düz metin / basit HTML
+  targetTags: string[];     // hedef etiketler (boşsa herkese)
+  status: "taslak" | "gonderildi";
+  createdAt: string;        // ISO
+  sentAt?: string;          // ISO
+  recipientCount: number;   // gönderildiği alıcı sayısı
+  openCount: number;        // açılma (canlıda izlenir)
+}
+
+/** Paydaş — proje ekibi, uzman, tedarikçi, kamu muhatabı */
+export interface Stakeholder {
+  id: string;
+  projectId?: string;       // hangi projeye ait (opsiyonel)
+  name: string;
+  email: string;
+  phone?: string;
+  organization?: string;
+  role: string;             // "Proje Koordinatörü", "Mali Uzman"...
+  type: "ekip" | "uzman" | "tedarikci" | "kamu" | "diger";
+  notes?: string;
+  addedAt: string;          // ISO
 }
 
 /** Blog / Gündem yazıları */
@@ -98,4 +228,15 @@ export interface HomeStats {
   projects: number;
   openListings: number;
   upcomingEvents: number;
+}
+
+/** Abonelik paketleri */
+export interface Plan {
+  id: string;
+  name: string;
+  priceEur: number;        // yıllık, KDV dahil (0 = ücretsiz)
+  tagline: string;
+  features: string[];
+  highlighted: boolean;    // öne çıkan paket
+  cta: string;
 }
