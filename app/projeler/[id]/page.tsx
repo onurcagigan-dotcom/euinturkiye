@@ -6,7 +6,7 @@ import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
-import type { Project, Sector, Donor, BlogPost, ExpertProfile, OwnershipRequest } from "@/lib/types";
+import type { Project, Sector, Donor, BlogPost, ExpertProfile, OwnershipRequest, Stakeholder, ProjectDocument, EventItem } from "@/lib/types";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -18,6 +18,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [experts, setExperts] = useState<{ profile: ExpertProfile; expertise: string; role: string }[]>([]);
   const [myRequest, setMyRequest] = useState<OwnershipRequest | null>(null);
+  const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
+  const [documents, setDocuments] = useState<ProjectDocument[]>([]);
+  const [relatedEvents, setRelatedEvents] = useState<EventItem[]>([]);
 
   // Talep formu state'i
   const [showRequestForm, setShowRequestForm] = useState(false);
@@ -31,13 +34,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     db.getProject(id).then(async (p) => {
       setProject(p);
       if (p) {
-        const [sec, don, posts, exp] = await Promise.all([
+        const [sec, don, posts, exp, stk, docs, allEvents] = await Promise.all([
           db.getSector(p.sectorId), db.getDonor(p.donorId), db.getBlogPosts(), db.getProjectExperts(p.id),
+          db.getStakeholders(p.id), db.getDocuments(p.id), db.getEvents(),
         ]);
         setSector(sec);
         setDonor(don);
         setRelatedPosts(posts.filter((bp) => bp.projectId === p.id).slice(0, 3));
         setExperts(exp);
+        setStakeholders(stk);
+        setDocuments(docs);
+        setRelatedEvents(allEvents.filter((e) => e.projectId === p.id));
 
         if (firma) {
           const myReqs = await db.getOwnershipRequestsFor({ subscriberId: firma.id, projectId: p.id });
@@ -149,8 +156,70 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         {project.expectedOutputs && <Section title={t("project_outputs")} content={project.expectedOutputs} />}
         {project.activities && <Section title={t("project_activities")} content={project.activities} />}
 
+        {stakeholders.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-xl font-bold text-ink mb-4">{t("project_team")}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {stakeholders.map((s) => (
+                <div key={s.id} className="flex items-start gap-3 p-4 bg-white border border-line rounded-xl">
+                  <div className="w-10 h-10 rounded-full bg-eu-pale flex items-center justify-center text-eu font-bold flex-shrink-0">
+                    {s.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink text-sm">{s.name}</p>
+                    <p className="text-xs text-mist">{s.role}{s.organization ? ` · ${s.organization}` : ""}</p>
+                    <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
+                      s.type === "kamu" ? "bg-blue-100 text-blue-700" :
+                      s.type === "uzman" ? "bg-purple-100 text-purple-700" :
+                      s.type === "ekip" ? "bg-green-100 text-green-700" :
+                      s.type === "tedarikci" ? "bg-orange-100 text-orange-700" :
+                      "bg-gray-100 text-gray-600"
+                    }`}>
+                      {s.type === "kamu" ? t("team_type_kamu") :
+                       s.type === "uzman" ? t("team_type_uzman") :
+                       s.type === "ekip" ? t("team_type_ekip") :
+                       s.type === "tedarikci" ? t("team_type_tedarikci") : t("team_type_diger")}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {documents.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-xl font-bold text-ink mb-4">{t("project_documents")}</h2>
+            <div className="space-y-2">
+              {documents.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between gap-3 p-4 bg-white border border-line rounded-xl">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-2xl flex-shrink-0">
+                      {doc.category === "rapor" ? "📊" : doc.category === "sunum" ? "📑" : doc.category === "sozlesme" ? "📜" : "📁"}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-ink text-sm truncate">{doc.name}</p>
+                      <p className="text-xs text-mist">
+                        {doc.fileSize ?? ""} {doc.fileSize ? "·" : ""} {new Date(doc.uploadedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${
+                    doc.accessLevel === "herkes" ? "bg-green-100 text-green-700" :
+                    doc.accessLevel === "uye" ? "bg-yellow-100 text-yellow-700" :
+                    "bg-gray-100 text-gray-500"
+                  }`}>
+                    {doc.accessLevel === "herkes" ? t("doc_access_herkes") :
+                     doc.accessLevel === "uye" ? t("doc_access_uye") : t("doc_access_ekip")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {experts.length > 0 && (
-          <div className="mt-10 mb-8">
+          <div className="mb-10">
             <h2 className="text-xl font-bold text-ink mb-4">{t("project_experts")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {experts.map((e, i) => (
@@ -169,23 +238,56 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
+        {relatedEvents.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-xl font-bold text-ink mb-4">{t("project_events")}</h2>
+            <div className="space-y-3">
+              {relatedEvents.map((ev) => {
+                const d = new Date(ev.date);
+                return (
+                  <Link key={ev.id} href={`/etkinlikler/${ev.id}`}
+                    className="flex items-center gap-4 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
+                    <div className="flex-shrink-0 text-center bg-eu-pale rounded-lg p-2 w-14">
+                      <div className="text-lg font-extrabold text-eu">{d.getDate()}</div>
+                      <div className="text-[10px] text-eu font-semibold uppercase">
+                        {d.toLocaleDateString("tr", { month: "short" })}
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-ink text-sm truncate">{ev.title}</p>
+                      <p className="text-xs text-mist">📍 {ev.location}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {relatedPosts.length > 0 && (
-          <div className="mt-12">
+          <div className="mb-10">
             <h2 className="text-xl font-bold text-ink mb-5">{t("project_news")}</h2>
             <div className="space-y-3">
               {relatedPosts.map((post) => (
                 <Link key={post.id} href={`/gundem/${post.slug}`}
                   className="flex items-start gap-4 p-4 border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
-                  <div className="flex-shrink-0 text-xs text-eu font-semibold bg-eu-pale px-2 py-1 rounded">
-                    {post.category}
-                  </div>
+                  {post.coverImage ? (
+                    <img src={post.coverImage} alt={post.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="flex-shrink-0 text-xs text-eu font-semibold bg-eu-pale px-2 py-1 rounded">
+                      {post.category}
+                    </div>
+                  )}
                   <div>
                     <h3 className="font-semibold text-ink text-sm">{post.title}</h3>
-                    <p className="text-xs text-mist mt-1">{new Date(post.publishedAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-mist mt-1">{post.category} · {new Date(post.publishedAt).toLocaleDateString()}</p>
                   </div>
                 </Link>
               ))}
             </div>
+            <Link href="/gundem" className="inline-block mt-4 text-eu text-sm font-semibold hover:underline">
+              {t("news_all")} →
+            </Link>
           </div>
         )}
 

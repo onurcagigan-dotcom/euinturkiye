@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { useLocale } from "@/lib/i18n/context";
-import type { Sector, Project, Listing, EventItem, BlogPost, HomeStats } from "@/lib/types";
+import type { Sector, Project, Listing, EventItem, BlogPost, HomeStats, Donor } from "@/lib/types";
 
 export default function HomePage() {
   const { t, locale } = useLocale();
@@ -14,6 +14,8 @@ export default function HomePage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
   const [sectors, setSectors] = useState<Sector[]>([]);
+  const [donors, setDonors] = useState<Donor[]>([]);
+  const [donorCounts, setDonorCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const db = getDataProvider();
@@ -24,8 +26,14 @@ export default function HomePage() {
       db.getBlogPosts(),
       db.getProjects({ featured: true }),
       db.getSectors(),
-    ]).then(([s, e, l, b, p, sec]) => {
+      db.getDonors(),
+      db.getProjects(),
+    ]).then(([s, e, l, b, p, sec, don, allProjects]) => {
       setStats(s); setEvents(e); setListings(l); setBlogPosts(b); setFeaturedProjects(p); setSectors(sec);
+      setDonors(don);
+      const counts: Record<string, number> = {};
+      allProjects.forEach((proj) => { counts[proj.donorId] = (counts[proj.donorId] ?? 0) + 1; });
+      setDonorCounts(counts);
     });
   }, []);
 
@@ -95,8 +103,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Öne Çıkan Projeler */}
+      {/* Donörler */}
       <section className="py-14 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold text-ink mb-8">{t("home_donors")}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {donors.map((d) => (
+              <Link key={d.id} href={`/projeler?donor=${d.id}`}
+                className="bg-white rounded-xl border border-line p-5 text-center hover:border-eu hover:shadow-md transition-all">
+                <div className="text-2xl font-extrabold text-eu">{donorCounts[d.id] ?? 0}</div>
+                <p className="text-xs text-mist mb-1">{t("home_donor_projects")}</p>
+                <div className="text-sm font-semibold text-ink leading-tight">{d.name}</div>
+                <p className="text-xs text-mist mt-0.5">{d.country}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Öne Çıkan Projeler */}
+      <section className="py-14 px-6 bg-surface">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-ink">{t("home_featured")}</h2>
@@ -140,7 +166,7 @@ export default function HomePage() {
       </section>
 
       {/* İlanlar */}
-      <section className="py-14 px-6 bg-surface">
+      <section className="py-14 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-ink">{t("home_listings")}</h2>
@@ -171,7 +197,7 @@ export default function HomePage() {
 
       {/* Etkinlikler */}
       {upcoming.length > 0 && (
-        <section className="py-14 px-6">
+        <section className="py-14 px-6 bg-surface">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold text-ink">{t("home_upcoming_events")}</h2>
@@ -201,8 +227,8 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* AB-Türkiye Gündemi */}
-      <section className="py-14 px-6 bg-surface">
+      {/* Gündem */}
+      <section className="py-14 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-ink">{t("home_agenda")}</h2>
@@ -212,11 +238,22 @@ export default function HomePage() {
             {recentNews.map((post) => (
               <Link key={post.id} href={`/gundem/${post.slug}`}
                 className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-                <div className="h-32 bg-gradient-to-br from-eu to-blue-700 flex items-center justify-center">
-                  <span className="text-white text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
-                    {post.category}
-                  </span>
-                </div>
+                {post.coverImage ? (
+                  <div className="h-32 relative overflow-hidden">
+                    <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <span className="text-white text-xs font-semibold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                        {post.category}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-32 bg-gradient-to-br from-eu to-blue-700 flex items-center justify-center">
+                    <span className="text-white text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
+                      {post.category}
+                    </span>
+                  </div>
+                )}
                 <div className="p-4">
                   <h3 className="font-semibold text-ink text-sm leading-tight mb-2">{post.title}</h3>
                   <p className="text-xs text-mist">{new Date(post.publishedAt).toLocaleDateString(locale === "tr" ? "tr" : "en")}</p>

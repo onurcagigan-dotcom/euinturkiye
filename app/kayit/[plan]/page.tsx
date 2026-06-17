@@ -3,6 +3,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { useLocale } from "@/lib/i18n/context";
+import { PLAN_PRICING, formatEuro, type PlanId } from "@/lib/pricing";
 
 export default function KayitFormPage({ params }: { params: Promise<{ plan: string }> }) {
   const { plan } = use(params);
@@ -12,14 +13,18 @@ export default function KayitFormPage({ params }: { params: Promise<{ plan: stri
   const [form, setForm] = useState({ name: "", email: "", org: "", phone: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
-  const PLAN_NAMES: Record<string, { name: string; price: string }> = {
-    ucretsiz: { name: isEn ? "Free Plan" : "Ücretsiz Plan", price: "€0" },
-    paket1: { name: isEn ? "Package 1" : "Paket 1", price: "€2.500" },
-    paket2: { name: isEn ? "Package 2" : "Paket 2", price: "€4.000" },
-    tedarikci: { name: isEn ? "Supplier Package" : "Tedarikçi Paketi", price: "€2.000" },
+  const PLAN_LABELS: Record<string, string> = {
+    ucretsiz: isEn ? "Free Plan" : "Ücretsiz Plan",
+    paket1: isEn ? "Package 1" : "Paket 1",
+    paket2: isEn ? "Package 2" : "Paket 2",
+    tedarikci: isEn ? "Supplier Package" : "Tedarikçi Paketi",
   };
 
-  const planInfo = PLAN_NAMES[plan] ?? { name: plan, price: "" };
+  const pricing = PLAN_PRICING[plan as PlanId];
+  const planInfo = {
+    name: PLAN_LABELS[plan] ?? plan,
+    price: pricing ? formatEuro(pricing.firstYearPrice) : "",
+  };
 
   const validate = () => {
     const e: { name?: string; email?: string } = {};

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
+import { useDemoAccess } from "@/lib/demo-access-context";
 
 export function PageShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,6 +14,7 @@ export function PageShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { locale, setLocale, t } = useLocale();
   const { current: firma } = useFirma();
+  const { verified: demoVerified } = useDemoAccess();
 
   const NAV_LINKS = [
     { href: "/projeler", label: t("nav_projects") },
@@ -55,6 +57,19 @@ export function PageShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Üst bar: Demo erişimi */}
+      <div className={`${demoVerified ? "bg-green-700" : "bg-yellow-500"} text-white`}>
+        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center justify-center gap-2 text-xs font-semibold">
+          {demoVerified ? (
+            <span>✓ {t("demo_bar_active")}</span>
+          ) : (
+            <Link href="/demo" className="hover:underline flex items-center gap-1.5">
+              <span>🔒</span> {t("demo_bar_locked")}
+            </Link>
+          )}
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-white border-b border-line sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
@@ -67,9 +82,14 @@ export function PageShell({ children }: { children: React.ReactNode }) {
           <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map(l => (
               <Link key={l.href} href={l.href}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   path.startsWith(l.href) ? "text-eu bg-eu-pale" : "text-slate hover:text-eu hover:bg-surface"
                 }`}>
+                {l.href === "/araclar" && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                  </svg>
+                )}
                 {l.label}
               </Link>
             ))}
@@ -229,6 +249,16 @@ export function PageShell({ children }: { children: React.ReactNode }) {
               <li><Link href="/admin" className="hover:text-white transition-colors">{t("nav_admin")}</Link></li>
               <li><Link href="/araclar" className="hover:text-white transition-colors">{t("footer_all_tools")}</Link></li>
             </ul>
+          </div>
+        </div>
+        <div className="border-t border-gray-800 py-5">
+          <div className="max-w-7xl mx-auto px-6">
+            <p className="text-xs text-gray-500 leading-relaxed max-w-4xl">
+              {t("footer_disclaimer_short")}{" "}
+              <Link href="/sorumluluk-reddi" className="text-gray-400 hover:text-white underline">
+                {t("footer_disclaimer_link")}
+              </Link>
+            </p>
           </div>
         </div>
         <div className="border-t border-gray-800 py-4">

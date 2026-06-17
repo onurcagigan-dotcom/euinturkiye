@@ -7,11 +7,12 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { useFirma } from "@/lib/firma/context";
 import { useLocale } from "@/lib/i18n/context";
 import { getDataProvider } from "@/lib/data";
+import { PLAN_PRICING, getSubscriptionYear, getCurrentYearPrice, formatEuro } from "@/lib/pricing";
 import type { Project, OwnershipRequest } from "@/lib/types";
 
 export default function FirmaPanelPage() {
   const router = useRouter();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { current, loading, logout } = useFirma();
   const [ownedProjects, setOwnedProjects] = useState<Project[]>([]);
   const [memberProjects, setMemberProjects] = useState<Project[]>([]);
@@ -20,6 +21,13 @@ export default function FirmaPanelPage() {
   const [allProjectsMap, setAllProjectsMap] = useState<Record<string, Project>>({});
   const [dataLoading, setDataLoading] = useState(true);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
+
+  const PLAN_LABELS: Record<string, string> = {
+    ucretsiz: locale === "tr" ? "Ücretsiz" : "Free",
+    paket1: locale === "tr" ? "Paket 1" : "Package 1",
+    paket2: locale === "tr" ? "Paket 2" : "Package 2",
+    tedarikci: locale === "tr" ? "Tedarikçi" : "Supplier",
+  };
 
   useEffect(() => {
     if (loading) return;
@@ -62,6 +70,10 @@ export default function FirmaPanelPage() {
 
   if (!current) return null;
 
+  const pricing = PLAN_PRICING[current.plan];
+  const subscriptionYear = getSubscriptionYear(current.createdAt);
+  const currentYearPrice = getCurrentYearPrice(current.plan, current.createdAt);
+
   return (
     <PageShell>
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -78,6 +90,23 @@ export default function FirmaPanelPage() {
             className="text-sm px-4 py-2 border border-line text-slate rounded-lg hover:bg-surface">
             {t("firma_logout")}
           </button>
+        </div>
+
+        {/* Üyelik bilgisi */}
+        <div className="bg-white border border-line rounded-2xl p-5 mb-8 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-mist font-semibold mb-1">{t("firma_membership_plan")}</p>
+            <p className="text-lg font-bold text-ink">{PLAN_LABELS[current.plan]}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-wide text-mist font-semibold mb-1">
+              {subscriptionYear <= 1 ? t("firma_membership_first_year") : t("firma_membership_renewal")}
+            </p>
+            <p className="text-lg font-bold text-eu">{formatEuro(currentYearPrice)}<span className="text-xs text-mist font-normal">/{locale === "tr" ? "yıl" : "year"}</span></p>
+            {pricing.hasRenewalDiscount && subscriptionYear <= 1 && (
+              <p className="text-xs text-mist mt-0.5">{t("signup_renewal_note")}: {formatEuro(pricing.renewalPrice)}/{locale === "tr" ? "yıl" : "year"}</p>
+            )}
+          </div>
         </div>
 
         {actionMsg && (

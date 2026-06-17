@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin/etkinlikler", label: "Etkinlikler" },
   { href: "/admin/blog", label: "Blog / Gündem" },
   { href: "/admin/konsorsiyum", label: "Konsorsiyum Talepleri" },
+  { href: "/admin/uyelikler", label: "Üyelikler" },
 ];
 
 function AdminNav() {

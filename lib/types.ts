@@ -46,6 +46,12 @@ export interface Project {
 
 export type ListingType = "is" | "satinalma" | "ihale";
 
+export interface ListingDocument {
+  name: string;
+  url?: string;
+  fileSize?: string;
+}
+
 export interface Listing {
   id: string;
   type: ListingType;
@@ -53,10 +59,16 @@ export interface Listing {
   organization: string;
   projectId?: string;
   location?: string;
+  publishedAt?: string;
   deadline?: string;
   locked: boolean;
   description: string;
-  documentUrl?: string;
+  subject?: string; // İhaleye/satınalmaya konu iş — kısa özet
+  budget?: string;
+  referenceNo?: string;
+  contactEmail?: string;
+  documentUrl?: string; // geriye dönük uyumluluk için
+  documents?: ListingDocument[];
 }
 
 export interface EventItem {

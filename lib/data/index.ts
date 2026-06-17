@@ -1,4 +1,5 @@
 import type { DataProvider } from "./provider";
+import { GatedDataProvider } from "./gated-provider";
 
 let _instance: DataProvider | null = null;
 
@@ -10,7 +11,8 @@ export function getDataProvider(): DataProvider {
   }
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { DemoDataProvider } = require("./demo");
-  const inst: DataProvider = new DemoDataProvider();
+  const realInstance: DataProvider = new DemoDataProvider();
+  const inst: DataProvider = new GatedDataProvider(realInstance);
   _instance = inst;
   return inst;
 }

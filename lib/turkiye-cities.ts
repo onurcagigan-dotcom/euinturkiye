@@ -1,5 +1,5 @@
 // Türkiye 81 ili — merkez koordinatları (enlem/boylam)
-// Haritada daire olarak gösterilecek
+// Haritada daire olarak gösterilecek (eski daire-tabanlı harita için; SVG harita artık turkey-map.svg dosyasını kullanıyor)
 
 export const CITIES: {
   id: string;
@@ -52,6 +52,7 @@ export const CITIES: {
   { id: "osmaniye", name: "Osmaniye", lat: 37.07, lng: 36.25, region: "Akdeniz" },
   { id: "burdur", name: "Burdur", lat: 37.72, lng: 30.29, region: "Akdeniz" },
   { id: "isparta", name: "Isparta", lat: 37.76, lng: 30.56, region: "Akdeniz" },
+  { id: "karaman", name: "Karaman", lat: 37.18, lng: 33.22, region: "Akdeniz" },
   // Karadeniz
   { id: "samsun", name: "Samsun", lat: 41.29, lng: 36.33, region: "Karadeniz" },
   { id: "trabzon", name: "Trabzon", lat: 41.00, lng: 39.73, region: "Karadeniz" },
@@ -68,6 +69,8 @@ export const CITIES: {
   { id: "amasya", name: "Amasya", lat: 40.65, lng: 35.83, region: "Karadeniz" },
   { id: "tokat", name: "Tokat", lat: 40.31, lng: 36.56, region: "Karadeniz" },
   { id: "corum", name: "Çorum", lat: 40.55, lng: 34.95, region: "Karadeniz" },
+  { id: "bayburt", name: "Bayburt", lat: 40.26, lng: 40.22, region: "Karadeniz" },
+  { id: "gumushane", name: "Gümüşhane", lat: 40.46, lng: 39.48, region: "Karadeniz" },
   // Doğu Anadolu
   { id: "erzurum", name: "Erzurum", lat: 39.91, lng: 41.27, region: "Doğu Anadolu" },
   { id: "van", name: "Van", lat: 38.50, lng: 43.38, region: "Doğu Anadolu" },

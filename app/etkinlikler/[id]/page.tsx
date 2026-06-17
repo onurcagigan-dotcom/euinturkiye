@@ -127,21 +127,30 @@ export default function EtkinlikDetailPage({ params }: { params: Promise<{ id: s
           </div>
         )}
 
-        {!isPast && event.isPublic && (
-          <div className="mt-10 bg-eu-pale border border-eu/20 rounded-xl p-6 text-center">
-            <h3 className="font-bold text-ink text-lg mb-2">{t("event_join_title")}</h3>
-            <p className="text-slate text-sm mb-4">
-              {t("event_join_sub")}
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link href="/giris" className="px-5 py-2.5 bg-eu text-white font-semibold text-sm rounded-lg hover:bg-blue-800 transition-colors">
-                {t("event_login_signup")}
-              </Link>
-              <Link href="/kayit" className="px-5 py-2.5 border border-eu text-eu font-semibold text-sm rounded-lg hover:bg-eu-pale transition-colors">
-                {t("event_free_signup")}
-              </Link>
+        {!isPast && (
+          event.isPublic ? (
+            <div className="mt-10 bg-eu-pale border border-eu/20 rounded-xl p-6 text-center">
+              <h3 className="font-bold text-ink text-lg mb-2">{t("event_join_title")}</h3>
+              <p className="text-slate text-sm mb-4">
+                {t("event_join_sub")}
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Link href="/giris" className="px-5 py-2.5 bg-eu text-white font-semibold text-sm rounded-lg hover:bg-blue-800 transition-colors">
+                  {t("event_login_signup")}
+                </Link>
+                <Link href="/kayit" className="px-5 py-2.5 border border-eu text-eu font-semibold text-sm rounded-lg hover:bg-eu-pale transition-colors">
+                  {t("event_free_signup")}
+                </Link>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-10 bg-surface border border-line rounded-xl p-6 text-center">
+              <h3 className="font-bold text-ink text-lg mb-2">{t("event_invite_only_title")}</h3>
+              <p className="text-slate text-sm">
+                {t("event_invite_only_sub")}
+              </p>
+            </div>
+          )
         )}
 
         <div className="mt-8">

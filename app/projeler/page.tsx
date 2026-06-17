@@ -7,7 +7,7 @@ import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
-import type { Project, Sector, IpaPeriod } from "@/lib/types";
+import type { Project, Sector, Donor, IpaPeriod } from "@/lib/types";
 
 function ProjelerPageInner() {
   const { t } = useLocale();
@@ -16,9 +16,11 @@ function ProjelerPageInner() {
   const pathname = usePathname();
   const [projects, setProjects] = useState<Project[]>([]);
   const [sectors, setSectors] = useState<Sector[]>([]);
+  const [donors, setDonors] = useState<Donor[]>([]);
   const [loading, setLoading] = useState(true);
 
   const sektor = searchParams.get("sektor") ?? undefined;
+  const donorId = searchParams.get("donor") ?? undefined;
   const donem = searchParams.get("donem") ?? undefined;
   const durum = searchParams.get("durum") ?? undefined;
   const ara = searchParams.get("ara") ?? "";
@@ -45,19 +47,21 @@ function ProjelerPageInner() {
     setLoading(true);
     const db = getDataProvider();
     Promise.all([
-      db.getProjects({ sectorId: sektor, ipaPeriod: donem as IpaPeriod | undefined, status: durum, search: ara || undefined }),
+      db.getProjects({ sectorId: sektor, donorId, ipaPeriod: donem as IpaPeriod | undefined, status: durum, search: ara || undefined }),
       db.getSectors(),
-    ]).then(([p, s]) => { setProjects(p); setSectors(s); setLoading(false); });
-  }, [sektor, donem, durum, ara]);
+      db.getDonors(),
+    ]).then(([p, s, d]) => { setProjects(p); setSectors(s); setDonors(d); setLoading(false); });
+  }, [sektor, donorId, donem, durum, ara]);
 
   const statusLabel = (s: Project["status"]) =>
     s === "devam" ? t("status_ongoing") : s === "tamamlandi" ? t("status_completed") : t("status_planning");
 
   // Filtre linklerinde mevcut arama metnini koruyarak href üretir
-  const filterHref = (key: "sektor" | "donem" | "durum", value?: string) => {
+  const filterHref = (key: "sektor" | "donor" | "donem" | "durum", value?: string) => {
     const params = new URLSearchParams();
     if (ara) params.set("ara", ara);
     if (key !== "sektor" && sektor) params.set("sektor", sektor);
+    if (key !== "donor" && donorId) params.set("donor", donorId);
     if (key !== "donem" && donem) params.set("donem", donem);
     if (key !== "durum" && durum) params.set("durum", durum);
     if (value) params.set(key, value);
@@ -85,6 +89,21 @@ function ProjelerPageInner() {
                   <Link key={s.id} href={filterHref("sektor", s.id)}
                     className={`block text-sm px-3 py-1.5 rounded-lg ${sektor === s.id ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
                     {s.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <div className="text-xs uppercase tracking-wide text-mist mb-2 font-semibold">{t("projects_donor")}</div>
+              <div className="space-y-1">
+                <Link href={filterHref("donor")} className={`block text-sm px-3 py-1.5 rounded-lg ${!donorId ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
+                  {t("projects_all")}
+                </Link>
+                {donors.map((d) => (
+                  <Link key={d.id} href={filterHref("donor", d.id)}
+                    className={`block text-sm px-3 py-1.5 rounded-lg ${donorId === d.id ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
+                    {d.name}
                   </Link>
                 ))}
               </div>

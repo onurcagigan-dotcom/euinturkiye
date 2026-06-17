@@ -53,11 +53,22 @@ function GundemPageInner() {
           {sorted.map((post) => (
             <Link key={post.id} href={`/gundem/${post.slug}`}
               className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-md transition-shadow group">
-              <div className="h-40 bg-gradient-to-br from-eu to-blue-800 flex items-end p-4">
-                <span className="text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
-                  {post.category}
-                </span>
-              </div>
+              {post.coverImage ? (
+                <div className="h-40 relative overflow-hidden">
+                  <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4">
+                    <span className="text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full backdrop-blur-sm">
+                      {post.category}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-40 bg-gradient-to-br from-eu to-blue-800 flex items-end p-4">
+                  <span className="text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
+                    {post.category}
+                  </span>
+                </div>
+              )}
               <div className="p-5">
                 <h2 className="font-bold text-ink leading-tight mb-2 group-hover:text-eu transition-colors">
                   {post.title}

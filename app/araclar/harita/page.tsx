@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CITIES } from "@/lib/turkiye-cities";
+import { TURKEY_MAP_VIEWBOX, TURKEY_MAP_OUTER_TRANSFORM, TURKEY_MAP_CITIES, TURKEY_MAP_LAKES_SVG } from "@/lib/turkey-map-data";
 
 // Demo proje verisi: her ilin kaç projesi var
 const PROJECT_COUNTS: Record<string, number> = {
@@ -22,6 +23,7 @@ const PROJECT_COUNTS: Record<string, number> = {
   corum: 2, amasya: 1, tokat: 2, ordu: 2, giresun: 1,
   rize: 1, artvin: 1, kastamonu: 1, sinop: 1, bartin: 1,
   zonguldak: 1, karabuk: 1, duzce: 1, kirikkale: 1, cankiri: 1,
+  karaman: 1, bayburt: 1, gumushane: 1,
 };
 
 const REGIONS = ["Tümü", "Marmara", "Ege", "Akdeniz", "İç Anadolu", "Karadeniz", "Doğu Anadolu", "Güneydoğu Anadolu"];
@@ -36,14 +38,6 @@ const REGION_COLORS: Record<string, string> = {
   "Güneydoğu Anadolu": "#e30a17",
 };
 
-// Türkiye sınır koordinatları (lon: 26-45, lat: 36-42)
-// SVG viewport: 800x400, mapping: lon 26-45 → x 0-800, lat 42-36 → y 0-400
-function projectToSVG(lat: number, lng: number): { x: number; y: number } {
-  const x = ((lng - 26) / (45 - 26)) * 800;
-  const y = ((42 - lat) / (42 - 36)) * 400;
-  return { x, y };
-}
-
 function maxCount(): number {
   return Math.max(...Object.values(PROJECT_COUNTS), 1);
 }
@@ -53,17 +47,21 @@ export default function HaritaPage() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [region, setRegion] = useState("Tümü");
 
-  const filtered = useMemo(() =>
-    region === "Tümü" ? CITIES : CITIES.filter(c => c.region === region),
-    [region]
-  );
+  const cityBySlug = useMemo(() => {
+    const map: Record<string, typeof CITIES[number]> = {};
+    CITIES.forEach((c) => { map[c.id] = c; });
+    return map;
+  }, []);
 
-  const selectedCity = CITIES.find(c => c.id === selected);
-  const hoveredCity = CITIES.find(c => c.id === hovered);
+  const selectedCity = selected ? cityBySlug[selected] : undefined;
+  const hoveredCity = hovered ? cityBySlug[hovered] : undefined;
   const activeCity = selectedCity ?? hoveredCity;
 
   const totalProjects = Object.values(PROJECT_COUNTS).reduce((a, b) => a + b, 0);
   const max = maxCount();
+
+  // Hangi illerin etiketi gösterilsin (büyük/çok projeli iller, küçük illerde isim kalabalık yapar)
+  const showLabelThreshold = 0; // 0 = tüm illerde etiket göster
 
   return (
     <PageShell>
@@ -71,14 +69,14 @@ export default function HaritaPage() {
         <Breadcrumb items={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Dijital Araçlar", href: "/araclar" },
-          { label: "Proje Haritası" },
+          { label: "Projeler" },
         ]} />
 
         <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
-            <h1 className="text-2xl font-bold text-ink">Proje Haritası</h1>
+            <h1 className="text-2xl font-bold text-ink">Projeler</h1>
             <p className="text-slate text-sm mt-1">
-              Türkiye&apos;nin 81 iline dağılan <strong>{totalProjects}</strong> proje — ilde projenin büyüklüğünü yansıtır.
+              Türkiye&apos;nin 81 iline dağılan <strong>{totalProjects}</strong> proje — bir ile tıklayarak detayları görün.
             </p>
           </div>
           {/* Bölge filtresi */}
@@ -95,77 +93,64 @@ export default function HaritaPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Harita */}
           <div className="lg:col-span-3">
-            <div className="bg-white border border-line rounded-2xl overflow-hidden shadow-sm">
-              {/* Arka plan */}
+            <div className="bg-white border border-line rounded-2xl overflow-hidden shadow-sm p-2">
               <svg
-                viewBox="0 0 800 400"
+                viewBox={TURKEY_MAP_VIEWBOX}
                 className="w-full"
                 style={{ background: "linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 100%)" }}
               >
-                {/* Izgara referans çizgileri */}
-                {[36, 37, 38, 39, 40, 41, 42].map(lat => {
-                  const { y } = projectToSVG(lat, 26);
-                  return (
-                    <line key={lat} x1="0" y1={y} x2="800" y2={y}
-                      stroke="#E2E8F0" strokeWidth="0.5" strokeDasharray="4,4" />
-                  );
-                })}
-                {[26, 28, 30, 32, 34, 36, 38, 40, 42, 44].map(lng => {
-                  const { x } = projectToSVG(36, lng);
-                  return (
-                    <line key={lng} x1={x} y1="0" x2={x} y2="400"
-                      stroke="#E2E8F0" strokeWidth="0.5" strokeDasharray="4,4" />
-                  );
-                })}
+                <g transform={TURKEY_MAP_OUTER_TRANSFORM}>
+                  {/* Göller */}
+                  <g fill="#bfdbfe" dangerouslySetInnerHTML={{ __html: TURKEY_MAP_LAKES_SVG }} />
 
-                {/* İl noktaları */}
-                {filtered.map(city => {
-                  const { x, y } = projectToSVG(city.lat, city.lng);
-                  const count = PROJECT_COUNTS[city.id] ?? 0;
-                  const r = Math.max(5, Math.sqrt(count / max) * 22);
-                  const isSelected = selected === city.id;
-                  const isHovered = hovered === city.id;
-                  const color = REGION_COLORS[city.region] ?? "#003399";
+                  {/* İl sınırları */}
+                  {TURKEY_MAP_CITIES.map((city) => {
+                    const cityInfo = cityBySlug[city.slug];
+                    const count = PROJECT_COUNTS[city.slug] ?? 0;
+                    const isSelected = selected === city.slug;
+                    const isHovered = hovered === city.slug;
+                    const inRegionFilter = region === "Tümü" || cityInfo?.region === region;
+                    const regionColor = cityInfo ? (REGION_COLORS[cityInfo.region] ?? "#003399") : "#94A3B8";
 
-                  return (
-                    <g key={city.id}
-                      onClick={() => setSelected(prev => prev === city.id ? null : city.id)}
-                      onMouseEnter={() => setHovered(city.id)}
-                      onMouseLeave={() => setHovered(null)}
-                      style={{ cursor: "pointer" }}>
-                      {/* Dış halka */}
-                      {(isSelected || isHovered) && (
-                        <circle cx={x} cy={y} r={r + 5}
-                          fill="none" stroke={color} strokeWidth="2" opacity="0.4" />
-                      )}
-                      {/* Ana daire */}
-                      <circle cx={x} cy={y} r={r}
-                        fill={color}
-                        opacity={region === "Tümü" || city.region === region ? 0.85 : 0.2}
-                        stroke="white" strokeWidth="1.5"
+                    const intensity = count > 0 ? 0.3 + (count / max) * 0.6 : 0.12;
+                    const fillColor = inRegionFilter ? regionColor : "#CBD5E1";
+                    const fillOpacity = isSelected || isHovered ? 0.95 : (inRegionFilter ? intensity : 0.2);
+
+                    return (
+                      <g key={city.slug}
+                        fill={fillColor}
+                        fillOpacity={fillOpacity}
+                        stroke={isSelected ? "#1E3A8A" : "#fff"}
+                        strokeWidth={isSelected ? 2.5 : 1}
+                        style={{ transition: "fill-opacity 0.15s, stroke 0.15s", cursor: "pointer" }}
+                        onClick={() => setSelected(prev => prev === city.slug ? null : city.slug)}
+                        onMouseEnter={() => setHovered(city.slug)}
+                        onMouseLeave={() => setHovered(null)}
+                        dangerouslySetInnerHTML={{ __html: city.innerSvg }}
                       />
-                      {/* Proje sayısı */}
-                      {count > 0 && r > 10 && (
-                        <text x={x} y={y + 1} textAnchor="middle" dominantBaseline="middle"
-                          fontSize={Math.min(r * 0.7, 12)} fill="white" fontWeight="700">
-                          {count}
-                        </text>
-                      )}
-                      {/* İl adı — büyük şehirler */}
-                      {count >= 6 && (
-                        <text x={x} y={y + r + 10} textAnchor="middle"
-                          fontSize="9" fill="#475569" fontWeight="600">
-                          {city.name}
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
+                    );
+                  })}
 
-                {/* Türkiye yazısı */}
-                <text x="400" y="370" textAnchor="middle" fontSize="11" fill="#94A3B8" fontWeight="500">
-                  Türkiye İl Proje Dağılımı
-                </text>
+                  {/* İl isimleri */}
+                  {TURKEY_MAP_CITIES.map((city) => {
+                    const cityInfo = cityBySlug[city.slug];
+                    const count = PROJECT_COUNTS[city.slug] ?? 0;
+                    if (count < showLabelThreshold) return null;
+                    const isActive = selected === city.slug || hovered === city.slug;
+                    return (
+                      <text key={city.slug}
+                        x={city.labelX} y={city.labelY}
+                        textAnchor="middle" dominantBaseline="middle"
+                        fontSize={isActive ? 13 : 9}
+                        fontWeight={isActive ? 700 : 500}
+                        fill={isActive ? "#1E3A8A" : "#475569"}
+                        style={{ pointerEvents: "none", transition: "font-size 0.15s" }}
+                      >
+                        {cityInfo?.name ?? city.slug}
+                      </text>
+                    );
+                  })}
+                </g>
               </svg>
             </div>
 

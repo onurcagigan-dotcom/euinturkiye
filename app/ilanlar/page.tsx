@@ -7,10 +7,12 @@ import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
+import { useFirma } from "@/lib/firma/context";
 import type { Listing, ListingType } from "@/lib/types";
 
 function IlanlarPageInner() {
   const { t } = useLocale();
+  const { current: firma } = useFirma();
   const searchParams = useSearchParams();
   const tur = searchParams.get("tur") as ListingType | null;
   const [listings, setListings] = useState<Listing[]>([]);
@@ -19,6 +21,8 @@ function IlanlarPageInner() {
     const db = getDataProvider();
     db.getListings(tur ?? undefined).then(setListings);
   }, [tur]);
+
+  const hasSupplierAccess = firma?.plan === "tedarikci";
 
   const TYPE_LABEL: Record<ListingType, string> = {
     is: t("listings_jobs"), satinalma: t("listings_procurement"), ihale: t("listings_tender"),
@@ -54,7 +58,9 @@ function IlanlarPageInner() {
         </div>
 
         <div className="space-y-4">
-          {listings.map((l) => (
+          {listings.map((l) => {
+            const isLocked = l.type === "satinalma" && !hasSupplierAccess;
+            return (
             <Link key={l.id} href={`/ilanlar/${l.id}`}
               className="flex items-start gap-4 p-5 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">
               <div className="flex-1">
@@ -62,10 +68,11 @@ function IlanlarPageInner() {
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TYPE_COLOR[l.type]}`}>
                     {TYPE_LABEL[l.type]}
                   </span>
-                  {l.locked && <span className="text-mist text-xs">🔒 {t("listings_locked_note")}</span>}
+                  {isLocked && <span className="text-mist text-xs">🔒 {t("listings_locked_note")}</span>}
                 </div>
                 <h2 className="font-bold text-ink mb-1">{l.title}</h2>
                 <p className="text-slate text-sm">{l.organization}</p>
+                {l.subject && <p className="text-slate text-sm mt-1 line-clamp-2">{l.subject}</p>}
                 <div className="flex flex-wrap gap-4 mt-2 text-xs text-mist">
                   {l.location && <span>📍 {l.location}</span>}
                   {l.deadline && <span className="text-tr font-semibold">{t("listing_deadline")}: {l.deadline}</span>}
@@ -73,7 +80,8 @@ function IlanlarPageInner() {
               </div>
               <div className="flex-shrink-0 text-eu font-semibold text-sm">{t("listing_detail")} →</div>
             </Link>
-          ))}
+            );
+          })}
         </div>
 
         {listings.length === 0 && (

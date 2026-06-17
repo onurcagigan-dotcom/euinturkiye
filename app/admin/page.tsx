@@ -5,7 +5,7 @@ import { useAdmin } from "@/lib/admin/store";
 import { getDataProvider } from "@/lib/data";
 
 export default function AdminDashboard() {
-  const { projects, listings, events, posts } = useAdmin();
+  const { projects, listings, events, posts, subscribers } = useAdmin();
   const [pendingRequests, setPendingRequests] = useState(0);
 
   useEffect(() => {
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
     { href: "/admin/etkinlikler", label: "Etkinlikler", count: events.length, sub: `${events.filter(e => e.isPublic).length} açık`, color: "border-green-500" },
     { href: "/admin/blog", label: "Blog / Gündem", count: posts.length, sub: "yazı", color: "border-purple-500" },
     { href: "/admin/konsorsiyum", label: "Konsorsiyum Talepleri", count: pendingRequests, sub: "onay bekliyor", color: pendingRequests > 0 ? "border-tr" : "border-gray-300" },
+    { href: "/admin/uyelikler", label: "Üyelikler", count: subscribers.length, sub: `${subscribers.filter(s => s.plan === "tedarikci").length} tedarikçi`, color: "border-blue-500" },
   ];
 
   return (

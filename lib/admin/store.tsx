@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback } from "react";
-import type { Project, Listing, EventItem, BlogPost } from "../types";
+import type { Project, Listing, EventItem, BlogPost, Subscriber } from "../types";
 
 // Demo veri — admin panelinin kendi kopyası (değişiklikler burada yaşar)
 const INIT_PROJECTS: Project[] = [
@@ -28,11 +28,20 @@ const INIT_POSTS: BlogPost[] = [
   { id: "blog-3", slug: "tarim-modern-ilerleme", title: "Tarım Modernizasyon Projesi: İlk Yıl Değerlendirmesi", category: "Proje Haberleri", excerpt: "Projenin ilk yılına ait ilerleme raporu yayımlandı.", content: "Proje ilk uygulama yılını başarıyla tamamladı.", publishedAt: "2026-04-20T11:00:00", readMinutes: 4, projectId: "tarim-modern" },
 ];
 
+const INIT_SUBSCRIBERS: Subscriber[] = [
+  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", accountType: "sirket", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2024-12-15T09:00:00Z" },
+  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", accountType: "sirket", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
+  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", accountType: "sirket", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
+  { id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı", accountType: "stk", plan: "paket1", tags: ["stk", "tarim"], createdAt: "2026-02-20T09:00:00Z" },
+  { id: "sub-5", name: "Can Öztürk", email: "can@danismanlik2.com", organization: "Delta Mühendislik", accountType: "sirket", plan: "paket2", tags: ["tedarikci", "enerji"], createdAt: "2026-03-05T09:00:00Z" },
+];
+
 interface AdminStore {
   projects: Project[];
   listings: Listing[];
   events: EventItem[];
   posts: BlogPost[];
+  subscribers: Subscriber[];
   saveProject(p: Project): void;
   removeProject(id: string): void;
   saveListing(l: Listing): void;
@@ -41,6 +50,8 @@ interface AdminStore {
   removeEvent(id: string): void;
   savePost(p: BlogPost): void;
   removePost(id: string): void;
+  saveSubscriber(s: Subscriber): void;
+  removeSubscriber(id: string): void;
 }
 
 const Ctx = createContext<AdminStore | null>(null);
@@ -50,6 +61,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [listings, setListings] = useState<Listing[]>(INIT_LISTINGS);
   const [events, setEvents] = useState<EventItem[]>(INIT_EVENTS);
   const [posts, setPosts] = useState<BlogPost[]>(INIT_POSTS);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(INIT_SUBSCRIBERS);
 
   const saveProject = useCallback((p: Project) => setProjects(prev => { const i = prev.findIndex(x => x.id === p.id); return i !== -1 ? prev.map((x, j) => j === i ? p : x) : [p, ...prev]; }), []);
   const removeProject = useCallback((id: string) => setProjects(prev => prev.filter(x => x.id !== id)), []);
@@ -59,9 +71,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const removeEvent = useCallback((id: string) => setEvents(prev => prev.filter(x => x.id !== id)), []);
   const savePost = useCallback((p: BlogPost) => setPosts(prev => { const i = prev.findIndex(x => x.id === p.id); return i !== -1 ? prev.map((x, j) => j === i ? p : x) : [p, ...prev]; }), []);
   const removePost = useCallback((id: string) => setPosts(prev => prev.filter(x => x.id !== id)), []);
+  const saveSubscriber = useCallback((s: Subscriber) => setSubscribers(prev => { const i = prev.findIndex(x => x.id === s.id); return i !== -1 ? prev.map((x, j) => j === i ? s : x) : [s, ...prev]; }), []);
+  const removeSubscriber = useCallback((id: string) => setSubscribers(prev => prev.filter(x => x.id !== id)), []);
 
   return (
-    <Ctx.Provider value={{ projects, listings, events, posts, saveProject, removeProject, saveListing, removeListing, saveEvent, removeEvent, savePost, removePost }}>
+    <Ctx.Provider value={{ projects, listings, events, posts, subscribers, saveProject, removeProject, saveListing, removeListing, saveEvent, removeEvent, savePost, removePost, saveSubscriber, removeSubscriber }}>
       {children}
     </Ctx.Provider>
   );
