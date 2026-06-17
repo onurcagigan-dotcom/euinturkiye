@@ -1,15 +1,25 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAdmin } from "@/lib/admin/store";
+import { getDataProvider } from "@/lib/data";
 
 export default function AdminDashboard() {
   const { projects, listings, events, posts } = useAdmin();
+  const [pendingRequests, setPendingRequests] = useState(0);
+
+  useEffect(() => {
+    getDataProvider().getOwnershipRequests().then((reqs) => {
+      setPendingRequests(reqs.filter((r) => r.approverType === "admin" && r.status === "bekliyor").length);
+    });
+  }, []);
 
   const cards = [
     { href: "/admin/projeler", label: "Projeler", count: projects.length, sub: `${projects.filter(p => p.featured).length} öne çıkan`, color: "border-eu" },
     { href: "/admin/ilanlar", label: "İlanlar", count: listings.length, sub: `${listings.filter(l => l.locked).length} kilitli`, color: "border-orange-400" },
     { href: "/admin/etkinlikler", label: "Etkinlikler", count: events.length, sub: `${events.filter(e => e.isPublic).length} açık`, color: "border-green-500" },
     { href: "/admin/blog", label: "Blog / Gündem", count: posts.length, sub: "yazı", color: "border-purple-500" },
+    { href: "/admin/konsorsiyum", label: "Konsorsiyum Talepleri", count: pendingRequests, sub: "onay bekliyor", color: pendingRequests > 0 ? "border-tr" : "border-gray-300" },
   ];
 
   return (

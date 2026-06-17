@@ -44,6 +44,10 @@ const projects: Project[] = [
     objective: "Türkiye'nin tarım sektörünü AB standartlarına uyumlu hale getirerek çiftçilerin gelirini artırmak ve sürdürülebilir tarım uygulamalarını yaygınlaştırmak.",
     expectedOutputs: "500 çiftçiye eğitim verilmesi, 50 tarım kooperatifinin desteklenmesi, 10 pilot çiftlikte akıllı tarım sistemlerinin kurulması.",
     activities: "Çiftçi eğitim programları düzenlenmesi, kooperatif kapasite geliştirme atölyeleri, dijital tarım platformunun kurulması ve test edilmesi.",
+    ownerSubscriberId: "sub-1", ownerSubscriberName: "ABC Danışmanlık",
+    consortiumMembers: [
+      { subscriberId: "sub-4", subscriberName: "Tarım Geliştirme Vakfı", role: "Saha Uygulama Ortağı", joinedAt: "2026-02-01T09:00:00Z" },
+    ],
   },
   {
     id: "cevre-iklim",
@@ -311,9 +315,11 @@ const documents: ProjectDocument[] = [
 ];
 
 const subscribers: Subscriber[] = [
-  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2026-01-15T09:00:00Z" },
-  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
-  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
+  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", accountType: "sirket", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2026-01-15T09:00:00Z" },
+  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", accountType: "sirket", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
+  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", accountType: "sirket", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
+  { id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı", accountType: "stk", plan: "paket1", tags: ["stk", "tarim"], createdAt: "2026-02-20T09:00:00Z" },
+  { id: "sub-5", name: "Can Öztürk", email: "can@danismanlik2.com", organization: "Delta Mühendislik", accountType: "sirket", plan: "paket2", tags: ["tedarikci", "enerji"], createdAt: "2026-03-05T09:00:00Z" },
 ];
 
 const campaigns: Campaign[] = [
@@ -334,16 +340,40 @@ const trainingVideos: TrainingVideo[] = [
 ];
 
 const ownershipRequests: OwnershipRequest[] = [
-  { id: "own-1", projectId: "tarim-modern", subscriberId: "sub-1", subscriberName: "ABC Danışmanlık", note: "Bu projede teknik uzman olarak görev aldık.", status: "bekliyor", createdAt: "2026-05-10T09:00:00Z" },
+  // Proje yürütücüsü var (tarim-modern → sub-1) → onay yürütücüye gider
+  { id: "own-1", projectId: "tarim-modern", subscriberId: "sub-5", subscriberName: "Delta Mühendislik", requestedRole: "uye", approverType: "yurutucu", approverSubscriberId: "sub-1", note: "Sulama sistemleri kurulumunda teknik ortağız.", status: "bekliyor", createdAt: "2026-05-10T09:00:00Z" },
+  // Proje yürütücüsü yok (kadin-girisimcilik) → onay admin'e gider
+  { id: "own-2", projectId: "kadin-girisimcilik", subscriberId: "sub-3", subscriberName: "MK İnşaat", requestedRole: "yurutucu", approverType: "admin", note: "Bu projede ana yüklenici olarak görev aldık.", status: "bekliyor", createdAt: "2026-05-12T09:00:00Z" },
 ];
 
 const expertProfiles: ExpertProfile[] = [
   {
     id: "exp-1", subscriberId: "sub-1", name: "Ahmet Yılmaz", title: "Kıdemli Tarım Uzmanı",
-    bio: "15 yıllık AB proje deneyimi ile tarım sektörü uzmanı.",
+    bio: "15 yıllık AB proje deneyimi ile tarım sektörü uzmanı. Kırsal kalkınma ve çiftçi eğitim programları konusunda derin bilgiye sahip.",
     expertise: ["Tarım", "Kırsal Kalkınma", "PCM"],
     projectHistory: [{ projectId: "tarim-modern", role: "Teknik Uzman" }],
     visible: true, updatedAt: "2026-03-01T09:00:00Z",
+  },
+  {
+    id: "exp-2", subscriberId: "sub-2", name: "Fatma Demir", title: "Mali Yönetim Uzmanı",
+    bio: "AB finansmanlı projelerde 10 yıllık mali yönetim ve raporlama deneyimi. PRAG kurallarına hakim.",
+    expertise: ["Mali Yönetim", "Raporlama", "Satınalma"],
+    projectHistory: [{ projectId: "genc-istihdam", role: "Mali Uzman" }, { projectId: "cevre-iklim", role: "Denetim Danışmanı" }],
+    visible: true, updatedAt: "2026-02-15T09:00:00Z",
+  },
+  {
+    id: "exp-3", subscriberId: "sub-3", name: "Mehmet Kaya", title: "İnşaat ve Altyapı Uzmanı",
+    bio: "Bölgesel kalkınma ve altyapı projelerinde 12 yıllık saha deneyimi. İhale süreçleri yönetimi konusunda uzman.",
+    expertise: ["İnşaat", "Altyapı", "İhale Yönetimi"],
+    projectHistory: [{ projectId: "bolgesel-kalkinma", role: "Teknik Danışman" }],
+    visible: true, updatedAt: "2026-04-10T09:00:00Z",
+  },
+  {
+    id: "exp-4", subscriberId: "sub-1", name: "Zeynep Arslan", title: "İzleme ve Değerlendirme Uzmanı",
+    bio: "M&E metodolojileri ve gösterge sistemleri tasarımı konusunda 8 yıllık deneyim.",
+    expertise: ["İzleme & Değerlendirme", "Gösterge Tasarımı", "Etki Analizi"],
+    projectHistory: [{ projectId: "genc-istihdam", role: "İ&D Uzmanı" }],
+    visible: true, updatedAt: "2026-05-01T09:00:00Z",
   },
 ];
 
@@ -362,7 +392,15 @@ export class DemoDataProvider implements DataProvider {
     if (filters?.ipaPeriod) res = res.filter((p) => p.ipaPeriod === filters.ipaPeriod);
     if (filters?.status) res = res.filter((p) => p.status === filters.status);
     if (filters?.featured) res = res.filter((p) => p.featured);
-    if (filters?.search) { const q = filters.search.toLowerCase(); res = res.filter((p) => p.title.toLowerCase().includes(q)); }
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      res = res.filter((p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.summary.toLowerCase().includes(q) ||
+        p.beneficiary.toLowerCase().includes(q) ||
+        p.locations.some((l) => l.toLowerCase().includes(q))
+      );
+    }
     return delay(res);
   };
   getProject = (id: string) => delay(projects.find((p) => p.id === id) ?? null);
@@ -412,9 +450,72 @@ export class DemoDataProvider implements DataProvider {
   removeTrainingVideo = (id: string) => { const i = trainingVideos.findIndex((x) => x.id === id); if (i !== -1) trainingVideos.splice(i, 1); return delay(undefined); };
 
   getOwnershipRequests = () => delay([...ownershipRequests]);
-  saveOwnershipRequest = (r: OwnershipRequest) => { const i = ownershipRequests.findIndex((x) => x.id === r.id); if (i !== -1) ownershipRequests[i] = r; else ownershipRequests.unshift(r); return delay(undefined); };
-  updateOwnershipStatus = (id: string, status: "onaylandi" | "reddedildi") => { const r = ownershipRequests.find((x) => x.id === id); if (r) r.status = status; return delay(undefined); };
-  assignProjectOwner = (projectId: string, subscriberId: string | undefined) => { const p = projects.find((x) => x.id === projectId); if (p) p.ownerSubscriberId = subscriberId; return delay(undefined); };
+
+  getOwnershipRequestsFor = (filter: { subscriberId?: string; approverSubscriberId?: string; projectId?: string }) =>
+    delay(
+      ownershipRequests.filter((r) =>
+        (!filter.subscriberId || r.subscriberId === filter.subscriberId) &&
+        (!filter.approverSubscriberId || r.approverSubscriberId === filter.approverSubscriberId) &&
+        (!filter.projectId || r.projectId === filter.projectId)
+      )
+    );
+
+  createOwnershipRequest = (input: { projectId: string; subscriberId: string; subscriberName: string; requestedRole: "yurutucu" | "uye"; note?: string }) => {
+    const project = projects.find((p) => p.id === input.projectId);
+    const hasOwner = !!project?.ownerSubscriberId;
+    const request: OwnershipRequest = {
+      id: `own-${Date.now()}`,
+      projectId: input.projectId,
+      subscriberId: input.subscriberId,
+      subscriberName: input.subscriberName,
+      requestedRole: input.requestedRole,
+      approverType: hasOwner ? "yurutucu" : "admin",
+      approverSubscriberId: hasOwner ? project!.ownerSubscriberId : undefined,
+      note: input.note,
+      status: "bekliyor",
+      createdAt: new Date().toISOString(),
+    };
+    ownershipRequests.unshift(request);
+    return delay(request);
+  };
+
+  resolveOwnershipRequest = (id: string, status: "onaylandi" | "reddedildi") => {
+    const r = ownershipRequests.find((x) => x.id === id);
+    if (!r) return delay(undefined);
+    r.status = status;
+    r.resolvedAt = new Date().toISOString();
+    if (status === "onaylandi") {
+      const project = projects.find((p) => p.id === r.projectId);
+      if (project) {
+        if (r.requestedRole === "yurutucu") {
+          project.ownerSubscriberId = r.subscriberId;
+          project.ownerSubscriberName = r.subscriberName;
+        } else {
+          if (!project.consortiumMembers) project.consortiumMembers = [];
+          if (!project.consortiumMembers.some((m) => m.subscriberId === r.subscriberId)) {
+            project.consortiumMembers.push({
+              subscriberId: r.subscriberId,
+              subscriberName: r.subscriberName,
+              joinedAt: new Date().toISOString(),
+            });
+          }
+        }
+      }
+    }
+    return delay(undefined);
+  };
+
+  assignProjectOwner = (projectId: string, subscriberId: string | undefined, subscriberName?: string) => {
+    const p = projects.find((x) => x.id === projectId);
+    if (p) { p.ownerSubscriberId = subscriberId; p.ownerSubscriberName = subscriberId ? subscriberName : undefined; }
+    return delay(undefined);
+  };
+
+  removeConsortiumMember = (projectId: string, subscriberId: string) => {
+    const p = projects.find((x) => x.id === projectId);
+    if (p?.consortiumMembers) p.consortiumMembers = p.consortiumMembers.filter((m) => m.subscriberId !== subscriberId);
+    return delay(undefined);
+  };
 
   getExpertProfiles = () => delay([...expertProfiles]);
   getExpertProfile = (id: string) => delay(expertProfiles.find((p) => p.id === id) ?? null);

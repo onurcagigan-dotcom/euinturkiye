@@ -5,9 +5,9 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import type { Campaign, Subscriber } from "@/lib/types";
 
 const SEED_SUBS: Subscriber[] = [
-  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2026-01-15T09:00:00Z" },
-  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
-  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
+  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", accountType: "sirket", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2026-01-15T09:00:00Z" },
+  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", accountType: "sirket", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
+  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", accountType: "sirket", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
 ];
 
 const SEED_CAMPS: Campaign[] = [

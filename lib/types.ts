@@ -37,7 +37,11 @@ export interface Project {
   objective?: string;
   expectedOutputs?: string;
   activities?: string;
+  // Yürütücü / konsorsiyum lideri (boşsa proje "yürütücüsüz" sayılır)
   ownerSubscriberId?: string;
+  ownerSubscriberName?: string;
+  // Onaylanmış konsorsiyum üyeleri (yürütücü hariç)
+  consortiumMembers?: ConsortiumMember[];
 }
 
 export type ListingType = "is" | "satinalma" | "ihale";
@@ -132,6 +136,7 @@ export interface Subscriber {
   name: string;
   email: string;
   organization?: string;
+  accountType: "sirket" | "stk";
   plan: "ucretsiz" | "paket1" | "paket2" | "tedarikci";
   tags: string[];
   createdAt: string;
@@ -172,14 +177,32 @@ export interface TrainingVideo {
   order: number;
 }
 
+/** Konsorsiyum içindeki bir üye firma/STK */
+export interface ConsortiumMember {
+  subscriberId: string;
+  subscriberName: string;
+  role?: string; // örn: "Teknik Ortak", "Mali Ortak"
+  joinedAt: string; // ISO
+}
+
+/**
+ * Bir firma/STK'nın bir projeye katılma talebi.
+ * - requestedRole: firmanın talep ettiği rol
+ * - approverType: talebin kimin onayına gideceği (proje yürütücüsü var mı yok mu'ya göre belirlenir)
+ * - approverSubscriberId: approverType "yurutucu" ise hangi firmanın onayına gittiği
+ */
 export interface OwnershipRequest {
   id: string;
   projectId: string;
   subscriberId: string;
   subscriberName: string;
+  requestedRole: "yurutucu" | "uye";
+  approverType: "admin" | "yurutucu";
+  approverSubscriberId?: string;
   note?: string;
   status: "bekliyor" | "onaylandi" | "reddedildi";
   createdAt: string;
+  resolvedAt?: string;
 }
 
 export interface ExpertProfile {

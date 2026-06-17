@@ -1,55 +1,129 @@
-// ============================================================
-// Firestore Seed Script
-//
-// Demo verisini gerçek Firestore'a yükler. Bir kez çalıştırılır.
-//
-// KULLANIM:
-//   1. Firebase Console > Project Settings > Service Accounts
-//      > "Generate new private key" ile serviceAccount.json indir,
-//      bu klasöre koy (scripts/serviceAccount.json).
-//   2. npm install firebase-admin
-//   3. node scripts/seed.mjs
-//
-// NOT: serviceAccount.json gizlidir, .gitignore'da olmalı.
-// ============================================================
+/**
+ * Demo veriyi Firestore'a yükler.
+ * Kullanım:
+ *   1. Firebase Console → Service Accounts → Generate new private key
+ *   2. Dosyayı "scripts/serviceAccount.json" olarak kaydedin
+ *   3. npm install firebase-admin
+ *   4. node scripts/seed.mjs
+ */
 
-import { readFileSync } from "node:fs";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-// Demo veriyi TS yerine burada inline tutmak yerine, basitlik için
-// JSON kopyası kullanılır. (Aşağıdaki importu kendi demo verinizle eşleyin.)
-const sa = JSON.parse(readFileSync(new URL("./serviceAccount.json", import.meta.url)));
-initializeApp({ credential: cert(sa) });
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Service account dosyasını yükle
+let serviceAccount;
+try {
+  serviceAccount = JSON.parse(
+    readFileSync(join(__dirname, "serviceAccount.json"), "utf8")
+  );
+} catch {
+  console.error("❌ scripts/serviceAccount.json bulunamadı.");
+  console.error("   Firebase Console → Service Accounts → Generate new private key");
+  process.exit(1);
+}
+
+initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
 
-// --- Veri (lib/data/demo içeriğinin JSON karşılığı) ---
-// Pratikte demo dosyalarını JSON'a çevirip buraya koyabilir
-// ya da bu script'i .ts olarak yazıp ts-node ile çalıştırabilirsiniz.
-const data = JSON.parse(readFileSync(new URL("./seed-data.json", import.meta.url)));
+// ── Sektörler ────────────────────────────────────────────
+const sectors = [
+  { id: "tarim", name: "Tarım & Kırsal Kalkınma", color: "#16a34a" },
+  { id: "cevre", name: "Çevre & İklim", color: "#0891b2" },
+  { id: "egitim", name: "Eğitim & Gençlik", color: "#7c3aed" },
+  { id: "istihdam", name: "İstihdam & Sosyal Politika", color: "#ea580c" },
+  { id: "enerji", name: "Enerji & Altyapı", color: "#ca8a04" },
+  { id: "adalet", name: "Adalet & İçişleri", color: "#dc2626" },
+  { id: "saglik", name: "Sağlık & Sosyal Hizmetler", color: "#0284c7" },
+  { id: "rekabet", name: "Rekabetçilik & KOBİ", color: "#9333ea" },
+  { id: "bolgesel", name: "Bölgesel Kalkınma", color: "#0f766e" },
+  { id: "dijital", name: "Dijital Dönüşüm", color: "#1d4ed8" },
+];
 
-async function seedCollection(name, items) {
-  console.log(`→ ${name}: ${items.length} kayıt`);
-  for (const item of items) {
-    const { id, ...rest } = item;
-    await db.collection(name).doc(id).set(rest, { merge: true });
+// ── Donörler ─────────────────────────────────────────────
+const donors = [
+  { id: "eu", name: "Avrupa Birliği", country: "AB" },
+  { id: "wb", name: "Dünya Bankası", country: "ABD" },
+  { id: "giz", name: "GIZ (Almanya)", country: "Almanya" },
+  { id: "usaid", name: "USAID", country: "ABD" },
+  { id: "undp", name: "UNDP", country: "BM" },
+];
+
+// ── Projeler ─────────────────────────────────────────────
+const projects = [
+  {
+    id: "tarim-modern",
+    title: "Türkiye Tarımın Modernizasyonu",
+    summary: "AB finansmanlı tarım modernizasyon projesi.",
+    sectorId: "tarim", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "T.C. Tarım ve Orman Bakanlığı",
+    locations: ["Konya", "Ankara", "İzmir"],
+    budget: "€12.5M", startDate: "2023-01-01", endDate: "2026-12-31",
+    status: "devam", featured: true,
+    objective: "Türkiye'nin tarım sektörünü AB standartlarına uyumlu hale getirmek.",
+    expectedOutputs: "500 çiftçiye eğitim verilmesi, 50 kooperatifin desteklenmesi.",
+    activities: "Çiftçi eğitim programları, kooperatif kapasite geliştirme.",
+  },
+  {
+    id: "genc-istihdam",
+    title: "Genç İstihdamın Desteklenmesi",
+    summary: "15-29 yaş grubundaki gençlerin istihdama erişimini kolaylaştıran program.",
+    sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "İŞKUR", locations: ["İstanbul", "Ankara", "İzmir"],
+    budget: "€15M", startDate: "2022-06-01", endDate: "2025-12-31",
+    status: "devam", featured: true,
+  },
+];
+
+// ── Blog yazıları ─────────────────────────────────────────
+const blogPosts = [
+  {
+    id: "blog-1",
+    slug: "ab-turkiye-iliskileri-2026",
+    title: "AB-Türkiye İlişkilerinde Yeni Dönem: 2026 Perspektifi",
+    category: "AB Politikası",
+    excerpt: "Türkiye'nin AB üyelik sürecinde 2026 yılı kritik dönüm noktaları.",
+    content: "Türkiye ile Avrupa Birliği arasındaki ilişkiler 2026 yılında yeni bir ivme kazanmaktadır.",
+    publishedAt: "2026-06-01T09:00:00Z", readMinutes: 5,
+  },
+];
+
+async function seed() {
+  console.log("🌱 Seed başlıyor...\n");
+
+  // Sektörler
+  for (const s of sectors) {
+    await db.collection("sectors").doc(s.id).set(s);
+    console.log(`✅ Sektör: ${s.name}`);
   }
+
+  // Donörler
+  for (const d of donors) {
+    await db.collection("donors").doc(d.id).set(d);
+    console.log(`✅ Donör: ${d.name}`);
+  }
+
+  // Projeler
+  for (const p of projects) {
+    await db.collection("projects").doc(p.id).set(p);
+    console.log(`✅ Proje: ${p.title}`);
+  }
+
+  // Blog
+  for (const b of blogPosts) {
+    await db.collection("blogPosts").doc(b.id).set(b);
+    console.log(`✅ Blog: ${b.title}`);
+  }
+
+  console.log("\n🎉 Seed tamamlandı!");
+  process.exit(0);
 }
 
-async function main() {
-  await seedCollection("sectors", data.sectors);
-  await seedCollection("donors", data.donors);
-  await seedCollection("projects", data.projects);
-  await seedCollection("listings", data.listings);
-  await seedCollection("events", data.events);
-  await seedCollection("blogPosts", data.blogPosts);
-  await seedCollection("news", data.news);
-  if (data.documents) await seedCollection("documents", data.documents);
-  if (data.trainingVideos) await seedCollection("trainingVideos", data.trainingVideos);
-  console.log("✓ Seed tamamlandı.");
-}
-
-main().catch((e) => {
-  console.error(e);
+seed().catch((err) => {
+  console.error("❌ Seed hatası:", err);
   process.exit(1);
 });

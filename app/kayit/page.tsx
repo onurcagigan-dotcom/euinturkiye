@@ -1,83 +1,53 @@
+"use client";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function KayitPage() {
+  const { t, locale } = useLocale();
+  const isEn = locale === "en";
+
   const plans = [
     {
-      id: "ucretsiz",
-      name: "Ücretsiz",
-      price: "€0",
-      period: "/ ay",
-      highlight: false,
-      features: [
-        "Proje kataloğuna erişim",
-        "Güncel haberler",
-        "Halka açık etkinlik takvimi",
-        "Temel iş ilanları",
-      ],
-      cta: "Ücretsiz Başla",
+      id: "ucretsiz", name: isEn ? "Free" : "Ücretsiz", price: "€0", period: isEn ? "/ month" : "/ ay", highlight: false,
+      features: isEn
+        ? ["Access to project catalog", "Latest news", "Public event calendar", "Basic job listings"]
+        : ["Proje kataloğuna erişim", "Güncel haberler", "Halka açık etkinlik takvimi", "Temel iş ilanları"],
+      cta: isEn ? "Start Free" : "Ücretsiz Başla",
     },
     {
-      id: "paket1",
-      name: "Paket 1",
-      price: "€2.500",
-      period: "/ yıl",
-      highlight: true,
-      features: [
-        "Tüm ücretsiz özellikler",
-        "Satınalma ilanları detayları",
-        "E-Doküman yönetimi",
-        "Etkinlik Yönetimi araçları",
-        "Bülten gönderimi",
-        "Paydaş İletişimi",
-        "5 kullanıcı",
-      ],
-      cta: "Paket 1'i Seç",
+      id: "paket1", name: isEn ? "Package 1" : "Paket 1", price: "€2.500", period: isEn ? "/ year" : "/ yıl", highlight: true,
+      features: isEn
+        ? ["All free features", "Procurement listing details", "E-document management", "Event management tools", "Newsletter campaigns", "Stakeholder communication", "5 users"]
+        : ["Tüm ücretsiz özellikler", "Satınalma ilanları detayları", "E-Doküman yönetimi", "Etkinlik Yönetimi araçları", "Bülten gönderimi", "Paydaş İletişimi", "5 kullanıcı"],
+      cta: isEn ? "Choose Package 1" : "Paket 1'i Seç",
     },
     {
-      id: "paket2",
-      name: "Paket 2",
-      price: "€4.000",
-      period: "/ yıl",
-      highlight: false,
-      features: [
-        "Tüm Paket 1 özellikleri",
-        "İhale detayları",
-        "Uzman CV Havuzu",
-        "Raporlama ve analitik",
-        "E-Learning platformu",
-        "Proje sahiplenme talebi",
-        "15 kullanıcı",
-      ],
-      cta: "Paket 2'yi Seç",
+      id: "paket2", name: isEn ? "Package 2" : "Paket 2", price: "€4.000", period: isEn ? "/ year" : "/ yıl", highlight: false,
+      features: isEn
+        ? ["All Package 1 features", "Tender details", "Expert CV pool", "Reporting & analytics", "E-Learning platform", "Project ownership claims", "15 users"]
+        : ["Tüm Paket 1 özellikleri", "İhale detayları", "Uzman CV Havuzu", "Raporlama ve analitik", "E-Learning platformu", "Proje sahiplenme talebi", "15 kullanıcı"],
+      cta: isEn ? "Choose Package 2" : "Paket 2'yi Seç",
     },
     {
-      id: "tedarikci",
-      name: "Tedarikçi",
-      price: "€2.000",
-      period: "/ yıl",
-      highlight: false,
-      features: [
-        "Satınalma ve ihale ilanları",
-        "Uzman profil oluşturma",
-        "CV havuzunda görünürlük",
-        "Tedarikçi duyuru araçları",
-        "3 kullanıcı",
-      ],
-      cta: "Tedarikçi Ol",
+      id: "tedarikci", name: isEn ? "Supplier" : "Tedarikçi", price: "€2.000", period: isEn ? "/ year" : "/ yıl", highlight: false,
+      features: isEn
+        ? ["Procurement and tender listings", "Expert profile creation", "Visibility in CV pool", "Supplier announcement tools", "3 users"]
+        : ["Satınalma ve ihale ilanları", "Uzman profil oluşturma", "CV havuzunda görünürlük", "Tedarikçi duyuru araçları", "3 kullanıcı"],
+      cta: isEn ? "Become a Supplier" : "Tedarikçi Ol",
     },
   ];
 
   return (
     <PageShell>
       <div className="max-w-6xl mx-auto px-6 py-12">
-        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Kayıt Ol" }]} />
+        <Breadcrumb items={[{ label: t("breadcrumb_home"), href: "/" }, { label: t("nav_signup") }]} />
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-ink mb-4">Planlara Göz Atın</h1>
+          <h1 className="text-4xl font-extrabold text-ink mb-4">{t("signup_title")}</h1>
           <p className="text-slate text-lg max-w-2xl mx-auto">
-            Proje ihtiyaçlarınıza en uygun paketi seçin. Yıllık abonelik, tüm dijital araçlara erişim sağlar.
+            {t("signup_sub")}
           </p>
         </div>
 
@@ -85,12 +55,10 @@ export default function KayitPage() {
           {plans.map((plan) => (
             <div key={plan.id}
               className={`rounded-2xl border p-6 flex flex-col ${
-                plan.highlight
-                  ? "border-eu shadow-xl bg-eu text-white"
-                  : "border-line bg-white"
+                plan.highlight ? "border-eu shadow-xl bg-eu text-white" : "border-line bg-white"
               }`}>
               {plan.highlight && (
-                <div className="text-xs font-bold text-yellow-300 uppercase tracking-widest mb-3">En Popüler</div>
+                <div className="text-xs font-bold text-yellow-300 uppercase tracking-widest mb-3">{t("signup_popular")}</div>
               )}
               <div className="mb-6">
                 <h2 className={`text-xl font-bold mb-1 ${plan.highlight ? "text-white" : "text-ink"}`}>{plan.name}</h2>
@@ -111,9 +79,7 @@ export default function KayitPage() {
 
               <Link href={`/kayit/${plan.id}`}
                 className={`block w-full text-center py-2.5 rounded-xl font-bold text-sm transition-colors ${
-                  plan.highlight
-                    ? "bg-yellow-400 text-ink hover:bg-yellow-300"
-                    : "bg-eu text-white hover:bg-blue-800"
+                  plan.highlight ? "bg-yellow-400 text-ink hover:bg-yellow-300" : "bg-eu text-white hover:bg-blue-800"
                 }`}>
                 {plan.cta}
               </Link>

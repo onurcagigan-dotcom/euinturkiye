@@ -80,11 +80,23 @@ export interface DataProvider {
   saveTrainingVideo(v: TrainingVideo): Promise<void>;
   removeTrainingVideo(id: string): Promise<void>;
 
-  // Proje sahiplenme talepleri
+  // Proje sahiplenme / konsorsiyum üyelik talepleri
   getOwnershipRequests(): Promise<OwnershipRequest[]>;
-  saveOwnershipRequest(r: OwnershipRequest): Promise<void>;
-  updateOwnershipStatus(id: string, status: "onaylandi" | "reddedildi"): Promise<void>;
-  assignProjectOwner(projectId: string, subscriberId: string | undefined): Promise<void>;
+  getOwnershipRequestsFor(filter: { subscriberId?: string; approverSubscriberId?: string; projectId?: string }): Promise<OwnershipRequest[]>;
+  /** Bir firmanın bir projeye katılma talebi oluşturur. approverType ve approverSubscriberId,
+   *  projenin mevcut yürütücüsüne göre otomatik belirlenir (proje yürütücüsüzse admin'e, varsa yürütücüye gider). */
+  createOwnershipRequest(input: {
+    projectId: string;
+    subscriberId: string;
+    subscriberName: string;
+    requestedRole: "yurutucu" | "uye";
+    note?: string;
+  }): Promise<OwnershipRequest>;
+  /** Talebi onaylar/reddeder. Onaylanırsa projeye yürütücü atanır veya konsorsiyum üyesi eklenir. */
+  resolveOwnershipRequest(id: string, status: "onaylandi" | "reddedildi"): Promise<void>;
+  /** Admin'in doğrudan ata/çıkar işlemleri (panel kısayolu) */
+  assignProjectOwner(projectId: string, subscriberId: string | undefined, subscriberName?: string): Promise<void>;
+  removeConsortiumMember(projectId: string, subscriberId: string): Promise<void>;
 
   // Uzman profilleri
   getExpertProfiles(): Promise<ExpertProfile[]>;

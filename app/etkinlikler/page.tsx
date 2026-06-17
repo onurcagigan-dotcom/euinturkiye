@@ -1,13 +1,19 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useLocale } from "@/lib/i18n/context";
+import type { EventItem } from "@/lib/types";
 
-export const revalidate = 60;
+export default function EtkinliklerPage() {
+  const { t, locale } = useLocale();
+  const [events, setEvents] = useState<EventItem[]>([]);
 
-export default async function EtkinliklerPage() {
-  const db = getDataProvider();
-  const events = await db.getEvents();
+  useEffect(() => {
+    getDataProvider().getEvents().then(setEvents);
+  }, []);
 
   const publicEvents = events
     .filter((e) => e.isPublic)
@@ -20,23 +26,23 @@ export default async function EtkinliklerPage() {
   return (
     <PageShell>
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Etkinlikler" }]} />
-        <h1 className="text-3xl font-extrabold text-ink mb-8">Etkinlikler</h1>
+        <Breadcrumb items={[{ label: t("breadcrumb_home"), href: "/" }, { label: t("events_title") }]} />
+        <h1 className="text-3xl font-extrabold text-ink mb-8">{t("events_title")}</h1>
 
         {upcoming.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-lg font-bold text-ink mb-4">Yaklaşan Etkinlikler</h2>
+            <h2 className="text-lg font-bold text-ink mb-4">{t("events_upcoming")}</h2>
             <div className="space-y-4">
-              {upcoming.map((e) => <EventCard key={e.id} event={e} />)}
+              {upcoming.map((e) => <EventCard key={e.id} event={e} locale={locale} />)}
             </div>
           </section>
         )}
 
         {past.length > 0 && (
           <section>
-            <h2 className="text-lg font-bold text-ink mb-4 text-mist">Geçmiş Etkinlikler</h2>
+            <h2 className="text-lg font-bold text-ink mb-4 text-mist">{t("events_past")}</h2>
             <div className="space-y-3 opacity-70">
-              {past.map((e) => <EventCard key={e.id} event={e} past />)}
+              {past.map((e) => <EventCard key={e.id} event={e} past locale={locale} />)}
             </div>
           </section>
         )}
@@ -45,7 +51,7 @@ export default async function EtkinliklerPage() {
   );
 }
 
-function EventCard({ event, past = false }: { event: { id: string; title: string; date: string; location: string; description?: string; capacity?: number }; past?: boolean }) {
+function EventCard({ event, past = false, locale }: { event: EventItem; past?: boolean; locale: string }) {
   const d = new Date(event.date);
   return (
     <Link href={`/etkinlikler/${event.id}`}
@@ -53,7 +59,7 @@ function EventCard({ event, past = false }: { event: { id: string; title: string
       <div className="flex-shrink-0 text-center bg-eu-pale rounded-xl p-3 w-16">
         <div className="text-2xl font-extrabold text-eu">{d.getDate()}</div>
         <div className="text-xs text-eu font-semibold uppercase">
-          {d.toLocaleDateString("tr", { month: "short" })}
+          {d.toLocaleDateString(locale === "tr" ? "tr" : "en", { month: "short" })}
         </div>
         <div className="text-xs text-mist">{d.getFullYear()}</div>
       </div>
@@ -64,7 +70,7 @@ function EventCard({ event, past = false }: { event: { id: string; title: string
           <p className="text-sm text-slate mt-1 line-clamp-2">{event.description}</p>
         )}
         {event.capacity && (
-          <p className="text-xs text-mist mt-1">👥 Kapasite: {event.capacity} kişi</p>
+          <p className="text-xs text-mist mt-1">👥 {event.capacity}</p>
         )}
       </div>
     </Link>
