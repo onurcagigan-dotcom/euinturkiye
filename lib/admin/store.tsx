@@ -5,7 +5,7 @@ import type { Project, Listing, EventItem, BlogPost, Subscriber } from "../types
 // Demo veri — admin panelinin kendi kopyası (değişiklikler burada yaşar)
 const INIT_PROJECTS: Project[] = [
   { id: "tarim-modern", title: "Türkiye Tarımın Modernizasyonu", summary: "AB finansmanlı tarım modernizasyon projesi.", sectorId: "tarim", donorId: "eu", ipaPeriod: "IPA-III", beneficiary: "T.C. Tarım ve Orman Bakanlığı", locations: ["Konya", "Ankara", "İzmir"], budget: "€12.5M", startDate: "2023-01-01", endDate: "2026-12-31", status: "devam", featured: true },
-  { id: "cevre-iklim", title: "Çevre Uyum ve İklim Değişikliği", summary: "Türkiye'nin iklim değişikliğine uyum kapasitesinin güçlendirilmesi.", sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-IV", beneficiary: "T.C. Çevre Bakanlığı", locations: ["Ankara", "İstanbul"], budget: "€8.2M", startDate: "2024-03-01", endDate: "2027-03-31", status: "devam", featured: true },
+  { id: "cevre-iklim", title: "Çevre Uyum ve İklim Değişikliği", summary: "Türkiye'nin iklim değişikliğine uyum kapasitesinin güçlendirilmesi.", sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-III", beneficiary: "T.C. Çevre Bakanlığı", locations: ["Ankara", "İstanbul"], budget: "€8.2M", startDate: "2024-03-01", endDate: "2027-03-31", status: "devam", featured: true },
   { id: "genc-istihdam", title: "Genç İstihdamın Desteklenmesi", summary: "15-29 yaş grubundaki gençlerin istihdama erişimini kolaylaştıran kapsamlı program.", sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-III", beneficiary: "İŞKUR", locations: ["İstanbul", "Ankara", "İzmir"], budget: "€15M", startDate: "2022-06-01", endDate: "2025-12-31", status: "devam", featured: true },
   { id: "kadin-girisimcilik", title: "Kadın Girişimciliğinin Güçlendirilmesi", summary: "Kadın girişimcilere destek.", sectorId: "rekabet", donorId: "eu", ipaPeriod: "IPA-III", beneficiary: "KOSGEB", locations: ["İstanbul", "Ankara"], budget: "€6.8M", startDate: "2023-09-01", endDate: "2026-08-31", status: "devam", featured: true },
 ];
@@ -24,16 +24,16 @@ const INIT_EVENTS: EventItem[] = [
 
 const INIT_POSTS: BlogPost[] = [
   { id: "blog-1", slug: "ab-turkiye-iliskileri-2026", title: "AB-Türkiye İlişkilerinde Yeni Dönem: 2026 Perspektifi", category: "AB Politikası", excerpt: "Türkiye'nin AB üyelik sürecinde 2026 yılı kritik dönüm noktaları.", content: "Türkiye ile Avrupa Birliği arasındaki ilişkiler 2026 yılında yeni bir ivme kazanmaktadır.", publishedAt: "2026-06-01T09:00:00", readMinutes: 5 },
-  { id: "blog-2", slug: "ipa-iv-firsatlari", title: "IPA IV Dönemi: Türkiye için Finansman Fırsatları", category: "Fonlar & Finansman", excerpt: "IPA IV kapsamında Türkiye'ye sunulan hibe ve teknik destek imkânları.", content: "IPA IV dönemi Türkiye için önemli finansman olanakları sunmaktadır.", publishedAt: "2026-05-15T10:00:00", readMinutes: 7 },
+  { id: "blog-2", slug: "ipa-iii-firsatlari", title: "IPA III Dönemi: Türkiye için Finansman Fırsatları", category: "Fonlar & Finansman", excerpt: "IPA III kapsamında Türkiye'ye sunulan hibe ve teknik destek imkânları.", content: "IPA III dönemi Türkiye için önemli finansman olanakları sunmaktadır.", publishedAt: "2026-05-15T10:00:00", readMinutes: 7 },
   { id: "blog-3", slug: "tarim-modern-ilerleme", title: "Tarım Modernizasyon Projesi: İlk Yıl Değerlendirmesi", category: "Proje Haberleri", excerpt: "Projenin ilk yılına ait ilerleme raporu yayımlandı.", content: "Proje ilk uygulama yılını başarıyla tamamladı.", publishedAt: "2026-04-20T11:00:00", readMinutes: 4, projectId: "tarim-modern" },
 ];
 
 const INIT_SUBSCRIBERS: Subscriber[] = [
-  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", accountType: "sirket", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2024-12-15T09:00:00Z" },
-  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", accountType: "sirket", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
-  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", accountType: "sirket", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
-  { id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı", accountType: "stk", plan: "paket1", tags: ["stk", "tarim"], createdAt: "2026-02-20T09:00:00Z" },
-  { id: "sub-5", name: "Can Öztürk", email: "can@danismanlik2.com", organization: "Delta Mühendislik", accountType: "sirket", plan: "paket2", tags: ["tedarikci", "enerji"], createdAt: "2026-03-05T09:00:00Z" },
+  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", accountType: "sirket", profileType: "firma", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2024-12-15T09:00:00Z" },
+  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", accountType: "sirket", profileType: "firma", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
+  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", accountType: "sirket", profileType: "tedarikci", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
+  { id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı", accountType: "stk", profileType: "stk", plan: "paket1", tags: ["stk", "tarim"], createdAt: "2026-02-20T09:00:00Z" },
+  { id: "sub-5", name: "Can Öztürk", email: "can@danismanlik2.com", organization: "Delta Mühendislik", accountType: "sirket", profileType: "tedarikci", plan: "paket2", tags: ["tedarikci", "enerji"], createdAt: "2026-03-05T09:00:00Z" },
 ];
 
 interface AdminStore {

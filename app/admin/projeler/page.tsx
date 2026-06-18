@@ -4,19 +4,23 @@ import { useAdmin } from "@/lib/admin/store";
 import type { Project, IpaPeriod } from "@/lib/types";
 
 const SECTORS = [
-  { id: "tarim", name: "Tarım & Kırsal Kalkınma" }, { id: "cevre", name: "Çevre & İklim" },
-  { id: "egitim", name: "Eğitim & Gençlik" }, { id: "istihdam", name: "İstihdam & Sosyal Politika" },
-  { id: "enerji", name: "Enerji & Altyapı" }, { id: "adalet", name: "Adalet & İçişleri" },
-  { id: "saglik", name: "Sağlık & Sosyal Hizmetler" }, { id: "rekabet", name: "Rekabetçilik & KOBİ" },
-  { id: "bolgesel", name: "Bölgesel Kalkınma" }, { id: "dijital", name: "Dijital Dönüşüm" },
+  { id: "yargi", name: "Yargı" }, { id: "icisleri", name: "İçişleri" },
+  { id: "cevre", name: "Çevre ve İklim Eylemi Sektör Operasyonel Programı" },
+  { id: "temel-haklar", name: "Temel Haklar" },
+  { id: "ulasim", name: "Ulaştırma Sektör Operasyonel Programı" },
+  { id: "enerji", name: "Enerji" },
+  { id: "istihdam", name: "İstihdam, Eğitim ve Sosyal Politikalar Sektör Operasyonel Programı" },
+  { id: "tarim", name: "Tarım ve Kırsal Kalkınma" },
+  { id: "rekabet", name: "Rekabetçilik ve Yenilik Sektör Operasyonel Programı" },
+  { id: "sivil-toplum", name: "Sivil Toplum" },
 ];
 const DONORS = [{ id: "eu", name: "Avrupa Birliği" }, { id: "wb", name: "Dünya Bankası" }, { id: "giz", name: "GIZ" }, { id: "usaid", name: "USAID" }, { id: "undp", name: "UNDP" }];
-const PERIODS: IpaPeriod[] = ["IPA-I", "IPA-II", "IPA-III", "IPA-IV"];
-const STATUS_LABEL = { devam: "Devam Ediyor", tamamlandi: "Tamamlandı", planlama: "Planlama" };
+const PERIODS: IpaPeriod[] = ["IPA-I", "IPA-II", "IPA-III"];
+const STATUS_LABEL = { devam: "Devam Ediyor", tamamlandi: "Tamamlandı" };
 
 const emptyProject = (): Project => ({
   id: `prj-${Date.now()}`, title: "", summary: "", sectorId: "tarim", donorId: "eu",
-  ipaPeriod: "IPA-IV", beneficiary: "", locations: [], status: "devam", featured: false,
+  ipaPeriod: "IPA-III", beneficiary: "", locations: [], status: "devam", featured: false,
 });
 
 export default function AdminProjelerPage() {

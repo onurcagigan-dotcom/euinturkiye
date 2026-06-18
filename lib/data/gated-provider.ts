@@ -2,7 +2,7 @@ import type { DataProvider, ProjectFilters } from "./provider";
 import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
-  Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile,
+  Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
 } from "../types";
 import { isDemoVerified } from "../demo-access";
 
@@ -62,6 +62,7 @@ export class GatedDataProvider implements DataProvider {
   incrementDownload(docId: string): Promise<void> { return this.inner.incrementDownload(docId); }
 
   getSubscribers(): Promise<Subscriber[]> { return this.allowed ? this.inner.getSubscribers() : Promise.resolve([]); }
+  getSubscriber(id: string): Promise<Subscriber | null> { return this.allowed ? this.inner.getSubscriber(id) : Promise.resolve(null); }
   saveSubscriber(s: Subscriber): Promise<void> { return this.inner.saveSubscriber(s); }
   removeSubscriber(id: string): Promise<void> { return this.inner.removeSubscriber(id); }
 
@@ -98,4 +99,10 @@ export class GatedDataProvider implements DataProvider {
   getProjectExperts(projectId: string): Promise<{ profile: ExpertProfile; expertise: string; role: string }[]> {
     return this.allowed ? this.inner.getProjectExperts(projectId) : Promise.resolve([]);
   }
+
+  getNetworkConnections(ownerSubscriberId: string): Promise<NetworkConnection[]> {
+    return this.allowed ? this.inner.getNetworkConnections(ownerSubscriberId) : Promise.resolve([]);
+  }
+  addNetworkConnection(c: Omit<NetworkConnection, "id" | "addedAt">): Promise<void> { return this.inner.addNetworkConnection(c); }
+  removeNetworkConnection(id: string): Promise<void> { return this.inner.removeNetworkConnection(id); }
 }

@@ -9,12 +9,11 @@ export default function AraclarPage() {
   const isEn = locale === "en";
 
   const TOOLS = [
-    { href: "/araclar/etkinlik", title: isEn ? "Event Management" : "Etkinlik Yönetimi", desc: isEn ? "Open event RSVP tracking, closed meeting agenda, invitee management, and availability polls." : "Açık etkinlik RSVP takibi, kapalı toplantı gündemi, davetli yönetimi ve müsaitlik anketi.", color: "#0E7490", icon: "📅", working: true },
+    { href: "/araclar/etkinlik", title: isEn ? "Event Management" : "Etkinlik Yönetimi", desc: isEn ? "Create events, run availability polls, build agendas, send invitations, and collect RSVPs." : "Etkinlik oluşturma, müsaitlik anketi, gündem, dosya ekleri, davetiye gönderme ve LCV takibi." , color: "#0E7490", icon: "📅", working: true, imageUrl: "/tools/etkinlik-yonetimi.png" },
     { href: "/araclar/dokuman", title: isEn ? "E-Document Management" : "E-Doküman Yönetimi", desc: isEn ? "Project-based document library, access levels, and download statistics." : "Proje bazlı doküman kütüphanesi, erişim seviyeleri ve indirme istatistikleri.", color: "#1D7A5F", icon: "📁", working: true },
-    { href: "/araclar/bulten", title: isEn ? "Newsletter Campaigns" : "Bülten Gönderimi", desc: isEn ? "Subscriber segmentation, bulk email campaigns, and open-rate statistics." : "Abone segmentasyonu, toplu e-posta kampanyaları ve açılma istatistikleri.", color: "#7C5710", icon: "📧", working: true },
-    { href: "/araclar/paydas", title: isEn ? "Stakeholder Communication" : "Paydaş İletişimi", desc: isEn ? "Project team, expert, and supplier management with role definitions." : "Proje ekibi, uzmanlar ve tedarikçi yönetimi; rol ve yetki tanımları.", color: "#3730A3", icon: "🤝", working: true },
-    { href: "/araclar/rapor", title: isEn ? "Reporting" : "Raporlama", desc: isEn ? "Portfolio analysis, listing statistics, and Excel/CSV export." : "Portföy analizi, ilan istatistikleri ve Excel/CSV dışa aktarım.", color: "#0F766E", icon: "📊", working: true },
-    { href: "/araclar/egitim", title: "E-Learning", desc: isEn ? "Project management training videos, categories, and watch tracking." : "Proje yönetimi eğitim videoları, kategoriler ve izleme takibi.", color: "#7C3AED", icon: "🎓", working: true },
+    { href: "/araclar/bulten", title: isEn ? "Newsletter Campaigns" : "Bülten Gönderimi", desc: isEn ? "Pick stories from your project news, build the email, and target specific recipients." : "Proje haberlerinizden seçim yapın, e-postayı oluşturun ve hedefli alıcılara gönderin.", color: "#7C5710", icon: "📧", working: true, imageUrl: "/tools/bulten-gonderimi.png" },
+    { href: "/araclar/paydas", title: isEn ? "Stakeholder Communication" : "Paydaş İletişimi", desc: isEn ? "Manage stakeholders, send bulk messages, and build your network of experts and suppliers." : "Paydaş yönetimi, toplu mesaj gönderimi, uzman ve tedarikçi ağı oluşturma.", color: "#3730A3", icon: "🤝", working: true },
+    { href: "/araclar/egitim", title: isEn ? "Training Materials" : "Eğitim Materyalleri", desc: isEn ? "Library of training videos and documents added by companies, filterable by project and category." : "Firmaların eklediği video ve doküman eğitim materyalleri; proje ve kategoriye göre filtrelenebilir.", color: "#7C3AED", icon: "🎓", working: true, imageUrl: "/tools/e-learning.png" },
     { href: "/araclar/harita", title: isEn ? "Project Map" : "Proje Haritası", desc: isEn ? "Visualize project distribution by province on a map of Turkey." : "Türkiye haritasında il bazlı proje dağılımı görselleştirme.", color: "#B45309", icon: "🗺️", working: true },
     { href: "/araclar/infografik", title: isEn ? "Infographics" : "İnfografikler", desc: isEn ? "Visual portfolio analysis by sector, IPA period, budget, and timeline." : "Sektör, IPA dönemi, bütçe ve zaman dağılımına göre görsel portföy analizi.", color: "#C2410C", icon: "📈", working: true },
     { href: "/uzmanlar", title: isEn ? "Expert CV Pool" : "Uzman CV Havuzu", desc: isEn ? "Create expert profiles, add your project experience, and build a team." : "Uzman profilleri oluşturun, proje deneyimlerinizi ekleyin, ekip kurun.", color: "#0369A1", icon: "👤", working: true },
@@ -32,9 +31,16 @@ export default function AraclarPage() {
           {TOOLS.map((tool) => (
             <Link key={tool.href} href={tool.href}
               className="border border-line rounded-2xl overflow-hidden hover:shadow-lg transition-all group">
-              <div className="h-24 flex items-center justify-center text-4xl" style={{ background: `linear-gradient(135deg, ${tool.color}, ${tool.color}cc)` }}>
-                {tool.icon}
-              </div>
+              {tool.imageUrl ? (
+                <div className="h-24 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={tool.imageUrl} alt={tool.title} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="h-24 flex items-center justify-center text-4xl" style={{ background: `linear-gradient(135deg, ${tool.color}, ${tool.color}cc)` }}>
+                  {tool.icon}
+                </div>
+              )}
               <div className="p-5">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="font-bold text-ink text-sm">{tool.title}</h2>

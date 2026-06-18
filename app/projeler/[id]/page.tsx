@@ -4,6 +4,8 @@ import Link from "next/link";
 import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ProjectProgressBar } from "@/components/ProjectProgressBar";
+import { ProjectLocationMap } from "@/components/ProjectLocationMap";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
 import type { Project, Sector, Donor, BlogPost, ExpertProfile, OwnershipRequest, Stakeholder, ProjectDocument, EventItem } from "@/lib/types";
@@ -69,7 +71,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  const statusLabel = project.status === "devam" ? t("status_ongoing") : project.status === "tamamlandi" ? t("status_completed") : t("status_planning");
+  const statusLabel = project.status === "devam" ? t("status_ongoing") : t("status_completed");
 
   const isOwner = firma && project.ownerSubscriberId === firma.id;
   const isMember = firma && project.consortiumMembers?.some((m) => m.subscriberId === firma.id);
@@ -103,9 +105,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         <div className="flex items-center gap-2 mb-3">
           <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-            project.status === "devam" ? "bg-green-100 text-green-700" :
-            project.status === "tamamlandi" ? "bg-gray-100 text-gray-600" :
-            "bg-yellow-100 text-yellow-700"
+            project.status === "devam" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
           }`}>
             {statusLabel}
           </span>
@@ -130,6 +130,29 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <Info label={t("info_locations")} value={project.locations.join(", ")} />
           )}
         </div>
+
+        {project.startDate && project.endDate && (
+          <div className="mb-6">
+            <h2 className="text-sm font-bold text-mist uppercase tracking-wide mb-3">{t("progress_title")}</h2>
+            <ProjectProgressBar
+              project={project}
+              variant="full"
+              labels={{
+                notStarted: t("progress_not_started"),
+                completed: t("progress_completed"),
+                daysRemaining: t("progress_days_remaining"),
+                needsUpdate: t("progress_needs_update"),
+              }}
+            />
+          </div>
+        )}
+
+        {project.locations.length > 0 && project.locations[0] !== "Türkiye geneli" && (
+          <div className="mb-10">
+            <h2 className="text-sm font-bold text-mist uppercase tracking-wide mb-3">{t("info_locations")}</h2>
+            <ProjectLocationMap locations={project.locations} />
+          </div>
+        )}
 
         {/* Yürütücü ve konsorsiyum bilgisi */}
         {(project.ownerSubscriberName || (project.consortiumMembers && project.consortiumMembers.length > 0)) && (
@@ -156,9 +179,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         {project.expectedOutputs && <Section title={t("project_outputs")} content={project.expectedOutputs} />}
         {project.activities && <Section title={t("project_activities")} content={project.activities} />}
 
-        {stakeholders.length > 0 && (
+        {(stakeholders.length > 0 || experts.length > 0) && (
           <div className="mb-10">
-            <h2 className="text-xl font-bold text-ink mb-4">{t("project_team")}</h2>
+            <h2 className="text-xl font-bold text-ink mb-4">{t("project_team_experts")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {stakeholders.map((s) => (
                 <div key={s.id} className="flex items-start gap-3 p-4 bg-white border border-line rounded-xl">
@@ -182,6 +205,21 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </span>
                   </div>
                 </div>
+              ))}
+              {experts.map((e, i) => (
+                <Link key={`expert-${i}`} href={`/uzmanlar/${e.profile.id}`}
+                  className="flex items-center gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
+                  <div className="w-10 h-10 rounded-full bg-eu-pale flex items-center justify-center text-eu font-bold flex-shrink-0">
+                    {e.profile.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink text-sm">{e.profile.name}</p>
+                    <p className="text-xs text-mist">{e.role}</p>
+                    <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-100 text-purple-700">
+                      {t("team_type_uzman")}
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -213,26 +251,6 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                      doc.accessLevel === "uye" ? t("doc_access_uye") : t("doc_access_ekip")}
                   </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {experts.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-xl font-bold text-ink mb-4">{t("project_experts")}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {experts.map((e, i) => (
-                <Link key={i} href={`/uzmanlar/${e.profile.id}`}
-                  className="flex items-center gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
-                  <div className="w-10 h-10 rounded-full bg-eu-pale flex items-center justify-center text-eu font-bold flex-shrink-0">
-                    {e.profile.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-ink text-sm">{e.profile.name}</p>
-                    <p className="text-xs text-mist">{e.role}</p>
-                  </div>
-                </Link>
               ))}
             </div>
           </div>

@@ -102,10 +102,9 @@ export default function UzmanDetailPage({ params }: { params: Promise<{ id: stri
                     </div>
                     {proj && (
                       <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                        proj.status === "devam" ? "bg-green-100 text-green-700" :
-                        proj.status === "tamamlandi" ? "bg-gray-100 text-gray-600" : "bg-yellow-100 text-yellow-700"
+                        proj.status === "devam" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                       }`}>
-                        {proj.status === "devam" ? t("status_ongoing") : proj.status === "tamamlandi" ? t("status_completed") : t("status_planning")}
+                        {proj.status === "devam" ? t("status_ongoing") : t("status_completed")}
                       </span>
                     )}
                   </div>

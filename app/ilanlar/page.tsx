@@ -57,32 +57,71 @@ function IlanlarPageInner() {
           ))}
         </div>
 
-        <div className="space-y-4">
-          {listings.map((l) => {
-            const isLocked = l.type === "satinalma" && !hasSupplierAccess;
-            return (
-            <Link key={l.id} href={`/ilanlar/${l.id}`}
-              className="flex items-start gap-4 p-5 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TYPE_COLOR[l.type]}`}>
-                    {TYPE_LABEL[l.type]}
-                  </span>
-                  {isLocked && <span className="text-mist text-xs">🔒 {t("listings_locked_note")}</span>}
+        {!tur ? (
+          // Tür filtrelenmemişse: iş / satınalma / ihale ayrı sütunlarda
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {(["is", "satinalma", "ihale"] as ListingType[]).map((colType) => {
+              const colListings = listings.filter((l) => l.type === colType);
+              return (
+                <div key={colType}>
+                  <h2 className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-3 ${TYPE_COLOR[colType]}`}>
+                    {TYPE_LABEL[colType]}
+                  </h2>
+                  <div className="space-y-3">
+                    {colListings.length === 0 ? (
+                      <p className="text-sm text-mist">{t("company_profile_no_listings")}</p>
+                    ) : (
+                      colListings.map((l) => {
+                        const isLocked = l.type === "satinalma" && !hasSupplierAccess;
+                        return (
+                          <Link key={l.id} href={`/ilanlar/${l.id}`}
+                            className="block p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">
+                            <h3 className="font-bold text-ink text-sm mb-1">{l.title}</h3>
+                            <p className="text-slate text-xs">{l.organization}</p>
+                            {l.subject && <p className="text-slate text-xs mt-1 line-clamp-2">{l.subject}</p>}
+                            <div className="flex flex-wrap gap-3 mt-2 text-xs text-mist">
+                              {l.location && <span>📍 {l.location}</span>}
+                              {l.deadline && <span className="text-tr font-semibold">{l.deadline}</span>}
+                              {isLocked && <span>🔒 {t("listings_locked_note")}</span>}
+                            </div>
+                          </Link>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
-                <h2 className="font-bold text-ink mb-1">{l.title}</h2>
-                <p className="text-slate text-sm">{l.organization}</p>
-                {l.subject && <p className="text-slate text-sm mt-1 line-clamp-2">{l.subject}</p>}
-                <div className="flex flex-wrap gap-4 mt-2 text-xs text-mist">
-                  {l.location && <span>📍 {l.location}</span>}
-                  {l.deadline && <span className="text-tr font-semibold">{t("listing_deadline")}: {l.deadline}</span>}
+              );
+            })}
+          </div>
+        ) : (
+          // Belirli bir tür filtrelendiğinde: tek dikey liste
+          <div className="space-y-4">
+            {listings.map((l) => {
+              const isLocked = l.type === "satinalma" && !hasSupplierAccess;
+              return (
+              <Link key={l.id} href={`/ilanlar/${l.id}`}
+                className="flex items-start gap-4 p-5 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TYPE_COLOR[l.type]}`}>
+                      {TYPE_LABEL[l.type]}
+                    </span>
+                    {isLocked && <span className="text-mist text-xs">🔒 {t("listings_locked_note")}</span>}
+                  </div>
+                  <h2 className="font-bold text-ink mb-1">{l.title}</h2>
+                  <p className="text-slate text-sm">{l.organization}</p>
+                  {l.subject && <p className="text-slate text-sm mt-1 line-clamp-2">{l.subject}</p>}
+                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-mist">
+                    {l.location && <span>📍 {l.location}</span>}
+                    {l.deadline && <span className="text-tr font-semibold">{t("listing_deadline")}: {l.deadline}</span>}
+                  </div>
                 </div>
-              </div>
-              <div className="flex-shrink-0 text-eu font-semibold text-sm">{t("listing_detail")} →</div>
-            </Link>
-            );
-          })}
-        </div>
+                <div className="flex-shrink-0 text-eu font-semibold text-sm">{t("listing_detail")} →</div>
+              </Link>
+              );
+            })}
+          </div>
+        )}
 
         {listings.length === 0 && (
           <div className="text-center py-16 text-slate">{t("listings_not_found")}</div>

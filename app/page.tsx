@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
+import { HeroCarousel } from "@/components/HeroCarousel";
+import { HOME_BANNERS } from "@/lib/home-banners";
 import { useLocale } from "@/lib/i18n/context";
 import type { Sector, Project, Listing, EventItem, BlogPost, HomeStats, Donor } from "@/lib/types";
 
@@ -45,11 +47,14 @@ export default function HomePage() {
   const recentNews = blogPosts.slice(0, 4);
 
   const statusLabel = (s: Project["status"]) =>
-    s === "devam" ? t("status_ongoing") : s === "tamamlandi" ? t("status_completed") : t("status_planning");
+    s === "devam" ? t("status_ongoing") : t("status_completed");
 
   return (
     <PageShell>
       {/* Hero */}
+      {HOME_BANNERS.length > 0 ? (
+        <HeroCarousel banners={HOME_BANNERS} />
+      ) : (
       <section className="bg-gradient-to-br from-eu to-blue-900 text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block bg-white/10 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
@@ -86,6 +91,25 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      )}
+
+      {/* Banner modunda da istatistikleri göster */}
+      {HOME_BANNERS.length > 0 && (
+        <section className="bg-eu py-10 px-6">
+          <div className="max-w-3xl mx-auto grid grid-cols-3 gap-4">
+            {[
+              { label: t("stat_projects"), value: (stats?.projects ?? 0).toLocaleString(locale === "tr" ? "tr" : "en") },
+              { label: t("stat_listings"), value: (stats?.openListings ?? 0).toString() },
+              { label: t("stat_events"), value: (stats?.upcomingEvents ?? 0).toString() },
+            ].map((s) => (
+              <div key={s.label} className="bg-white/10 rounded-2xl p-5 text-center">
+                <div className="text-3xl font-extrabold text-white">{s.value}</div>
+                <div className="text-blue-200 text-sm mt-1">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Sektörler */}
       <section className="py-14 px-6 bg-surface">
@@ -95,7 +119,12 @@ export default function HomePage() {
             {sectors.map((s) => (
               <Link key={s.id} href={`/projeler?sektor=${s.id}`}
                 className="bg-white rounded-xl border border-line p-4 text-center hover:border-eu hover:shadow-md transition-all">
-                <div className="w-10 h-10 rounded-full mx-auto mb-3" style={{ backgroundColor: s.color ?? "#003399" }} />
+                {s.iconUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s.iconUrl} alt={s.name} className="w-10 h-10 mx-auto mb-3 object-contain" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full mx-auto mb-3" style={{ backgroundColor: s.color ?? "#003399" }} />
+                )}
                 <div className="text-sm font-semibold text-ink leading-tight">{s.name}</div>
               </Link>
             ))}
@@ -172,25 +201,38 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-ink">{t("home_listings")}</h2>
             <Link href="/ilanlar" className="text-eu text-sm font-semibold hover:underline">{t("home_all_listings")} →</Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {listings.slice(0, 6).map((l) => (
-              <Link key={l.id} href={`/ilanlar/${l.id}`}
-                className="bg-white border border-line rounded-xl p-5 hover:border-eu hover:shadow-md transition-all">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    l.type === "is" ? "bg-blue-100 text-blue-700" :
-                    l.type === "satinalma" ? "bg-orange-100 text-orange-700" :
-                    "bg-purple-100 text-purple-700"
-                  }`}>
-                    {l.type === "is" ? t("listings_jobs") : l.type === "satinalma" ? t("listings_procurement") : t("listings_tender")}
-                  </span>
-                  {l.locked && <span className="text-mist">🔒</span>}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {([
+              { type: "is" as const, label: t("listings_jobs"), badge: "bg-blue-100 text-blue-700" },
+              { type: "satinalma" as const, label: t("listings_procurement"), badge: "bg-orange-100 text-orange-700" },
+              { type: "ihale" as const, label: t("listings_tender"), badge: "bg-purple-100 text-purple-700" },
+            ]).map((col) => {
+              const colListings = listings.filter((l) => l.type === col.type).slice(0, 4);
+              return (
+                <div key={col.type}>
+                  <h3 className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-3 ${col.badge}`}>
+                    {col.label}
+                  </h3>
+                  <div className="space-y-3">
+                    {colListings.length === 0 ? (
+                      <p className="text-sm text-mist">{t("company_profile_no_listings")}</p>
+                    ) : (
+                      colListings.map((l) => (
+                        <Link key={l.id} href={`/ilanlar/${l.id}`}
+                          className="block bg-white border border-line rounded-xl p-4 hover:border-eu hover:shadow-md transition-all">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h4 className="font-semibold text-ink text-sm leading-tight">{l.title}</h4>
+                            {l.locked && <span className="text-mist flex-shrink-0">🔒</span>}
+                          </div>
+                          <p className="text-xs text-mist">{l.organization}</p>
+                          {l.deadline && <p className="text-xs text-tr mt-1.5">{t("listing_deadline")}: {l.deadline}</p>}
+                        </Link>
+                      ))
+                    )}
+                  </div>
                 </div>
-                <h3 className="font-semibold text-ink text-sm leading-tight mb-1">{l.title}</h3>
-                <p className="text-xs text-mist">{l.organization}</p>
-                {l.deadline && <p className="text-xs text-tr mt-2">{t("listing_deadline")}: {l.deadline}</p>}
-              </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -275,8 +317,7 @@ export default function HomePage() {
               { href: "/araclar/dokuman", title: locale === "tr" ? "E-Doküman Yönetimi" : "E-Document Management", desc: locale === "tr" ? "Doküman kütüphanesi, erişim kontrolü, indirme sayacı." : "Document library, access control, download tracking.", color: "#1D7A5F" },
               { href: "/araclar/bulten", title: locale === "tr" ? "Bülten Gönderimi" : "Newsletter Campaigns", desc: locale === "tr" ? "Hedefli e-posta kampanyaları ve istatistikler." : "Targeted email campaigns and statistics.", color: "#7C5710" },
               { href: "/araclar/paydas", title: locale === "tr" ? "Paydaş İletişimi" : "Stakeholder Communication", desc: locale === "tr" ? "Ekip, uzman ve tedarikçi yönetimi." : "Team, expert, and supplier management.", color: "#3730A3" },
-              { href: "/araclar/rapor", title: locale === "tr" ? "Raporlama" : "Reporting", desc: locale === "tr" ? "Portföy analizi ve Excel/CSV dışa aktarım." : "Portfolio analysis and Excel/CSV export.", color: "#0F766E" },
-              { href: "/araclar/egitim", title: "E-Learning", desc: locale === "tr" ? "Eğitim videoları ve proje ekibi öğrenim takibi." : "Training videos and team learning progress.", color: "#7C3AED" },
+              { href: "/araclar/egitim", title: locale === "tr" ? "Eğitim Materyalleri" : "Training Materials", desc: locale === "tr" ? "Firmaların eklediği video ve doküman eğitim materyalleri kütüphanesi." : "Library of training videos and documents added by companies.", color: "#7C3AED" },
               { href: "/araclar/harita", title: locale === "tr" ? "Proje Haritası" : "Project Map", desc: locale === "tr" ? "İllere göre proje dağılımını görselleştirin." : "Visualize project distribution by province.", color: "#B45309" },
               { href: "/araclar/infografik", title: locale === "tr" ? "İnfografikler" : "Infographics", desc: locale === "tr" ? "Sektör, dönem ve bütçeye göre görsel analiz." : "Visual analysis by sector, period, and budget.", color: "#C2410C" },
               { href: "/uzmanlar", title: locale === "tr" ? "Uzman CV Havuzu" : "Expert CV Pool", desc: locale === "tr" ? "Uzman profillerini yönetin ve proje ekibi kurun." : "Manage expert profiles and build project teams.", color: "#0369A1" },

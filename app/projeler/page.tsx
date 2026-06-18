@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ProjectProgressBar } from "@/components/ProjectProgressBar";
 import { useLocale } from "@/lib/i18n/context";
 import type { Project, Sector, Donor, IpaPeriod } from "@/lib/types";
 
@@ -54,7 +55,7 @@ function ProjelerPageInner() {
   }, [sektor, donorId, donem, durum, ara]);
 
   const statusLabel = (s: Project["status"]) =>
-    s === "devam" ? t("status_ongoing") : s === "tamamlandi" ? t("status_completed") : t("status_planning");
+    s === "devam" ? t("status_ongoing") : t("status_completed");
 
   // Filtre linklerinde mevcut arama metnini koruyarak href üretir
   const filterHref = (key: "sektor" | "donor" | "donem" | "durum", value?: string) => {
@@ -112,7 +113,7 @@ function ProjelerPageInner() {
             <div className="mb-6">
               <div className="text-xs uppercase tracking-wide text-mist mb-2 font-semibold">{t("projects_period")}</div>
               <div className="space-y-1">
-                {(["IPA-I", "IPA-II", "IPA-III", "IPA-IV"] as const).map((p) => (
+                {(["IPA-I", "IPA-II", "IPA-III"] as const).map((p) => (
                   <Link key={p} href={filterHref("donem", p)}
                     className={`block text-sm px-3 py-1.5 rounded-lg ${donem === p ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
                     {p}
@@ -124,7 +125,7 @@ function ProjelerPageInner() {
             <div>
               <div className="text-xs uppercase tracking-wide text-mist mb-2 font-semibold">{t("projects_status")}</div>
               <div className="space-y-1">
-                {[{ v: "devam", l: t("status_ongoing") }, { v: "tamamlandi", l: t("status_completed") }, { v: "planlama", l: t("status_planning") }].map((d) => (
+                {[{ v: "devam", l: t("status_ongoing") }, { v: "tamamlandi", l: t("status_completed") }].map((d) => (
                   <Link key={d.v} href={filterHref("durum", d.v)}
                     className={`block text-sm px-3 py-1.5 rounded-lg ${durum === d.v ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
                     {d.l}
@@ -185,15 +186,25 @@ function ProjelerPageInner() {
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs text-mist">{p.ipaPeriod}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                              p.status === "devam" ? "bg-green-100 text-green-700" :
-                              p.status === "tamamlandi" ? "bg-gray-100 text-gray-600" :
-                              "bg-yellow-100 text-yellow-700"
+                              p.status === "devam" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                             }`}>
                               {statusLabel(p.status)}
                             </span>
                           </div>
                           <h2 className="font-bold text-ink text-sm leading-tight mb-1">{p.title}</h2>
                           <p className="text-xs text-slate line-clamp-2">{p.summary}</p>
+                          {p.startDate && p.endDate && (
+                            <ProjectProgressBar
+                              project={p}
+                              variant="compact"
+                              labels={{
+                                notStarted: t("progress_not_started"),
+                                completed: t("progress_completed"),
+                                daysRemaining: t("progress_days_remaining"),
+                                needsUpdate: t("progress_needs_update"),
+                              }}
+                            />
+                          )}
                           <div className="flex flex-wrap gap-2 mt-2">
                             {p.locations.slice(0, 3).map((l) => (
                               <span key={l} className="text-xs bg-surface text-mist px-2 py-0.5 rounded">📍 {l}</span>

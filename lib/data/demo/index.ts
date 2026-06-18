@@ -3,23 +3,25 @@ import type { DataProvider, ProjectFilters } from "../provider";
 import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
-  Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile,
+  Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
 } from "../../types";
 
 const delay = <T>(v: T, ms = 60) => new Promise<T>((r) => setTimeout(() => r(v), ms));
 
 // ── Sektörler ─────────────────────────────────────────────
+// Onur'un belirlediği IPA sektör operasyonel programları listesi baz alınmıştır.
+// İkonlar /public/sectors/ klasöründe.
 const sectors: Sector[] = [
-  { id: "tarim", name: "Tarım & Kırsal Kalkınma", color: "#16a34a" },
-  { id: "cevre", name: "Çevre & İklim", color: "#0891b2" },
-  { id: "egitim", name: "Eğitim & Gençlik", color: "#7c3aed" },
-  { id: "istihdam", name: "İstihdam & Sosyal Politika", color: "#ea580c" },
-  { id: "enerji", name: "Enerji & Altyapı", color: "#ca8a04" },
-  { id: "adalet", name: "Adalet & İçişleri", color: "#dc2626" },
-  { id: "saglik", name: "Sağlık & Sosyal Hizmetler", color: "#0284c7" },
-  { id: "rekabet", name: "Rekabetçilik & KOBİ", color: "#9333ea" },
-  { id: "bolgesel", name: "Bölgesel Kalkınma", color: "#0f766e" },
-  { id: "dijital", name: "Dijital Dönüşüm", color: "#1d4ed8" },
+  { id: "yargi", name: "Yargı", color: "#dc2626", iconUrl: "/sectors/yargi.png" },
+  { id: "icisleri", name: "İçişleri", color: "#991b1b", iconUrl: "/sectors/icisleri.png" },
+  { id: "cevre", name: "Çevre ve İklim Eylemi Sektör Operasyonel Programı", color: "#0891b2", iconUrl: "/sectors/cevre.png" },
+  { id: "temel-haklar", name: "Temel Haklar", color: "#4338ca", iconUrl: "/sectors/temel-haklar.png" },
+  { id: "ulasim", name: "Ulaştırma Sektör Operasyonel Programı", color: "#0369a1", iconUrl: "/sectors/ulasim.png" },
+  { id: "enerji", name: "Enerji", color: "#ca8a04", iconUrl: "/sectors/enerji.png" },
+  { id: "istihdam", name: "İstihdam, Eğitim ve Sosyal Politikalar Sektör Operasyonel Programı", color: "#ea580c", iconUrl: "/sectors/istihdam.png" },
+  { id: "tarim", name: "Tarım ve Kırsal Kalkınma", color: "#16a34a", iconUrl: "/sectors/tarim.png" },
+  { id: "rekabet", name: "Rekabetçilik ve Yenilik Sektör Operasyonel Programı", color: "#9333ea", iconUrl: "/sectors/rekabet.png" },
+  { id: "sivil-toplum", name: "Sivil Toplum", color: "#be185d", iconUrl: "/sectors/sivil-toplum.png" },
 ];
 
 // ── Donörler ──────────────────────────────────────────────
@@ -53,7 +55,7 @@ const projects: Project[] = [
     id: "cevre-iklim",
     title: "Çevre Uyum ve İklim Değişikliği",
     summary: "Türkiye'nin iklim değişikliğine uyum kapasitesinin güçlendirilmesi.",
-    sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-IV",
+    sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-III",
     beneficiary: "T.C. Çevre Bakanlığı", locations: ["Ankara", "İstanbul"],
     budget: "€8.2M", startDate: "2024-03-01", endDate: "2027-03-31",
     status: "devam", featured: true,
@@ -77,7 +79,7 @@ const projects: Project[] = [
     id: "adli-tebligat",
     title: "Adli Tebligat Sisteminin Modernizasyonu",
     summary: "Türkiye'nin adli tebligat altyapısının dijitalleştirilmesi ve AB standartlarına uyumu.",
-    sectorId: "adalet", donorId: "eu", ipaPeriod: "IPA-II",
+    sectorId: "yargi", donorId: "eu", ipaPeriod: "IPA-II",
     beneficiary: "T.C. Adalet Bakanlığı", locations: ["Ankara"],
     budget: "€5.5M", startDate: "2021-01-01", endDate: "2024-06-30",
     status: "tamamlandi", featured: false,
@@ -101,7 +103,7 @@ const projects: Project[] = [
     id: "dijital-donusum",
     title: "Kamu Hizmetlerinde Dijital Dönüşüm",
     summary: "Belediyelerin dijital hizmet kapasitesinin güçlendirilmesi.",
-    sectorId: "dijital", donorId: "wb", ipaPeriod: "IPA-IV",
+    sectorId: "icisleri", donorId: "wb", ipaPeriod: "IPA-III",
     beneficiary: "İçişleri Bakanlığı", locations: ["İstanbul", "Ankara", "İzmir", "Bursa"],
     budget: "€9.3M", startDate: "2024-01-01", endDate: "2027-12-31",
     status: "devam", featured: false,
@@ -125,7 +127,7 @@ const projects: Project[] = [
     id: "saglik-reform",
     title: "Sağlık Sektörü Reform Desteği",
     summary: "Türkiye sağlık sisteminin güçlendirilmesi ve AB sağlık standartlarına uyum.",
-    sectorId: "saglik", donorId: "eu", ipaPeriod: "IPA-II",
+    sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-II",
     beneficiary: "Sağlık Bakanlığı", locations: ["Ankara", "İstanbul", "İzmir"],
     budget: "€7.5M", startDate: "2020-01-01", endDate: "2023-12-31",
     status: "tamamlandi", featured: false,
@@ -137,7 +139,7 @@ const projects: Project[] = [
     id: "bolgesel-kalkinma",
     title: "Doğu Anadolu Bölgesel Kalkınma",
     summary: "Doğu Anadolu illerinde ekonomik kalkınma ve altyapı iyileştirme.",
-    sectorId: "bolgesel", donorId: "eu", ipaPeriod: "IPA-III",
+    sectorId: "ulasim", donorId: "eu", ipaPeriod: "IPA-III",
     beneficiary: "Kalkınma Bakanlığı", locations: ["Erzurum", "Van", "Ağrı", "Iğdır"],
     budget: "€18M", startDate: "2022-01-01", endDate: "2025-12-31",
     status: "devam", featured: false,
@@ -149,10 +151,10 @@ const projects: Project[] = [
     id: "egitim-kalite",
     title: "Eğitimde Kalite ve Erişim",
     summary: "Türkiye'de eğitim kalitesinin artırılması ve dezavantajlı gruplara erişimin genişletilmesi.",
-    sectorId: "egitim", donorId: "eu", ipaPeriod: "IPA-IV",
+    sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-III",
     beneficiary: "Milli Eğitim Bakanlığı", locations: ["Türkiye geneli"],
     budget: "€22M", startDate: "2024-09-01", endDate: "2028-08-31",
-    status: "planlama", featured: true,
+    status: "devam", featured: true,
     objective: "Eğitimde fırsat eşitliğini güçlendirmek, dezavantajlı bölgelerdeki okullarda eğitim kalitesini artırmak ve okul terkini azaltmak.",
     expectedOutputs: "500 okulda öğretmen kapasite geliştirme programının uygulanması, 50.000 öğrenciye destekleyici eğitim materyali sağlanması, okul terk oranında %15 azalma.",
     activities: "Öğretmen eğitim modüllerinin geliştirilmesi, dezavantajlı bölge okullarına materyal desteği, veli farkındalık çalışmaları, izleme ve değerlendirme sisteminin kurulması.",
@@ -161,7 +163,7 @@ const projects: Project[] = [
     id: "mesleki-egitim-giz",
     title: "Mesleki Eğitimde İkili Sistem Reformu",
     summary: "Almanya'nın ikili mesleki eğitim modelinin Türkiye'ye uyarlanması.",
-    sectorId: "egitim", donorId: "giz", ipaPeriod: "IPA-III",
+    sectorId: "istihdam", donorId: "giz", ipaPeriod: "IPA-III",
     beneficiary: "Milli Eğitim Bakanlığı", locations: ["Bursa", "Kocaeli", "Gaziantep"],
     budget: "€8.4M", startDate: "2023-06-01", endDate: "2026-05-31",
     status: "devam", featured: true,
@@ -173,7 +175,7 @@ const projects: Project[] = [
     id: "afet-direnci-usaid",
     title: "Afetlere Dirençli Topluluklar Programı",
     summary: "Deprem riski yüksek bölgelerde toplum temelli afet hazırlık kapasitesinin güçlendirilmesi.",
-    sectorId: "adalet", donorId: "usaid", ipaPeriod: "IPA-IV",
+    sectorId: "icisleri", donorId: "usaid", ipaPeriod: "IPA-III",
     beneficiary: "AFAD", locations: ["Hatay", "Kahramanmaraş", "Adıyaman", "Malatya"],
     budget: "€14.6M", startDate: "2024-02-01", endDate: "2027-01-31",
     status: "devam", featured: true,
@@ -185,7 +187,7 @@ const projects: Project[] = [
     id: "surdurulebilir-kalkinma-undp",
     title: "Sürdürülebilir Kalkınma Hedefleri Yerelleştirme Programı",
     summary: "BM Sürdürülebilir Kalkınma Hedeflerinin yerel yönetimler düzeyinde uygulanması.",
-    sectorId: "bolgesel", donorId: "undp", ipaPeriod: "IPA-III",
+    sectorId: "sivil-toplum", donorId: "undp", ipaPeriod: "IPA-III",
     beneficiary: "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı", locations: ["İzmir", "Antalya", "Eskişehir", "Samsun"],
     budget: "€6.2M", startDate: "2023-10-01", endDate: "2026-09-30",
     status: "devam", featured: false,
@@ -199,16 +201,19 @@ const projects: Project[] = [
 for (let i = 11; i <= 499; i++) {
   const sec = sectors[i % sectors.length];
   const don = donors[i % donors.length];
-  const periods = ["IPA-I", "IPA-II", "IPA-III", "IPA-IV"] as const;
+  const periods = ["IPA-I", "IPA-II", "IPA-III"] as const;
+  const period = periods[i % 3];
+  // IPA-I dönemi tamamlanmış kabul edilir; diğerleri ağırlıklı olarak devam ediyor, bir kısmı tamamlanmış.
+  const status: Project["status"] = period === "IPA-I" ? "tamamlandi" : (i % 4 === 0 ? "tamamlandi" : "devam");
   projects.push({
     id: `proje-${i}`,
     title: `${sec.name} Destek Projesi ${i}`,
     summary: `${sec.name} alanında kapasite geliştirme ve kurumsal reform projesi.`,
-    sectorId: sec.id, donorId: don.id, ipaPeriod: periods[i % 4],
+    sectorId: sec.id, donorId: don.id, ipaPeriod: period,
     beneficiary: "İlgili Bakanlık", locations: ["Ankara"],
     budget: `€${(Math.floor(Math.random() * 15) + 1)}.${Math.floor(Math.random() * 9)}M`,
     startDate: "2023-01-01", endDate: "2025-12-31",
-    status: i % 3 === 0 ? "tamamlandi" : i % 5 === 0 ? "planlama" : "devam",
+    status,
     featured: false,
   });
 }
@@ -222,6 +227,7 @@ const listings: Listing[] = [
     subject: "Tarım modernizasyon projesinin günlük yürütülmesinden sorumlu kıdemli proje koordinatörü pozisyonu.",
     referenceNo: "DFG-2026-IK-014",
     contactEmail: "ik@designforgood.com",
+    publisherSubscriberId: "sub-1",
     description: "Tarım modernizasyon projesi için deneyimli proje koordinatörü aranmaktadır. AB projesi yönetim deneyimi şarttır.\n\nGereksinimler:\n- En az 5 yıl AB projesi yönetim deneyimi\n- İyi derecede İngilizce\n- Tarım sektörü bilgisi tercih sebebi\n\nBaşvuru için CV ve motivasyon mektubunu gönderiniz.",
     documents: [
       { name: "İş Tanımı.pdf", fileSize: "0.4 MB" },
@@ -252,6 +258,7 @@ const listings: Listing[] = [
     budget: "€420.000 (yaklaşık maliyet)",
     referenceNo: "ISKUR-IHL-2026-008",
     contactEmail: "ihale@iskur.gov.tr",
+    publisherSubscriberId: "sub-7",
     description: "Genç İstihdamın Desteklenmesi Projesi kapsamında geliştirilen kariyer danışmanlığı platformunun yeni modüllerinin geliştirilmesi ve 2 yıl süreyle bakım-destek hizmetinin sağlanması işi ihale edilecektir.\n\nKapsam:\n- Mobil uygulama geliştirme\n- İşveren eşleştirme modülü\n- 2 yıl 7/24 teknik destek\n\nİhaleye katılım için yeterlik belgeleri ve önceki kamu ihalesi deneyimi referansları talep edilmektedir.",
     documents: [
       { name: "İhale Şartnamesi.pdf", fileSize: "5.7 MB" },
@@ -307,11 +314,42 @@ const listings: Listing[] = [
     budget: "€1.250.000 (yaklaşık maliyet)",
     referenceNo: "KALKINMA-IHL-2026-005",
     contactEmail: "ihale@kalkinma.gov.tr",
+    publisherSubscriberId: "sub-7",
     description: "Erzurum ve Van illerinde toplam 40 km kırsal yol yapım, asfaltlama ve drenaj iyileştirme işleri ihale edilecektir.\n\nKapsam:\n- 40 km yol yapımı ve asfaltlama\n- Drenaj sistemleri\n- 18 ay yapım süresi\n\nİhaleye katılım için karayolu yapım işlerinde benzer iş deneyim belgesi gereklidir.",
     documents: [
       { name: "İhale Şartnamesi.pdf", fileSize: "6.4 MB" },
       { name: "Keşif Özeti.xlsx", fileSize: "1.2 MB" },
       { name: "İdari Şartname.pdf", fileSize: "2.0 MB" },
+    ],
+  },
+  // Firmaların kendi yayınladığı ilanlar (firma profil sayfasında listelenir)
+  {
+    id: "ilan-8", type: "is",
+    title: "Kıdemli Tarım Uzmanı",
+    organization: "ABC Danışmanlık", projectId: "tarim-modern",
+    location: "Konya (Saha)", publishedAt: "2026-06-14", deadline: "2026-07-25", locked: false,
+    subject: "Tarım modernizasyon projesi saha uygulamalarını yürütecek kıdemli tarım uzmanı pozisyonu.",
+    referenceNo: "ABC-IK-2026-007",
+    contactEmail: "ik@abcdanismanlik.com",
+    publisherSubscriberId: "sub-1",
+    description: "ABC Danışmanlık bünyesinde, Tarım Modernizasyon Projesi kapsamında çiftçi eğitimleri ve saha ziyaretlerini koordine edecek kıdemli tarım uzmanı aranmaktadır.\n\nGereksinimler:\n- Ziraat mühendisliği lisans/yüksek lisans derecesi\n- En az 4 yıl saha deneyimi\n- Konya bölgesinde seyahat edebilme",
+    documents: [
+      { name: "İş Tanımı.pdf", fileSize: "0.3 MB" },
+    ],
+  },
+  {
+    id: "ilan-9", type: "satinalma",
+    title: "Saha Ölçüm Cihazları Tedariki",
+    organization: "MK İnşaat", projectId: "enerji-verimlilik",
+    location: "Kayseri", publishedAt: "2026-06-11", deadline: "2026-07-18", locked: false,
+    subject: "Enerji verimliliği etütlerinde kullanılacak taşınabilir ölçüm cihazlarının satın alınması.",
+    budget: "€18.000 (tahmini)",
+    referenceNo: "MKI-SAT-2026-003",
+    contactEmail: "satinalma@mkinsaat.com",
+    publisherSubscriberId: "sub-3",
+    description: "MK İnşaat, enerji verimliliği etütlerinde kullanılacak taşınabilir termal kamera ve enerji ölçüm cihazlarının tedarikini gerçekleştirecektir.\n\nKapsam:\n- 5 adet termal görüntüleme kamerası\n- 10 adet taşınabilir enerji ölçüm cihazı\n- Kalibrasyon ve eğitim hizmeti",
+    documents: [
+      { name: "Teknik Şartname.pdf", fileSize: "1.4 MB" },
     ],
   },
 ];
@@ -329,7 +367,7 @@ const events: EventItem[] = [
     agenda: [
       { id: "a1", time: "09:00", title: "Açılış", presenter: "Moderatör", durationMin: 30 },
       { id: "a2", time: "09:30", title: "Keynote: AB-Türkiye İlişkileri", presenter: "AB Büyükelçisi", durationMin: 45 },
-      { id: "a3", time: "10:30", title: "Panel: IPA IV Deneyimleri", presenter: "Panel", durationMin: 90 },
+      { id: "a3", time: "10:30", title: "Panel: IPA III Deneyimleri", presenter: "Panel", durationMin: 90 },
     ],
   },
   {
@@ -366,15 +404,15 @@ const events: EventItem[] = [
   },
   {
     id: "etk-4",
-    title: "IPA IV Bilgilendirme Toplantısı",
+    title: "IPA III Bilgilendirme Toplantısı",
     date: "2026-10-05T14:00:00",
     location: "AB Türkiye Delegasyonu, Ankara",
     isPublic: true,
-    description: "IPA IV döneminin yeni fırsatlarına ilişkin bilgilendirme.",
+    description: "IPA III döneminin yeni fırsatlarına ilişkin bilgilendirme.",
     capacity: 80,
     agenda: [
       { id: "a12", time: "14:00", title: "Açılış ve Karşılama", presenter: "AB Delegasyonu", durationMin: 15 },
-      { id: "a13", time: "14:15", title: "IPA IV Öncelik Alanları", presenter: "Delegasyon Uzmanı", durationMin: 45 },
+      { id: "a13", time: "14:15", title: "IPA III Öncelik Alanları", presenter: "Delegasyon Uzmanı", durationMin: 45 },
       { id: "a14", time: "15:00", title: "Başvuru Süreçleri ve Teknik Destek", presenter: "Program Yöneticisi", durationMin: 40 },
       { id: "a15", time: "15:40", title: "Soru & Cevap", durationMin: 30 },
     ],
@@ -403,7 +441,7 @@ const blogPosts: BlogPost[] = [
     title: "AB-Türkiye İlişkilerinde Yeni Dönem: 2026 Perspektifi",
     category: "AB Politikası",
     excerpt: "Türkiye'nin AB üyelik sürecinde 2026 yılı kritik dönüm noktaları ve beklentiler.",
-    content: `Türkiye ile Avrupa Birliği arasındaki ilişkiler, 2026 yılında yeni bir ivme kazanmaktadır. Özellikle IPA IV döneminin aktif uygulamaya geçmesiyle birlikte, iki taraf arasındaki proje işbirliği rekor seviyelere ulaşmıştır.
+    content: `Türkiye ile Avrupa Birliği arasındaki ilişkiler, 2026 yılında yeni bir ivme kazanmaktadır. Özellikle IPA III döneminin aktif uygulamaya geçmesiyle birlikte, iki taraf arasındaki proje işbirliği rekor seviyelere ulaşmıştır.
 
 Bu yıl hayata geçirilen projeler, tarımdan çevreye, eğitimden dijital dönüşüme kadar geniş bir yelpazede Türkiye'nin kalkınma gündemine katkı sunmaktadır. Delegasyon yetkilileri, 2026'da tamamlanacak projelerin etki değerlendirmesinin olumlu sonuçlanmasını beklediklerini ifade etmektedir.
 
@@ -415,11 +453,11 @@ Bu yıl hayata geçirilen projeler, tarımdan çevreye, eğitimden dijital dön�
   },
   {
     id: "blog-2",
-    slug: "ipa-iv-firsatlari",
-    title: "IPA IV Dönemi: Türkiye için Finansman Fırsatları",
+    slug: "ipa-iii-firsatlari",
+    title: "IPA III Dönemi: Türkiye için Finansman Fırsatları",
     category: "Fonlar & Finansman",
-    excerpt: "IPA IV kapsamında Türkiye'ye sunulan hibe ve teknik destek imkânları rehberi.",
-    content: `IPA IV (Katılım Öncesi Mali Yardım Aracı) 2021-2027 dönemi, Türkiye için önemli finansman olanakları sunmaktadır. Bu dönemde Türkiye, toplamda 1,4 milyar Euro'yu aşan kaynak için uygun konumdadır.
+    excerpt: "IPA III kapsamında Türkiye'ye sunulan hibe ve teknik destek imkânları rehberi.",
+    content: `IPA III (Katılım Öncesi Mali Yardım Aracı) 2021-2027 dönemi, Türkiye için önemli finansman olanakları sunmaktadır. Bu dönemde Türkiye, toplamda 1,4 milyar Euro'yu aşan kaynak için uygun konumdadır.
 
 Desteklenecek öncelik alanları arasında hukukun üstünlüğü ve temel haklar, çevre ve iklim eylemi, dijital dönüşüm, tarım ve kırsal kalkınma ile bölgesel ve bölgesel kalkınma yer almaktadır.
 
@@ -632,11 +670,70 @@ const documents: ProjectDocument[] = [
 ];
 
 const subscribers: Subscriber[] = [
-  { id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık", accountType: "sirket", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2024-12-15T09:00:00Z" },
-  { id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma", accountType: "sirket", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z" },
-  { id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat", accountType: "sirket", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z" },
-  { id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı", accountType: "stk", plan: "paket1", tags: ["stk", "tarim"], createdAt: "2026-02-20T09:00:00Z" },
-  { id: "sub-5", name: "Can Öztürk", email: "can@danismanlik2.com", organization: "Delta Mühendislik", accountType: "sirket", plan: "paket2", tags: ["tedarikci", "enerji"], createdAt: "2026-03-05T09:00:00Z" },
+  {
+    id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık",
+    accountType: "sirket", profileType: "firma", plan: "paket1", tags: ["tedarikci", "tarim"], createdAt: "2024-12-15T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=ABC%20Danismanlik&backgroundColor=003399",
+    shortBio: "Tarım ve kırsal kalkınma alanında 15 yıllık tecrübeye sahip danışmanlık firması. AB fonlu projelerde teknik destek ve proje yönetimi hizmetleri sunar.",
+    contactAddress: "Çankaya, Ankara", contactPhone: "+90 312 444 0001", contactEmail: "info@abcdanismanlik.com",
+    socialLinks: { website: "https://abcdanismanlik.com", linkedin: "https://linkedin.com/company/abc-danismanlik" },
+    profilePublic: true,
+  },
+  {
+    id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Firma",
+    accountType: "sirket", profileType: "firma", plan: "paket2", tags: ["yararlanici"], createdAt: "2026-02-01T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=XYZ%20Firma&backgroundColor=0891b2",
+    shortBio: "Eğitim ve gençlik alanında faaliyet gösteren, AB projelerinde uygulayıcı ortak olarak yer alan firma.",
+    contactAddress: "Şişli, İstanbul", contactEmail: "iletisim@xyzfirma.com",
+    socialLinks: { website: "https://xyzfirma.com" },
+    profilePublic: true,
+  },
+  {
+    id: "sub-3", name: "Mehmet Kaya", email: "mehmet@insaat.com", organization: "MK İnşaat",
+    accountType: "sirket", profileType: "tedarikci", plan: "tedarikci", tags: ["tedarikci", "insaat"], createdAt: "2026-03-10T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=MK%20Insaat&backgroundColor=ca8a04",
+    shortBio: "Altyapı ve inşaat sektöründe tedarikçi olarak AB ve kamu projelerine malzeme ve hizmet tedariki sağlar.",
+    contactAddress: "Kayseri", contactPhone: "+90 352 444 0003", contactEmail: "info@mkinsaat.com",
+    socialLinks: { website: "https://mkinsaat.com", instagram: "https://instagram.com/mkinsaat" },
+    profilePublic: true,
+  },
+  {
+    id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı",
+    accountType: "stk", profileType: "stk", plan: "paket1", tags: ["stk", "tarim"], createdAt: "2026-02-20T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Tarim%20Vakfi&backgroundColor=16a34a",
+    shortBio: "Kırsal kalkınma ve sürdürülebilir tarım alanında saha uygulamaları yürüten sivil toplum kuruluşu.",
+    contactAddress: "Konya", contactEmail: "iletisim@tarimstk.org",
+    socialLinks: { website: "https://tarimstk.org", facebook: "https://facebook.com/tarimstk" },
+    profilePublic: true,
+  },
+  {
+    id: "sub-5", name: "Can Öztürk", email: "can@danismanlik2.com", organization: "Delta Mühendislik",
+    accountType: "sirket", profileType: "tedarikci", plan: "paket2", tags: ["tedarikci", "enerji"], createdAt: "2026-03-05T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Delta%20Muhendislik&backgroundColor=7c3aed",
+    shortBio: "Enerji verimliliği ve yenilenebilir enerji projelerinde mühendislik ve danışmanlık hizmeti sunan tedarikçi firma.",
+    contactAddress: "Çankaya, Ankara", contactPhone: "+90 312 444 0005",
+    socialLinks: { website: "https://deltamuhendislik.com", linkedin: "https://linkedin.com/company/delta-muhendislik" },
+    profilePublic: true,
+  },
+  // Demo: ihale ilanı verme yetkisine sahip profil türleri
+  {
+    id: "sub-6", name: "Sarah Johnson", email: "sjohnson@eu-delegation.tr", organization: "AB Türkiye Delegasyonu",
+    accountType: "sirket", profileType: "delegasyon", plan: "paket2", tags: ["delegasyon"], createdAt: "2024-01-01T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=AB%20Delegasyonu&backgroundColor=003399",
+    shortBio: "Avrupa Birliği'nin Türkiye'deki resmi temsilciliği. IPA fonları kapsamındaki ihale süreçlerini yürütür.",
+    contactAddress: "Kavaklıdere, Ankara", contactEmail: "delegation-turkey@eeas.europa.eu",
+    socialLinks: { website: "https://www.avrupa.info.tr" },
+    profilePublic: true,
+  },
+  {
+    id: "sub-7", name: "Deniz Korkmaz", email: "dkorkmaz@ipa-otorite.gov.tr", organization: "Merkezi Finans ve İhale Birimi",
+    accountType: "sirket", profileType: "program_otoritesi", plan: "paket2", tags: ["program_otoritesi"], createdAt: "2024-01-01T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=MFIB&backgroundColor=dc2626",
+    shortBio: "IPA fonlarının uygulanmasından sorumlu program otoritesi. İhale ve hibe süreçlerini yönetir.",
+    contactAddress: "Söğütözü, Ankara", contactEmail: "info@mfib.gov.tr",
+    socialLinks: { website: "https://www.mfib.gov.tr" },
+    profilePublic: true,
+  },
 ];
 
 const campaigns: Campaign[] = [
@@ -665,9 +762,16 @@ const stakeholders: Stakeholder[] = [
 ];
 
 const trainingVideos: TrainingVideo[] = [
-  { id: "tv-1", title: "AB Proje Döngüsü Yönetimi", description: "Temel PCM kavramları ve uygulamaları.", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "45:00", category: "Proje Yönetimi", order: 1 },
-  { id: "tv-2", title: "Finansal Raporlama Esasları", description: "AB projelerinde mali yönetim ve raporlama.", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "38:00", category: "Mali Yönetim", order: 2 },
-  { id: "tv-3", title: "İzleme ve Değerlendirme", description: "M&E metodolojisi ve gösterge sistemi.", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "52:00", category: "İ&D", order: 3 },
+  { id: "tv-1", title: "AB Proje Döngüsü Yönetimi", description: "Temel PCM kavramları, mantıksal çerçeve ve uygulama adımları.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "45:00", category: "Proje Yönetimi", keywords: ["PCM", "mantıksal çerçeve", "proje döngüsü"], order: 1 },
+  { id: "tv-2", title: "Finansal Raporlama Esasları", description: "AB projelerinde mali yönetim, harcama belgeleme ve raporlama.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "38:00", category: "Mali Yönetim", keywords: ["mali yönetim", "raporlama", "harcama belgeleme"], order: 2 },
+  { id: "tv-3", title: "İzleme ve Değerlendirme", description: "M&E metodolojisi, gösterge sistemi ve etki değerlendirmesi.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "52:00", category: "İ&D", keywords: ["izleme", "değerlendirme", "gösterge", "etki analizi"], order: 3 },
+  { id: "tv-4", title: "Satınalma Kuralları (PRAG)", description: "AB finansmanlı projelerde satınalma prosedürleri ve PRAG rehberi.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "41:00", category: "Satınalma", keywords: ["PRAG", "satınalma", "ihale prosedürü"], order: 4 },
+  { id: "tv-5", title: "Görünürlük ve İletişim Kuralları", description: "AB projelerinde zorunlu görünürlük kuralları ve iletişim planı.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "28:00", category: "İletişim", keywords: ["görünürlük", "iletişim planı", "logo kullanımı"], order: 5 },
+  // Firmalar tarafından eklenmiş proje bazlı materyaller (video + doküman karışık)
+  { id: "tv-6", title: "Tarım Modernizasyon Projesi: Saha Eğitimi", description: "Çiftçi eğitimlerinde kullanılan modern sulama teknikleri tanıtım videosu.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "22:00", category: "Proje Yönetimi", projectId: "tarim-modern", keywords: ["sulama", "çiftçi eğitimi", "saha"], uploaderSubscriberId: "sub-1", order: 6 },
+  { id: "tv-7", title: "Tarım Modernizasyon Projesi: Eğitim Materyalleri", description: "Saha ekibi için hazırlanmış kapsamlı eğitim sunumu (PDF).", kind: "dokuman", documentName: "Egitim_Materyalleri_2026.pdf", documentSize: "8.1 MB", category: "Proje Yönetimi", projectId: "tarim-modern", keywords: ["eğitim", "saha ekibi", "el kitabı"], uploaderSubscriberId: "sub-1", order: 7 },
+  { id: "tv-8", title: "Genç İstihdam Projesi: Kariyer Danışmanlığı Rehberi", description: "İŞKUR danışmanları için kariyer danışmanlığı yöntemleri dokümanı.", kind: "dokuman", documentName: "Kariyer_Danismanligi_Rehberi.pdf", documentSize: "3.4 MB", category: "İ&D", projectId: "genc-istihdam", keywords: ["kariyer danışmanlığı", "istihdam", "gençlik"], uploaderSubscriberId: "sub-2", order: 8 },
+  { id: "tv-9", title: "Çevre ve İklim Projesi: İzleme Sistemi Tanıtımı", description: "İklim eylem planı izleme göstergeleri ve veri toplama yöntemi.", kind: "video", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", duration: "18:00", category: "İ&D", projectId: "cevre-iklim", keywords: ["iklim", "izleme", "gösterge"], uploaderSubscriberId: "sub-4", order: 9 },
 ];
 
 const ownershipRequests: OwnershipRequest[] = [
@@ -706,6 +810,12 @@ const expertProfiles: ExpertProfile[] = [
     projectHistory: [{ projectId: "genc-istihdam", role: "İ&D Uzmanı" }],
     visible: true, updatedAt: "2026-05-01T09:00:00Z",
   },
+];
+
+// Demo: ABC Danışmanlık (sub-1) ağına eklediği bir uzman ve bir tedarikçi
+const networkConnections: NetworkConnection[] = [
+  { id: "net-1", ownerSubscriberId: "sub-1", targetType: "uzman", targetId: "exp-1", targetName: "Dr. Mehmet Çelik", addedAt: "2026-04-10T09:00:00Z" },
+  { id: "net-2", ownerSubscriberId: "sub-1", targetType: "tedarikci", targetId: "sub-3", targetName: "MK İnşaat", addedAt: "2026-05-02T09:00:00Z" },
 ];
 
 // ── DemoDataProvider ──────────────────────────────────────
@@ -765,6 +875,7 @@ export class DemoDataProvider implements DataProvider {
   incrementDownload = (docId: string) => { const doc = documents.find((d) => d.id === docId); if (doc) doc.downloadCount++; return delay(undefined); };
 
   getSubscribers = () => delay([...subscribers]);
+  getSubscriber = (id: string) => delay(subscribers.find((x) => x.id === id) ?? null);
   saveSubscriber = (s: Subscriber) => { const i = subscribers.findIndex((x) => x.id === s.id); if (i !== -1) subscribers[i] = s; else subscribers.unshift(s); return delay(undefined); };
   removeSubscriber = (id: string) => { const i = subscribers.findIndex((x) => x.id === id); if (i !== -1) subscribers.splice(i, 1); return delay(undefined); };
 
@@ -856,4 +967,12 @@ export class DemoDataProvider implements DataProvider {
     expertProfiles
       .flatMap((ep) => ep.projectHistory.filter((ph) => ph.projectId === projectId).map((ph) => ({ profile: ep, expertise: ep.expertise[0] ?? "", role: ph.role })))
   );
+
+  getNetworkConnections = (ownerSubscriberId: string) => delay(networkConnections.filter((c) => c.ownerSubscriberId === ownerSubscriberId));
+  addNetworkConnection = (c: Omit<NetworkConnection, "id" | "addedAt">) => {
+    const exists = networkConnections.some((x) => x.ownerSubscriberId === c.ownerSubscriberId && x.targetType === c.targetType && x.targetId === c.targetId);
+    if (!exists) networkConnections.unshift({ ...c, id: `net-${Date.now()}`, addedAt: new Date().toISOString() });
+    return delay(undefined);
+  };
+  removeNetworkConnection = (id: string) => { const i = networkConnections.findIndex((x) => x.id === id); if (i !== -1) networkConnections.splice(i, 1); return delay(undefined); };
 }

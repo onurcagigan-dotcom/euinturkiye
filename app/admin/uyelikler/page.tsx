@@ -7,9 +7,12 @@ import type { Subscriber } from "@/lib/types";
 const PLAN_LABELS: Record<PlanId, string> = {
   ucretsiz: "Ücretsiz", paket1: "Paket 1", paket2: "Paket 2", tedarikci: "Tedarikçi",
 };
+const PROFILE_TYPE_LABELS: Record<Subscriber["profileType"], string> = {
+  firma: "Firma", stk: "STK", tedarikci: "Tedarikçi", delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi",
+};
 
 const emptySubscriber = (): Subscriber => ({
-  id: `sub-${Date.now()}`, name: "", email: "", accountType: "sirket", plan: "ucretsiz",
+  id: `sub-${Date.now()}`, name: "", email: "", accountType: "sirket", profileType: "firma", plan: "ucretsiz",
   tags: [], createdAt: new Date().toISOString(),
 });
 
@@ -82,6 +85,14 @@ export default function AdminUyeliklerPage() {
               </select>
             </div>
             <div>
+              <label className="block text-xs font-semibold text-mist mb-1">Profil Türü</label>
+              <select value={editing.profileType} onChange={e => setEditing(p => p && ({ ...p, profileType: e.target.value as Subscriber["profileType"] }))}
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
+                {(Object.entries(PROFILE_TYPE_LABELS) as [Subscriber["profileType"], string][]).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+              <p className="text-xs text-mist mt-1">İhale ilanı verme yetkisi sadece AB Delegasyonu ve Program Otoritesi profillerine tanımlıdır.</p>
+            </div>
+            <div>
               <label className="block text-xs font-semibold text-mist mb-1">Üyelik Paketi</label>
               <select value={editing.plan} onChange={e => setEditing(p => p && ({ ...p, plan: e.target.value as PlanId }))}
                 className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
@@ -123,10 +134,11 @@ export default function AdminUyeliklerPage() {
       )}
 
       <div className="bg-white border border-line rounded-xl overflow-x-auto">
-        <table className="w-full text-sm min-w-[760px]">
+        <table className="w-full text-sm min-w-[880px]">
           <thead className="bg-surface border-b border-line">
             <tr>
               <th className="text-left px-4 py-3 font-semibold text-slate">Ad / Kurum</th>
+              <th className="text-left px-4 py-3 font-semibold text-slate">Profil Türü</th>
               <th className="text-left px-4 py-3 font-semibold text-slate">Paket</th>
               <th className="text-left px-4 py-3 font-semibold text-slate">Üyelik Başlangıcı</th>
               <th className="text-left px-4 py-3 font-semibold text-slate">Yıl</th>
@@ -143,6 +155,9 @@ export default function AdminUyeliklerPage() {
                   <td className="px-4 py-3">
                     <p className="font-medium text-ink">{s.organization ?? s.name}</p>
                     <p className="text-xs text-mist">{s.name} · {s.email}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-xs bg-surface text-slate px-2 py-0.5 rounded-full font-semibold">{PROFILE_TYPE_LABELS[s.profileType]}</span>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full font-semibold">{PLAN_LABELS[s.plan]}</span>

@@ -1,30 +1,13 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CITIES } from "@/lib/turkiye-cities";
 import { TURKEY_MAP_VIEWBOX, TURKEY_MAP_OUTER_TRANSFORM, TURKEY_MAP_CITIES, TURKEY_MAP_LAKES_SVG } from "@/lib/turkey-map-data";
-
-// Demo proje verisi: her ilin kaç projesi var
-const PROJECT_COUNTS: Record<string, number> = {
-  ankara: 28, istanbul: 22, izmir: 14, konya: 11, bursa: 8,
-  gaziantep: 9, antalya: 7, kayseri: 6, mersin: 6, adana: 5,
-  samsun: 7, trabzon: 6, erzurum: 5, van: 4, diyarbakir: 6,
-  sanliurfa: 5, malatya: 4, eskisehir: 4, denizli: 3, aydin: 3,
-  manisa: 3, balikesir: 2, canakkale: 2, tekirdag: 2, edirne: 2,
-  kocaeli: 4, sakarya: 2, bolu: 1, bilecik: 1, yalova: 1,
-  usak: 1, kutahya: 2, afyonkarahisar: 2, mugla: 3,
-  burdur: 1, isparta: 2, hatay: 3, kahramanmaras: 2, osmaniye: 1,
-  adiyaman: 2, kilis: 1, mardin: 3, batman: 2, siirt: 1,
-  sirnak: 1, hakkari: 1, bitlis: 1, mus: 1, agri: 2,
-  igdir: 1, ardahan: 1, kars: 2, erzincan: 2, tunceli: 1,
-  bingol: 1, elazig: 2, sivas: 3, yozgat: 1,
-  kirsehir: 1, nevsehir: 2, aksaray: 1, nigde: 1,
-  corum: 2, amasya: 1, tokat: 2, ordu: 2, giresun: 1,
-  rize: 1, artvin: 1, kastamonu: 1, sinop: 1, bartin: 1,
-  zonguldak: 1, karabuk: 1, duzce: 1, kirikkale: 1, cankiri: 1,
-  karaman: 1, bayburt: 1, gumushane: 1,
-};
+import { countProjectsByCity, getProjectsByCitySlug } from "@/lib/city-projects";
+import { getDataProvider } from "@/lib/data";
+import type { Project } from "@/lib/types";
 
 const REGIONS = ["Tümü", "Marmara", "Ege", "Akdeniz", "İç Anadolu", "Karadeniz", "Doğu Anadolu", "Güneydoğu Anadolu"];
 
@@ -38,14 +21,32 @@ const REGION_COLORS: Record<string, string> = {
   "Güneydoğu Anadolu": "#e30a17",
 };
 
-function maxCount(): number {
-  return Math.max(...Object.values(PROJECT_COUNTS), 1);
+function maxCount(counts: Record<string, number>): number {
+  const values = Object.values(counts);
+  return values.length > 0 ? Math.max(...values, 1) : 1;
 }
 
 export default function HaritaPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [region, setRegion] = useState("Tümü");
+  const [ipaFilter, setIpaFilter] = useState<"Tümü" | "IPA-I" | "IPA-II" | "IPA-III">("Tümü");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getDataProvider().getProjects().then((p) => {
+      setProjects(p);
+      setLoading(false);
+    });
+  }, []);
+
+  const filteredProjects = useMemo(
+    () => (ipaFilter === "Tümü" ? projects : projects.filter((p) => p.ipaPeriod === ipaFilter)),
+    [projects, ipaFilter]
+  );
+
+  const PROJECT_COUNTS = useMemo(() => countProjectsByCity(filteredProjects), [filteredProjects]);
 
   const cityBySlug = useMemo(() => {
     const map: Record<string, typeof CITIES[number]> = {};
@@ -57,8 +58,12 @@ export default function HaritaPage() {
   const hoveredCity = hovered ? cityBySlug[hovered] : undefined;
   const activeCity = selectedCity ?? hoveredCity;
 
-  const totalProjects = Object.values(PROJECT_COUNTS).reduce((a, b) => a + b, 0);
-  const max = maxCount();
+  const activeCityProjects = useMemo(
+    () => (activeCity ? getProjectsByCitySlug(filteredProjects, activeCity.id) : []),
+    [activeCity, filteredProjects]
+  );
+
+  const max = maxCount(PROJECT_COUNTS);
 
   // Hangi illerin etiketi gösterilsin (büyük/çok projeli iller, küçük illerde isim kalabalık yapar)
   const showLabelThreshold = 0; // 0 = tüm illerde etiket göster
@@ -72,11 +77,11 @@ export default function HaritaPage() {
           { label: "Projeler" },
         ]} />
 
-        <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+        <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-ink">Projeler</h1>
             <p className="text-slate text-sm mt-1">
-              Türkiye&apos;nin 81 iline dağılan <strong>{totalProjects}</strong> proje — bir ile tıklayarak detayları görün.
+              Türkiye&apos;nin 81 iline dağılan <strong>{filteredProjects.length}</strong> proje — bir ile tıklayın veya üzerine gelin.
             </p>
           </div>
           {/* Bölge filtresi */}
@@ -88,6 +93,19 @@ export default function HaritaPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* IPA dönem katmanları */}
+        <div className="flex items-center gap-2 mb-6">
+          <span className="text-xs font-semibold text-mist">IPA Dönemi:</span>
+          {(["Tümü", "IPA-I", "IPA-II", "IPA-III"] as const).map((p) => (
+            <button key={p} onClick={() => setIpaFilter(p)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                ipaFilter === p ? "bg-ink text-white" : "bg-surface text-slate hover:bg-line"
+              }`}>
+              {p}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -141,10 +159,13 @@ export default function HaritaPage() {
                       <text key={city.slug}
                         x={city.labelX} y={city.labelY}
                         textAnchor="middle" dominantBaseline="middle"
-                        fontSize={isActive ? 13 : 9}
-                        fontWeight={isActive ? 700 : 500}
-                        fill={isActive ? "#1E3A8A" : "#475569"}
-                        style={{ pointerEvents: "none", transition: "font-size 0.15s" }}
+                        fontSize={isActive ? 12.5 : 9}
+                        fontWeight={isActive ? 800 : 500}
+                        fill={isActive ? "#ffffff" : "#475569"}
+                        stroke={isActive ? "#1E3A8A" : "none"}
+                        strokeWidth={isActive ? 3 : 0}
+                        paintOrder="stroke fill"
+                        style={{ pointerEvents: "none" }}
                       >
                         {cityInfo?.name ?? city.slug}
                       </text>
@@ -187,10 +208,25 @@ export default function HaritaPage() {
                   </div>
                   <p className="text-xs text-mist mt-1">Maksimuma oranla</p>
                 </div>
+
+                {activeCityProjects.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-line space-y-1.5 max-h-64 overflow-y-auto">
+                    {activeCityProjects.slice(0, 15).map((p) => (
+                      <Link key={p.id} href={`/projeler/${p.id}`}
+                        className="block text-sm text-slate hover:text-eu hover:underline truncate">
+                        {p.title}
+                        <span className="text-xs text-mist ml-1.5">({p.ipaPeriod})</span>
+                      </Link>
+                    ))}
+                    {activeCityProjects.length > 15 && (
+                      <p className="text-xs text-mist pt-1">+{activeCityProjects.length - 15} proje daha</p>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-surface rounded-2xl p-5 mb-4 text-center">
-                <p className="text-mist text-sm">Bir ile tıklayın veya üzerine gelin</p>
+                <p className="text-mist text-sm">{loading ? "Yükleniyor…" : "Bir ile tıklayın veya üzerine gelin"}</p>
               </div>
             )}
 

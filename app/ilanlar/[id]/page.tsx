@@ -77,7 +77,16 @@ export default function IlanDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* Bilgi grid'i: işveren, ilan tarihi, son başvuru, bütçe, konum */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-surface rounded-2xl p-5 mt-5">
-          <Info label={t("listing_employer")} value={listing.organization} />
+          {listing.publisherSubscriberId ? (
+            <div>
+              <p className="text-xs text-mist mb-0.5">{t("listing_employer")}</p>
+              <Link href={`/firma/${listing.publisherSubscriberId}`} className="text-sm font-semibold text-eu hover:underline">
+                {listing.organization}
+              </Link>
+            </div>
+          ) : (
+            <Info label={t("listing_employer")} value={listing.organization} />
+          )}
           {listing.publishedAt && (
             <Info label={t("listing_published")} value={new Date(listing.publishedAt).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })} />
           )}

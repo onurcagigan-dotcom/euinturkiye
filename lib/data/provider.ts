@@ -1,7 +1,7 @@
 import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
-  Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile,
+  Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
 } from "../types";
 
 export interface ProjectFilters {
@@ -62,6 +62,7 @@ export interface DataProvider {
 
   // Aboneler
   getSubscribers(): Promise<Subscriber[]>;
+  getSubscriber(id: string): Promise<Subscriber | null>;
   saveSubscriber(s: Subscriber): Promise<void>;
   removeSubscriber(id: string): Promise<void>;
 
@@ -104,4 +105,9 @@ export interface DataProvider {
   saveExpertProfile(p: ExpertProfile): Promise<void>;
   removeExpertProfile(id: string): Promise<void>;
   getProjectExperts(projectId: string): Promise<{ profile: ExpertProfile; expertise: string; role: string }[]>;
+
+  // Paydaş ağı (firmanın eklediği uzman/tedarikçi kısayolları)
+  getNetworkConnections(ownerSubscriberId: string): Promise<NetworkConnection[]>;
+  addNetworkConnection(c: Omit<NetworkConnection, "id" | "addedAt">): Promise<void>;
+  removeNetworkConnection(id: string): Promise<void>;
 }

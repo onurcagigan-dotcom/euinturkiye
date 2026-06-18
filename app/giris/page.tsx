@@ -6,7 +6,16 @@ import { PageShell } from "@/components/PageShell";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
 import { getDataProvider } from "@/lib/data";
-import type { Subscriber } from "@/lib/types";
+import type { Subscriber, SubscriberProfileType } from "@/lib/types";
+import type { TranslationKey } from "@/lib/i18n/translations";
+
+const PROFILE_TYPE_LABEL: Record<SubscriberProfileType, TranslationKey> = {
+  firma: "company_profile_type_firma",
+  stk: "company_profile_type_stk",
+  tedarikci: "company_profile_type_tedarikci",
+  delegasyon: "company_profile_type_delegasyon",
+  program_otoritesi: "company_profile_type_program_otoritesi",
+};
 
 export default function GirisPage() {
   const { t, locale } = useLocale();
@@ -83,17 +92,21 @@ export default function GirisPage() {
               </p>
               <div className="space-y-1.5">
                 {subscribers.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => loginAsFirma(s.id)}
-                    className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-lg border border-line hover:border-eu transition-colors text-left"
-                  >
-                    <span>
-                      <span className="text-sm font-semibold text-ink">{s.organization ?? s.name}</span>
-                      <span className="text-xs text-mist ml-2">{s.accountType === "sirket" ? t("firma_account_type_sirket") : t("firma_account_type_stk")}</span>
-                    </span>
-                    <span className="text-eu text-xs font-semibold">{locale === "tr" ? "Giriş Yap" : "Log In"} →</span>
-                  </button>
+                  <div key={s.id} className="flex items-center gap-2">
+                    <button
+                      onClick={() => loginAsFirma(s.id)}
+                      className="flex-1 flex items-center justify-between px-3 py-2 bg-white rounded-lg border border-line hover:border-eu transition-colors text-left"
+                    >
+                      <span>
+                        <span className="text-sm font-semibold text-ink">{s.organization ?? s.name}</span>
+                        <span className="text-xs text-mist ml-2">{t(PROFILE_TYPE_LABEL[s.profileType])}</span>
+                      </span>
+                      <span className="text-eu text-xs font-semibold">{locale === "tr" ? "Giriş Yap" : "Log In"} →</span>
+                    </button>
+                    <Link href={`/firma/${s.id}`} className="text-xs text-mist hover:text-eu px-2 py-2 flex-shrink-0">
+                      {locale === "tr" ? "Profil" : "Profile"}
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
