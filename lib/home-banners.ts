@@ -15,7 +15,14 @@ export const HOME_BANNERS: HeroBanner[] = [
     imageUrl: "/banners/banner-1.png",
     title: "AB-Türkiye Proje Portföyü",
     subtitle: "Türkiye'deki AB fonlu projeleri, uzmanları ve fırsatları tek platformda keşfedin.",
-    linkHref: "/projeler",
-    linkLabel: "Projeleri İncele",
+    showSearch: true,
+  },
+  {
+    id: "banner-2",
+    imageUrl: "/banners/banner-2.png",
+    title: "Dijital Araçlar",
+    subtitle: "Etkinlik yönetimi, doküman paylaşımı, bülten gönderimi ve daha fazlası — projeniz için hazır araçlar.",
+    linkHref: "/araclar",
+    linkLabel: "Araçları Keşfet",
   },
 ];

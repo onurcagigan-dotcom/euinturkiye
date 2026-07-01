@@ -10,11 +10,12 @@ export function PageShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [loginMenuOpen, setLoginMenuOpen] = useState(false);
   const path = usePathname();
   const router = useRouter();
   const { locale, setLocale, t } = useLocale();
   const { current: firma } = useFirma();
-  const { verified: demoVerified } = useDemoAccess();
+  const { verified: demoVerified, reset: resetDemo } = useDemoAccess();
 
   const NAV_LINKS = [
     { href: "/projeler", label: t("nav_projects") },
@@ -59,13 +60,24 @@ export function PageShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col bg-white">
       {/* Üst bar: Demo erişimi */}
       <div className={`${demoVerified ? "bg-green-700" : "bg-yellow-500"} text-white`}>
-        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center justify-center gap-2 text-xs font-semibold">
+        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center justify-between gap-2 text-xs font-semibold">
           {demoVerified ? (
-            <span>✓ {t("demo_bar_active")}</span>
+            <div className="flex items-center gap-3">
+              <span>✓ {t("demo_bar_active")}</span>
+              <Link href="/giris" className="underline opacity-75 hover:opacity-100">
+                {locale === "tr" ? "Rol değiştir" : "Switch role"}
+              </Link>
+            </div>
           ) : (
             <Link href="/demo" className="hover:underline flex items-center gap-1.5">
               <span>🔒</span> {t("demo_bar_locked")}
             </Link>
+          )}
+          {demoVerified && (
+            <button onClick={() => { resetDemo(); window.location.reload(); }}
+              className="opacity-60 hover:opacity-100 hover:underline text-xs">
+              {locale === "tr" ? "Demo'yu sıfırla" : "Reset demo"}
+            </button>
           )}
         </div>
       </div>
@@ -130,7 +142,28 @@ export function PageShell({ children }: { children: React.ReactNode }) {
               </Link>
             ) : (
               <>
-                <Link href="/giris" className="text-sm text-slate hover:text-eu font-medium">{t("nav_login")}</Link>
+                <div className="relative" onMouseEnter={() => setLoginMenuOpen(true)} onMouseLeave={() => setLoginMenuOpen(false)}>
+                  <button onClick={() => setLoginMenuOpen((o) => !o)} className="text-sm text-slate hover:text-eu font-medium flex items-center gap-1">
+                    {t("nav_login")}
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {loginMenuOpen && (
+                    <div className="absolute right-0 top-full pt-1 w-52 z-50">
+                      <div className="bg-white border border-line rounded-xl shadow-lg overflow-hidden">
+                        <Link href="/giris" onClick={() => setLoginMenuOpen(false)}
+                          className="block px-4 py-2.5 text-sm text-ink hover:bg-surface transition-colors">
+                          {t("nav_login")}
+                        </Link>
+                        <Link href="/demo" onClick={() => setLoginMenuOpen(false)}
+                          className="block px-4 py-2.5 text-sm text-eu font-medium hover:bg-eu-pale transition-colors border-t border-line">
+                          🔓 {t("nav_demo_access")}
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <Link href="/kayit" className="text-sm px-4 py-2 bg-eu text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors">
                   {t("nav_signup")}
                 </Link>
@@ -186,21 +219,27 @@ export function PageShell({ children }: { children: React.ReactNode }) {
                 {l.label}
               </Link>
             ))}
-            <div className="pt-3 mt-3 border-t border-line flex gap-2">
+            <div className="pt-3 mt-3 border-t border-line flex flex-col gap-2">
               {firma ? (
                 <Link href="/firma" onClick={() => setMenuOpen(false)}
-                  className="flex-1 text-center px-3 py-2 bg-eu-pale text-eu rounded-lg text-sm font-semibold">
+                  className="text-center px-3 py-2 bg-eu-pale text-eu rounded-lg text-sm font-semibold">
                   {firma.organization ?? firma.name}
                 </Link>
               ) : (
                 <>
-                  <Link href="/giris" onClick={() => setMenuOpen(false)}
-                    className="flex-1 text-center px-3 py-2 border border-line text-slate rounded-lg text-sm font-medium">
-                    {t("nav_login")}
-                  </Link>
-                  <Link href="/kayit" onClick={() => setMenuOpen(false)}
-                    className="flex-1 text-center px-3 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
-                    {t("nav_signup")}
+                  <div className="flex gap-2">
+                    <Link href="/giris" onClick={() => setMenuOpen(false)}
+                      className="flex-1 text-center px-3 py-2 border border-line text-slate rounded-lg text-sm font-medium">
+                      {t("nav_login")}
+                    </Link>
+                    <Link href="/kayit" onClick={() => setMenuOpen(false)}
+                      className="flex-1 text-center px-3 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+                      {t("nav_signup")}
+                    </Link>
+                  </div>
+                  <Link href="/demo" onClick={() => setMenuOpen(false)}
+                    className="text-center px-3 py-2 text-eu text-sm font-medium">
+                    🔓 {t("nav_demo_access")}
                   </Link>
                 </>
               )}

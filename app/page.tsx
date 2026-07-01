@@ -6,11 +6,10 @@ import { PageShell } from "@/components/PageShell";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { HOME_BANNERS } from "@/lib/home-banners";
 import { useLocale } from "@/lib/i18n/context";
-import type { Sector, Project, Listing, EventItem, BlogPost, HomeStats, Donor } from "@/lib/types";
+import type { Sector, Project, Listing, EventItem, BlogPost, Donor } from "@/lib/types";
 
 export default function HomePage() {
   const { t, locale } = useLocale();
-  const [stats, setStats] = useState<HomeStats | null>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -22,7 +21,6 @@ export default function HomePage() {
   useEffect(() => {
     const db = getDataProvider();
     Promise.all([
-      db.getHomeStats(),
       db.getEvents(),
       db.getListings(),
       db.getBlogPosts(),
@@ -30,8 +28,8 @@ export default function HomePage() {
       db.getSectors(),
       db.getDonors(),
       db.getProjects(),
-    ]).then(([s, e, l, b, p, sec, don, allProjects]) => {
-      setStats(s); setEvents(e); setListings(l); setBlogPosts(b); setFeaturedProjects(p); setSectors(sec);
+    ]).then(([e, l, b, p, sec, don, allProjects]) => {
+      setEvents(e); setListings(l); setBlogPosts(b); setFeaturedProjects(p); setSectors(sec);
       setDonors(don);
       const counts: Record<string, number> = {};
       allProjects.forEach((proj) => { counts[proj.donorId] = (counts[proj.donorId] ?? 0) + 1; });
@@ -53,7 +51,7 @@ export default function HomePage() {
     <PageShell>
       {/* Hero */}
       {HOME_BANNERS.length > 0 ? (
-        <HeroCarousel banners={HOME_BANNERS} />
+        <HeroCarousel banners={HOME_BANNERS} searchPlaceholder={t("projects_search_placeholder")} />
       ) : (
       <section className="bg-gradient-to-br from-eu to-blue-900 text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -76,39 +74,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-
-        {/* İstatistikler */}
-        <div className="max-w-3xl mx-auto mt-14 grid grid-cols-3 gap-4">
-          {[
-            { label: t("stat_projects"), value: (stats?.projects ?? 0).toLocaleString(locale === "tr" ? "tr" : "en") },
-            { label: t("stat_listings"), value: (stats?.openListings ?? 0).toString() },
-            { label: t("stat_events"), value: (stats?.upcomingEvents ?? 0).toString() },
-          ].map((s) => (
-            <div key={s.label} className="bg-white/10 rounded-2xl p-5 text-center">
-              <div className="text-3xl font-extrabold">{s.value}</div>
-              <div className="text-blue-200 text-sm mt-1">{s.label}</div>
-            </div>
-          ))}
-        </div>
       </section>
-      )}
-
-      {/* Banner modunda da istatistikleri göster */}
-      {HOME_BANNERS.length > 0 && (
-        <section className="bg-eu py-10 px-6">
-          <div className="max-w-3xl mx-auto grid grid-cols-3 gap-4">
-            {[
-              { label: t("stat_projects"), value: (stats?.projects ?? 0).toLocaleString(locale === "tr" ? "tr" : "en") },
-              { label: t("stat_listings"), value: (stats?.openListings ?? 0).toString() },
-              { label: t("stat_events"), value: (stats?.upcomingEvents ?? 0).toString() },
-            ].map((s) => (
-              <div key={s.label} className="bg-white/10 rounded-2xl p-5 text-center">
-                <div className="text-3xl font-extrabold text-white">{s.value}</div>
-                <div className="text-blue-200 text-sm mt-1">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </section>
       )}
 
       {/* Sektörler */}
@@ -135,17 +101,25 @@ export default function HomePage() {
       {/* Donörler */}
       <section className="py-14 px-6">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-ink mb-8">{t("home_donors")}</h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-ink">{t("home_donors")}</h2>
+            <Link href="/projeler" className="text-eu text-sm font-semibold hover:underline">
+              {locale === "tr" ? "Tüm Donörler" : "All Donors"} →
+            </Link>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {donors.map((d) => (
-              <Link key={d.id} href={`/projeler?donor=${d.id}`}
-                className="bg-white rounded-xl border border-line p-5 text-center hover:border-eu hover:shadow-md transition-all">
-                <div className="text-2xl font-extrabold text-eu">{donorCounts[d.id] ?? 0}</div>
-                <p className="text-xs text-mist mb-1">{t("home_donor_projects")}</p>
-                <div className="text-sm font-semibold text-ink leading-tight">{d.name}</div>
-                <p className="text-xs text-mist mt-0.5">{d.country}</p>
-              </Link>
-            ))}
+            {[...donors]
+              .sort((a, b) => (donorCounts[b.id] ?? 0) - (donorCounts[a.id] ?? 0))
+              .slice(0, 5)
+              .map((d) => (
+                <Link key={d.id} href={`/projeler?donor=${d.id}`}
+                  className="bg-white rounded-xl border border-line p-5 text-center hover:border-eu hover:shadow-md transition-all">
+                  <div className="text-2xl font-extrabold text-eu">{donorCounts[d.id] ?? 0}</div>
+                  <p className="text-xs text-mist mb-1">{t("home_donor_projects")}</p>
+                  <div className="text-sm font-semibold text-ink leading-tight">{d.name}</div>
+                  <p className="text-xs text-mist mt-0.5">{d.country}</p>
+                </Link>
+              ))}
           </div>
         </div>
       </section>

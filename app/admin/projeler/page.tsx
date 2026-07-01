@@ -14,7 +14,7 @@ const SECTORS = [
   { id: "rekabet", name: "Rekabetçilik ve Yenilik Sektör Operasyonel Programı" },
   { id: "sivil-toplum", name: "Sivil Toplum" },
 ];
-const DONORS = [{ id: "eu", name: "Avrupa Birliği" }, { id: "wb", name: "Dünya Bankası" }, { id: "giz", name: "GIZ" }, { id: "usaid", name: "USAID" }, { id: "undp", name: "UNDP" }];
+const DONORS = [{ id: "eu", name: "Avrupa Birliği" }, { id: "wb", name: "Dünya Bankası" }, { id: "giz", name: "GIZ" }, { id: "undp", name: "UNDP" }];
 const PERIODS: IpaPeriod[] = ["IPA-I", "IPA-II", "IPA-III"];
 const STATUS_LABEL = { devam: "Devam Ediyor", tamamlandi: "Tamamlandı" };
 

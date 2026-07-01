@@ -131,6 +131,27 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           )}
         </div>
 
+        {/* Yürütücü ve konsorsiyum bilgisi */}
+        {(project.ownerSubscriberName || (project.consortiumMembers && project.consortiumMembers.length > 0)) && (
+          <div className="mb-6 bg-white border border-line rounded-2xl p-5">
+            <h2 className="text-sm font-bold text-mist uppercase tracking-wide mb-3">{t("consortium_title")}</h2>
+            <div className="flex flex-wrap gap-2">
+              {project.ownerSubscriberName && (
+                <span className="inline-flex items-center gap-1.5 text-sm bg-eu text-white px-3 py-1.5 rounded-full font-medium">
+                  🏆 {project.ownerSubscriberName}
+                  <span className="text-xs text-blue-200">{t("consortium_role_owner")}</span>
+                </span>
+              )}
+              {project.consortiumMembers?.map((m) => (
+                <span key={m.subscriberId} className="inline-flex items-center gap-1.5 text-sm bg-eu-pale text-eu px-3 py-1.5 rounded-full font-medium">
+                  {m.subscriberName}
+                  {m.role && <span className="text-xs text-eu/70">{m.role}</span>}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {project.startDate && project.endDate && (
           <div className="mb-6">
             <h2 className="text-sm font-bold text-mist uppercase tracking-wide mb-3">{t("progress_title")}</h2>
@@ -154,34 +175,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        {/* Yürütücü ve konsorsiyum bilgisi */}
-        {(project.ownerSubscriberName || (project.consortiumMembers && project.consortiumMembers.length > 0)) && (
-          <div className="mb-10 bg-white border border-line rounded-2xl p-5">
-            <h2 className="text-sm font-bold text-mist uppercase tracking-wide mb-3">{t("consortium_title")}</h2>
-            <div className="flex flex-wrap gap-2">
-              {project.ownerSubscriberName && (
-                <span className="inline-flex items-center gap-1.5 text-sm bg-eu text-white px-3 py-1.5 rounded-full font-medium">
-                  🏆 {project.ownerSubscriberName}
-                  <span className="text-xs text-blue-200">{t("consortium_role_owner")}</span>
-                </span>
-              )}
-              {project.consortiumMembers?.map((m) => (
-                <span key={m.subscriberId} className="inline-flex items-center gap-1.5 text-sm bg-eu-pale text-eu px-3 py-1.5 rounded-full font-medium">
-                  {m.subscriberName}
-                  {m.role && <span className="text-xs text-eu/70">{m.role}</span>}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {project.objective && <Section title={t("project_objective")} content={project.objective} />}
         {project.expectedOutputs && <Section title={t("project_outputs")} content={project.expectedOutputs} />}
         {project.activities && <Section title={t("project_activities")} content={project.activities} />}
 
         {(stakeholders.length > 0 || experts.length > 0) && (
           <div className="mb-10">
-            <h2 className="text-xl font-bold text-ink mb-4">{t("project_team_experts")}</h2>
+            <h2 className="text-xl font-bold text-ink mb-4">{t("project_team")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {stakeholders.map((s) => (
                 <div key={s.id} className="flex items-start gap-3 p-4 bg-white border border-line rounded-xl">

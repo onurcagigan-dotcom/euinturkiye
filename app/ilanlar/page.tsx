@@ -23,6 +23,8 @@ function IlanlarPageInner() {
   }, [tur]);
 
   const hasSupplierAccess = firma?.plan === "tedarikci";
+  const isListingLocked = (l: Listing) =>
+    (l.type === "satinalma" && !hasSupplierAccess) || (l.type === "ihale" && !firma);
 
   const TYPE_LABEL: Record<ListingType, string> = {
     is: t("listings_jobs"), satinalma: t("listings_procurement"), ihale: t("listings_tender"),
@@ -72,7 +74,7 @@ function IlanlarPageInner() {
                       <p className="text-sm text-mist">{t("company_profile_no_listings")}</p>
                     ) : (
                       colListings.map((l) => {
-                        const isLocked = l.type === "satinalma" && !hasSupplierAccess;
+                        const isLocked = isListingLocked(l);
                         return (
                           <Link key={l.id} href={`/ilanlar/${l.id}`}
                             className="block p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">
@@ -97,7 +99,7 @@ function IlanlarPageInner() {
           // Belirli bir tür filtrelendiğinde: tek dikey liste
           <div className="space-y-4">
             {listings.map((l) => {
-              const isLocked = l.type === "satinalma" && !hasSupplierAccess;
+              const isLocked = isListingLocked(l);
               return (
               <Link key={l.id} href={`/ilanlar/${l.id}`}
                 className="flex items-start gap-4 p-5 bg-white border border-line rounded-xl hover:border-eu hover:shadow-md transition-all">

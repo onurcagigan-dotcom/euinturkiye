@@ -42,11 +42,14 @@ export default function IlanDetailPage({ params }: { params: Promise<{ id: strin
     );
   }
 
-  // Kilit kuralı: SADECE satınalma ilanları Tedarikçi üyeliğine özeldir.
-  // İhale ve İş ilanları herkese açıktır.
+  // Kilit kuralı:
+  // - Satınalma ilanları: sadece "tedarikçi" plana sahip üyelere açık.
+  // - İhale ilanları: kayıtlı herhangi bir firma/STK/tedarikçi/delegasyon/program otoritesi üyesine açık (giriş şart, plan şartı yok).
+  // - İş ilanları: herkese açık.
   const isSupplierOnly = listing.type === "satinalma";
+  const isTenderOnly = listing.type === "ihale";
   const hasSupplierAccess = firma?.plan === "tedarikci";
-  const isLocked = isSupplierOnly && !hasSupplierAccess;
+  const isLocked = (isSupplierOnly && !hasSupplierAccess) || (isTenderOnly && !firma);
 
   const dateLocale = locale === "tr" ? "tr" : "en";
 
@@ -112,12 +115,18 @@ export default function IlanDetailPage({ params }: { params: Promise<{ id: strin
             <div className="text-3xl mb-3">🔒</div>
             <h2 className="font-bold text-ink text-lg">{t("listing_locked_title")}</h2>
             <p className="text-slate text-sm mt-2 max-w-md mx-auto">
-              {t("listing_locked_supplier_sub")}
+              {isTenderOnly ? t("listing_locked_tender_sub") : t("listing_locked_supplier_sub")}
             </p>
             <div className="mt-6 flex flex-wrap gap-3 justify-center">
-              <Link href="/kayit" className="inline-block px-5 py-2.5 rounded-lg bg-eu text-white font-semibold text-sm">
-                {t("listing_view_plans")}
-              </Link>
+              {isTenderOnly ? (
+                <Link href="/giris" className="inline-block px-5 py-2.5 rounded-lg bg-eu text-white font-semibold text-sm">
+                  {t("nav_login")}
+                </Link>
+              ) : (
+                <Link href="/kayit" className="inline-block px-5 py-2.5 rounded-lg bg-eu text-white font-semibold text-sm">
+                  {t("listing_view_plans")}
+                </Link>
+              )}
               <Link href="/ilanlar" className="inline-block px-5 py-2.5 rounded-lg border border-line text-slate text-sm">
                 {t("listing_back")}
               </Link>

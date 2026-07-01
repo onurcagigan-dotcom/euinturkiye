@@ -199,30 +199,7 @@ export default function HaritaPage() {
                 <div className="mt-3 text-3xl font-extrabold text-eu">
                   {PROJECT_COUNTS[activeCity.id] ?? 0}
                 </div>
-                <p className="text-xs text-mist mt-0.5">proje</p>
-
-                <div className="mt-4 bg-surface rounded-xl p-3">
-                  <div className="h-2 bg-line rounded-full overflow-hidden">
-                    <div className="h-2 bg-eu rounded-full transition-all"
-                      style={{ width: `${((PROJECT_COUNTS[activeCity.id] ?? 0) / max) * 100}%` }} />
-                  </div>
-                  <p className="text-xs text-mist mt-1">Maksimuma oranla</p>
-                </div>
-
-                {activeCityProjects.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-line space-y-1.5 max-h-64 overflow-y-auto">
-                    {activeCityProjects.slice(0, 15).map((p) => (
-                      <Link key={p.id} href={`/projeler/${p.id}`}
-                        className="block text-sm text-slate hover:text-eu hover:underline truncate">
-                        {p.title}
-                        <span className="text-xs text-mist ml-1.5">({p.ipaPeriod})</span>
-                      </Link>
-                    ))}
-                    {activeCityProjects.length > 15 && (
-                      <p className="text-xs text-mist pt-1">+{activeCityProjects.length - 15} proje daha</p>
-                    )}
-                  </div>
-                )}
+                <p className="text-xs text-mist mt-0.5">proje{selected === activeCity.id ? " — aşağıda listelendi" : " (üzerine gelindi)"}</p>
               </div>
             ) : (
               <div className="bg-surface rounded-2xl p-5 mb-4 text-center">
@@ -251,6 +228,48 @@ export default function HaritaPage() {
             </div>
           </div>
         </div>
+
+        {/* Seçili ilin projeleri — kartlar halinde, tam genişlikte */}
+        {selectedCity && (
+          <div className="mt-10">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-ink">
+                {selectedCity.name} — {activeCityProjects.length} Proje
+              </h2>
+              <button onClick={() => setSelected(null)} className="text-sm text-mist hover:text-eu">
+                ✕ Kapat
+              </button>
+            </div>
+
+            {activeCityProjects.length === 0 ? (
+              <p className="text-slate text-sm">Bu ilde proje bulunmuyor.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {activeCityProjects.map((p) => (
+                  <Link key={p.id} href={`/projeler/${p.id}`}
+                    className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="h-2 bg-eu" />
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                          p.status === "devam" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                        }`}>
+                          {p.status === "devam" ? "Devam Ediyor" : "Tamamlandı"}
+                        </span>
+                        <span className="text-xs text-mist">{p.ipaPeriod}</span>
+                      </div>
+                      <h3 className="font-bold text-ink mb-2 leading-tight">{p.title}</h3>
+                      <p className="text-slate text-sm leading-relaxed line-clamp-2">{p.summary}</p>
+                      {p.budget && (
+                        <div className="mt-3 text-xs text-eu font-semibold">{p.budget}</div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </PageShell>
   );

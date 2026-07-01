@@ -5,13 +5,18 @@ import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
-import type { EventItem, Project } from "@/lib/types";
+import { useFirma } from "@/lib/firma/context";
+import type { EventItem, Project, EventRsvp } from "@/lib/types";
 
 export default function EtkinlikDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t, locale } = useLocale();
+  const { current: firma, loading: firmaLoading } = useFirma();
   const [event, setEvent] = useState<EventItem | null | undefined>(undefined);
   const [project, setProject] = useState<Project | null>(null);
+  const [myRsvp, setMyRsvp] = useState<EventRsvp | null>(null);
+  const [requesting, setRequesting] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     const db = getDataProvider();
@@ -20,6 +25,27 @@ export default function EtkinlikDetailPage({ params }: { params: Promise<{ id: s
       if (e?.projectId) setProject(await db.getProject(e.projectId));
     });
   }, [id]);
+
+  useEffect(() => {
+    if (!firma) { setMyRsvp(null); return; }
+    getDataProvider().getRsvps(id).then((rsvps) => {
+      setMyRsvp(rsvps.find((r) => r.email === firma.email) ?? null);
+    });
+  }, [id, firma]);
+
+  const sendJoinRequest = async () => {
+    if (!firma || !event) return;
+    setRequesting(true);
+    const rsvp: EventRsvp = {
+      id: `rsvp-${Date.now()}`, eventId: event.id,
+      name: firma.name, email: firma.email, organization: firma.organization ?? firma.name,
+      status: "bekliyor", createdAt: new Date().toISOString(),
+    };
+    await getDataProvider().saveRsvp(rsvp);
+    setMyRsvp(rsvp);
+    setRequestSent(true);
+    setRequesting(false);
+  };
 
   if (event === undefined) {
     return <PageShell><div className="max-w-3xl mx-auto px-6 py-16 text-center text-slate">…</div></PageShell>;
@@ -131,17 +157,37 @@ export default function EtkinlikDetailPage({ params }: { params: Promise<{ id: s
           event.isPublic ? (
             <div className="mt-10 bg-eu-pale border border-eu/20 rounded-xl p-6 text-center">
               <h3 className="font-bold text-ink text-lg mb-2">{t("event_join_title")}</h3>
-              <p className="text-slate text-sm mb-4">
-                {t("event_join_sub")}
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Link href="/giris" className="px-5 py-2.5 bg-eu text-white font-semibold text-sm rounded-lg hover:bg-blue-800 transition-colors">
-                  {t("event_login_signup")}
-                </Link>
-                <Link href="/kayit" className="px-5 py-2.5 border border-eu text-eu font-semibold text-sm rounded-lg hover:bg-eu-pale transition-colors">
-                  {t("event_free_signup")}
-                </Link>
-              </div>
+
+              {firmaLoading ? (
+                <p className="text-slate text-sm">…</p>
+              ) : !firma ? (
+                <>
+                  <p className="text-slate text-sm mb-4">{t("event_join_sub_login_required")}</p>
+                  <Link href="/giris" className="inline-block px-5 py-2.5 bg-eu text-white font-semibold text-sm rounded-lg hover:bg-blue-800 transition-colors">
+                    {t("nav_login")}
+                  </Link>
+                </>
+              ) : myRsvp ? (
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white border border-eu/30 text-eu">
+                  {myRsvp.status === "bekliyor" && `⏳ ${t("event_request_pending")}`}
+                  {myRsvp.status === "onaylandi" && `✅ ${t("event_request_approved")}`}
+                  {myRsvp.status === "iptal" && `✕ ${t("event_request_cancelled")}`}
+                </div>
+              ) : (
+                <>
+                  <p className="text-slate text-sm mb-4">
+                    {t("event_join_sub_request")} <strong>{event.organizerSubscriberId ? project?.ownerSubscriberName ?? "" : ""}</strong>
+                  </p>
+                  <button onClick={sendJoinRequest} disabled={requesting}
+                    className="px-5 py-2.5 bg-eu text-white font-semibold text-sm rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50">
+                    {requesting ? "…" : t("event_send_join_request")}
+                  </button>
+                </>
+              )}
+
+              {requestSent && (
+                <p className="text-green-700 text-xs font-semibold mt-3">{t("event_request_sent_note")}</p>
+              )}
             </div>
           ) : (
             <div className="mt-10 bg-surface border border-line rounded-xl p-6 text-center">

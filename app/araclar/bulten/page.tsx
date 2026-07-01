@@ -1,13 +1,16 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useFirma } from "@/lib/firma/context";
 import { getDataProvider } from "@/lib/data";
 import type { Campaign, Subscriber, BlogPost, Project } from "@/lib/types";
 
 type RecipientMode = "tags" | "explicit";
 
 export default function BultenPage() {
+  const { current: firma, loading: firmaLoading } = useFirma();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -26,6 +29,7 @@ export default function BultenPage() {
   const [previewCampaign, setPreviewCampaign] = useState<Campaign | null>(null);
 
   useEffect(() => {
+    if (!firma) { setLoading(false); return; }
     const db = getDataProvider();
     Promise.all([db.getCampaigns(), db.getSubscribers(), db.getBlogPosts(), db.getProjects()]).then(
       ([camps, subs, blogPosts, projs]) => {
@@ -36,7 +40,7 @@ export default function BultenPage() {
         setLoading(false);
       }
     );
-  }, []);
+  }, [firma]);
 
   const allTags = Array.from(new Set(subscribers.flatMap((s) => s.tags)));
 
@@ -108,8 +112,23 @@ export default function BultenPage() {
     setCampaigns((prev) => prev.filter((c) => c.id !== id));
   };
 
-  if (loading) {
+  if (firmaLoading || loading) {
     return <PageShell><div className="max-w-4xl mx-auto px-6 py-16 text-center text-slate">Yükleniyor…</div></PageShell>;
+  }
+
+  if (!firma) {
+    return (
+      <PageShell>
+        <div className="max-w-3xl mx-auto px-6 py-8">
+          <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar", href: "/araclar" }, { label: "Bülten Gönderimi" }]} />
+          <h1 className="text-2xl font-bold text-ink mb-3">Bülten Gönderimi</h1>
+          <div className="bg-surface rounded-2xl p-8 text-center">
+            <p className="text-slate mb-4">Bülten oluşturmak ve göndermek için firma hesabınızla giriş yapmalısınız.</p>
+            <Link href="/giris" className="inline-block px-5 py-2.5 bg-eu text-white rounded-lg text-sm font-semibold">Giriş Yap</Link>
+          </div>
+        </div>
+      </PageShell>
+    );
   }
 
   return (

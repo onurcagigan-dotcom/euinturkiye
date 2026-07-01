@@ -29,7 +29,6 @@ const donors: Donor[] = [
   { id: "eu", name: "Avrupa Birliği", country: "AB" },
   { id: "wb", name: "Dünya Bankası", country: "ABD" },
   { id: "giz", name: "GIZ (Almanya)", country: "Almanya" },
-  { id: "usaid", name: "USAID", country: "ABD" },
   { id: "undp", name: "UNDP", country: "BM" },
 ];
 
@@ -172,10 +171,10 @@ const projects: Project[] = [
     activities: "Müfredat uyarlama çalıştayları, işletme-okul eşleştirme, öğretmen ve usta öğretici eğitimleri, pilot bölgelerde uygulama ve izleme.",
   },
   {
-    id: "afet-direnci-usaid",
+    id: "afet-direnci",
     title: "Afetlere Dirençli Topluluklar Programı",
     summary: "Deprem riski yüksek bölgelerde toplum temelli afet hazırlık kapasitesinin güçlendirilmesi.",
-    sectorId: "icisleri", donorId: "usaid", ipaPeriod: "IPA-III",
+    sectorId: "icisleri", donorId: "wb", ipaPeriod: "IPA-III",
     beneficiary: "AFAD", locations: ["Hatay", "Kahramanmaraş", "Adıyaman", "Malatya"],
     budget: "€14.6M", startDate: "2024-02-01", endDate: "2027-01-31",
     status: "devam", featured: true,
@@ -359,7 +358,7 @@ const events: EventItem[] = [
   {
     id: "etk-1",
     title: "AB Proje Yönetimi Konferansı 2026",
-    date: "2026-09-15T09:00:00",
+    date: "2026-07-04T09:00:00",
     location: "Hilton Ankara, Ankara",
     isPublic: true,
     description: "Türkiye'deki AB projelerinin yöneticilerini buluşturan yıllık konferans.",
@@ -373,7 +372,7 @@ const events: EventItem[] = [
   {
     id: "etk-2",
     title: "Tarım Modernizasyon Projesi — Teknik Toplantı",
-    date: "2026-07-10T10:00:00",
+    date: "2026-06-24T10:00:00",
     location: "Tarım Bakanlığı, Ankara",
     projectId: "tarim-modern",
     isPublic: false,
@@ -388,7 +387,7 @@ const events: EventItem[] = [
   {
     id: "etk-3",
     title: "Kadın Girişimciler Zirvesi",
-    date: "2026-08-22T09:00:00",
+    date: "2026-07-12T09:00:00",
     location: "İstanbul Kongre Merkezi",
     projectId: "kadin-girisimcilik",
     isPublic: true,
@@ -405,7 +404,7 @@ const events: EventItem[] = [
   {
     id: "etk-4",
     title: "IPA III Bilgilendirme Toplantısı",
-    date: "2026-10-05T14:00:00",
+    date: "2026-06-29T14:00:00",
     location: "AB Türkiye Delegasyonu, Ankara",
     isPublic: true,
     description: "IPA III döneminin yeni fırsatlarına ilişkin bilgilendirme.",
@@ -420,7 +419,7 @@ const events: EventItem[] = [
   {
     id: "etk-5",
     title: "Dijital Araçlar Eğitimi",
-    date: "2026-07-25T10:00:00",
+    date: "2026-06-23T10:00:00",
     location: "Online (Zoom)",
     isPublic: false,
     description: "Proje yöneticileri için dijital araçlar kullanım eğitimi.",
