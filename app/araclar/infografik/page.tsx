@@ -29,6 +29,8 @@ function parseBudget(b?: string): number {
   return isNaN(n) ? 0 : n;
 }
 
+const EU_DONOR_ID = "eu"; // Avrupa Birliği projeleri için IPA dönemi anlamlı
+
 export default function InfografikPage() {
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [sectors, setSectors] = useState<Sector[]>([]);
@@ -41,6 +43,11 @@ export default function InfografikPage() {
   const [filterStatus, setFilterStatus] = useState<Project["status"] | "">("");
   const [filterDonor, setFilterDonor] = useState("");
 
+  // IPA dönemi filtresi yalnızca AB projelerinde anlamlıdır
+  // Kullanıcı AB dışı donör seçtiyse IPA filtresini devre dışı bırak
+  const isEuDonorSelected = !filterDonor || filterDonor === EU_DONOR_ID;
+  const ipaFilterActive = filterPeriod && isEuDonorSelected;
+
   useEffect(() => {
     const db = getDataProvider();
     Promise.all([db.getProjects(), db.getSectors(), db.getDonors()]).then(([p, s, d]) => {
@@ -51,7 +58,7 @@ export default function InfografikPage() {
   const projects = useMemo(() => {
     return allProjects.filter((p) => {
       if (filterSector && p.sectorId !== filterSector) return false;
-      if (filterPeriod && p.ipaPeriod !== filterPeriod) return false;
+      if (ipaFilterActive && p.ipaPeriod !== filterPeriod) return false;
       if (filterStatus && p.status !== filterStatus) return false;
       if (filterDonor && p.donorId !== filterDonor) return false;
       return true;
@@ -156,10 +163,14 @@ export default function InfografikPage() {
               {sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
             <select value={filterPeriod} onChange={(e) => setFilterPeriod(e.target.value as IpaPeriod | "")}
-              className="px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
+              className={`px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu ${!isEuDonorSelected ? "bg-gray-50 text-mist cursor-not-allowed" : "bg-white"}`}
+              disabled={!isEuDonorSelected}>
               <option value="">Tüm IPA Dönemleri</option>
               {PERIOD_ORDER.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
+            {!isEuDonorSelected && (
+              <p className="text-xs text-mist col-span-2 -mt-2">IPA dönemi filtresi yalnızca AB projeleri için geçerlidir.</p>
+            )}
             <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as Project["status"] | "")}
               className="px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
               <option value="">Tüm Durumlar</option>
@@ -224,7 +235,9 @@ export default function InfografikPage() {
               {/* IPA dönemine göre — donut */}
               <Panel
                 title="IPA Dönemine Göre Dağılım"
-                explainer="Proje portföyünün hangi katılım öncesi mali yardım dönemlerinde finanse edildiğini gösterir. IPA III, AB'nin güncel finansman çerçevesidir."
+                explainer={!isEuDonorSelected
+                  ? "IPA (Katılım Öncesi Mali Yardım Aracı) dönemi yalnızca Avrupa Birliği projelerine uygulanır. Diğer donörlerin projelerinde IPA dönemi tanımlı değildir. Filtreden 'Avrupa Birliği' seçin."
+                  : "Proje portföyünün hangi katılım öncesi mali yardım dönemlerinde finanse edildiğini gösterir. IPA III, AB'nin güncel finansman çerçevesidir."}
               >
                 <div className="flex items-center gap-8">
                   <DonutChart

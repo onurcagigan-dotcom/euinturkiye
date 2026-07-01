@@ -207,21 +207,21 @@ export default function HaritaPage() {
               </div>
             )}
 
-            {/* En çok proje olan iller */}
-            <div className="bg-white border border-line rounded-2xl p-5">
-              <h3 className="font-bold text-ink text-sm mb-3">En Çok Proje</h3>
-              <div className="space-y-2">
+            {/* En çok proje olan iller — top 5 */}
+            <div className="bg-white border border-line rounded-2xl p-4">
+              <h3 className="font-bold text-ink text-sm mb-2">En Çok Proje — Top 5</h3>
+              <div className="space-y-1">
                 {CITIES
                   .filter(c => (PROJECT_COUNTS[c.id] ?? 0) > 0)
                   .sort((a, b) => (PROJECT_COUNTS[b.id] ?? 0) - (PROJECT_COUNTS[a.id] ?? 0))
-                  .slice(0, 10)
+                  .slice(0, 5)
                   .map((city, i) => (
                     <button key={city.id}
                       onClick={() => setSelected(prev => prev === city.id ? null : city.id)}
-                      className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors ${selected === city.id ? "bg-eu-pale" : "hover:bg-surface"}`}>
-                      <span className="text-xs text-mist w-4 text-right">{i + 1}</span>
-                      <span className="flex-1 text-sm font-medium text-ink">{city.name}</span>
-                      <span className="text-sm font-bold text-eu">{PROJECT_COUNTS[city.id]}</span>
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition-colors ${selected === city.id ? "bg-eu-pale" : "hover:bg-surface"}`}>
+                      <span className="text-xs text-mist w-4 text-right flex-shrink-0">{i + 1}</span>
+                      <span className="flex-1 text-sm font-medium text-ink leading-tight">{city.name}</span>
+                      <span className="text-sm font-bold text-eu flex-shrink-0">{PROJECT_COUNTS[city.id]}</span>
                     </button>
                   ))}
               </div>

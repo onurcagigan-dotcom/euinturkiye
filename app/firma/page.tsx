@@ -46,12 +46,44 @@ const IS_SUPPLIER: SubscriberProfileType[] = ["tedarikci"];
 /** Hangi roller delegasyon/program otoritesi (ihale odaklı) */
 const IS_AUTHORITY: SubscriberProfileType[] = ["delegasyon", "program_otoritesi"];
 
+// ─── SVG araç ikonları ───────────────────────────────────────
+function ToolIcon({ id, className = "w-6 h-6" }: { id: string; className?: string }) {
+  const icons: Record<string, React.ReactElement> = {
+    etkinlik: (
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+      </svg>
+    ),
+    dokuman: (
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+      </svg>
+    ),
+    bulten: (
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+      </svg>
+    ),
+    paydas: (
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 0 1-1.44-4.282m3.102.069a18.03 18.03 0 0 1-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 0 1 8.835 2.535M10.34 6.66a23.847 23.847 0 0 0 8.835-2.535m0 0A23.74 23.74 0 0 0 18.795 3m.38 1.125a23.91 23.91 0 0 1 1.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 0 0 1.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 0 1 0 3.46" />
+      </svg>
+    ),
+    egitim: (
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+      </svg>
+    ),
+  };
+  return icons[id] ?? null;
+}
+
 const ALL_TOOLS = [
-  { href: "/araclar/etkinlik",  icon: "📅", label: "Etkinlik Yönetimi" },
-  { href: "/araclar/dokuman",   icon: "📁", label: "E-Doküman Yönetimi" },
-  { href: "/araclar/bulten",    icon: "📧", label: "Bülten Gönderimi" },
-  { href: "/araclar/paydas",    icon: "🤝", label: "Paydaş İletişimi" },
-  { href: "/araclar/egitim",    icon: "🎓", label: "Eğitim Materyalleri" },
+  { href: "/araclar/etkinlik",  iconId: "etkinlik", label: "Etkinlik Yönetimi" },
+  { href: "/araclar/dokuman",   iconId: "dokuman",  label: "E-Doküman Yönetimi" },
+  { href: "/araclar/bulten",    iconId: "bulten",   label: "Bülten Gönderimi" },
+  { href: "/araclar/paydas",    iconId: "paydas",   label: "Paydaş İletişimi" },
+  { href: "/araclar/egitim",    iconId: "egitim",   label: "Eğitim Materyalleri" },
 ] as const;
 const SUPPLIER_TOOLS = ALL_TOOLS.filter(t => t.href === "/araclar/dokuman" || t.href === "/araclar/egitim");
 const AUTHORITY_TOOLS = ALL_TOOLS.filter(t => t.href === "/araclar/bulten" || t.href === "/araclar/paydas");
@@ -75,6 +107,8 @@ export default function FirmaPanelPage() {
   const [myExpertProfile, setMyExpertProfile] = useState<ExpertProfile | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
+
+  const [showSubscription, setShowSubscription] = useState(false);
 
   // Proje formu
   const [showProjectForm, setShowProjectForm] = useState(false);
@@ -216,26 +250,42 @@ export default function FirmaPanelPage() {
           </div>
         </div>
 
-        {/* Üyelik */}
-        <div className="bg-white border border-line rounded-2xl p-5 mb-8 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-mist font-semibold mb-1">{t("firma_membership_plan")}</p>
-            <p className="text-lg font-bold text-ink">{PLAN_LABELS[current.plan]}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs uppercase tracking-wide text-mist font-semibold mb-1">
-              {subscriptionYear <= 1 ? t("firma_membership_first_year") : t("firma_membership_renewal")}
-            </p>
-            <p className="text-lg font-bold text-eu">{formatEuro(currentYearPrice)}<span className="text-xs text-mist font-normal">/{locale === "tr" ? "yıl" : "year"}</span></p>
-            {pricing.hasRenewalDiscount && subscriptionYear <= 1 && (
-              <p className="text-xs text-mist mt-0.5">{t("signup_renewal_note")}: {formatEuro(pricing.renewalPrice)}/{locale === "tr" ? "yıl" : "year"}</p>
-            )}
-          </div>
-        </div>
 
         {actionMsg && (
           <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl p-3 mb-6">{actionMsg}</div>
         )}
+
+        {/* Abonelik Ayarları — accordion */}
+        <div className="mb-8 border border-line rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setShowSubscription((v) => !v)}
+            className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-surface transition-colors text-left">
+            <span className="font-semibold text-ink text-sm">{t("firma_membership_plan")}</span>
+            <span className="text-mist text-xs flex items-center gap-2">
+              <span className="text-eu font-semibold">{PLAN_LABELS[current.plan]}</span>
+              <svg className={`w-4 h-4 transition-transform ${showSubscription ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </button>
+          {showSubscription && (
+            <div className="px-5 pb-5 pt-3 bg-white border-t border-line flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-mist font-semibold mb-1">{t("firma_membership_plan")}</p>
+                <p className="text-lg font-bold text-ink">{PLAN_LABELS[current.plan]}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-wide text-mist font-semibold mb-1">
+                  {subscriptionYear <= 1 ? t("firma_membership_first_year") : t("firma_membership_renewal")}
+                </p>
+                <p className="text-lg font-bold text-eu">{formatEuro(currentYearPrice)}<span className="text-xs text-mist font-normal">/{locale === "tr" ? "yıl" : "year"}</span></p>
+                {pricing.hasRenewalDiscount && subscriptionYear <= 1 && (
+                  <p className="text-xs text-mist mt-0.5">{t("signup_renewal_note")}: {formatEuro(pricing.renewalPrice)}/{locale === "tr" ? "yıl" : "year"}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ═══════════════════════════════════════════════════
             ROL: FİRMA / STK — tam yetkili panel
@@ -249,8 +299,10 @@ export default function FirmaPanelPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {ALL_TOOLS.map((tool) => (
                   <Link key={tool.href} href={tool.href}
-                    className="flex flex-col items-center gap-2 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all text-center">
-                    <span className="text-2xl">{tool.icon}</span>
+                    className="flex flex-col items-center gap-2 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all text-center group">
+                    <span className="w-10 h-10 flex items-center justify-center rounded-full bg-eu-pale text-eu group-hover:bg-eu group-hover:text-white transition-colors">
+                      <ToolIcon id={tool.iconId} className="w-5 h-5" />
+                    </span>
                     <span className="text-xs font-semibold text-ink leading-tight">{tool.label}</span>
                   </Link>
                 ))}
@@ -402,8 +454,10 @@ export default function FirmaPanelPage() {
               <div className="grid grid-cols-2 gap-3">
                 {SUPPLIER_TOOLS.map((tool) => (
                   <Link key={tool.href} href={tool.href}
-                    className="flex items-center gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
-                    <span className="text-2xl">{tool.icon}</span>
+                    className="flex items-center gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all group">
+                    <span className="w-9 h-9 flex items-center justify-center rounded-full bg-eu-pale text-eu group-hover:bg-eu group-hover:text-white transition-colors flex-shrink-0">
+                      <ToolIcon id={tool.iconId} className="w-5 h-5" />
+                    </span>
                     <span className="text-sm font-semibold text-ink">{tool.label}</span>
                   </Link>
                 ))}
@@ -448,8 +502,10 @@ export default function FirmaPanelPage() {
               <div className="grid grid-cols-2 gap-3">
                 {AUTHORITY_TOOLS.map((tool) => (
                   <Link key={tool.href} href={tool.href}
-                    className="flex items-center gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
-                    <span className="text-2xl">{tool.icon}</span>
+                    className="flex items-center gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all group">
+                    <span className="w-9 h-9 flex items-center justify-center rounded-full bg-eu-pale text-eu group-hover:bg-eu group-hover:text-white transition-colors flex-shrink-0">
+                      <ToolIcon id={tool.iconId} className="w-5 h-5" />
+                    </span>
                     <span className="text-sm font-semibold text-ink">{tool.label}</span>
                   </Link>
                 ))}

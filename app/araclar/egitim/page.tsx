@@ -46,7 +46,16 @@ export default function EgitimPage() {
 
   const categories = Array.from(new Set(materials.map((m) => m.category).filter(Boolean))) as string[];
 
-  const filtered = materials.filter((m) => {
+  const myMaterials = useMemo(
+    () => materials.filter((m) => firma && m.uploaderSubscriberId === firma.id),
+    [materials, firma]
+  );
+  const otherMaterials = useMemo(
+    () => materials.filter((m) => !firma || m.uploaderSubscriberId !== firma.id),
+    [materials, firma]
+  );
+
+  const applyFilters = (list: TrainingVideo[]) => list.filter((m) => {
     if (filterCat && m.category !== filterCat) return false;
     if (filterProjectId && m.projectId !== filterProjectId) return false;
     if (filterKind && m.kind !== filterKind) return false;
@@ -203,54 +212,37 @@ export default function EgitimPage() {
             className="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg text-sm bg-white border border-line focus:outline-none focus:border-eu" />
         </div>
 
-        {filtered.length === 0 ? (
-          <p className="text-sm text-mist text-center py-12">Bu filtrelere uyan materyal bulunamadı.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map((m) => {
-              const proj = m.projectId ? projectById[m.projectId] : undefined;
-              return (
-                <div key={m.id} className="bg-white border border-line rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${m.kind === "video" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
-                      {m.kind === "video" ? "🎬 Video" : "📄 Doküman"}
-                    </span>
-                    {m.category && <span className="text-xs bg-surface text-mist px-2 py-0.5 rounded">{m.category}</span>}
-                  </div>
-                  <h3 className="font-semibold text-ink text-sm mb-1">{m.title}</h3>
-                  {m.description && <p className="text-xs text-slate mb-2 line-clamp-2">{m.description}</p>}
-
-                  {proj && (
-                    <p className="text-xs text-mist mb-2">📁 <span className="font-medium">{proj.title}</span></p>
-                  )}
-
-                  {m.keywords && m.keywords.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {m.keywords.map((k) => (
-                        <span key={k} className="text-xs bg-eu-pale text-eu px-1.5 py-0.5 rounded">#{k}</span>
-                      ))}
-                    </div>
-                  )}
-
-                  {m.kind === "video" ? (
-                    <button onClick={() => setActiveVideo(m)} className="text-xs font-semibold text-eu hover:underline">
-                      ▶ {m.duration ? `İzle (${m.duration})` : "İzle"}
-                    </button>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-mist">{m.documentName}{m.documentSize && ` · ${m.documentSize}`}</span>
-                      <span className="text-xs font-semibold text-eu">⬇ İndir</span>
-                    </div>
-                  )}
-
-                  {firma && m.uploaderSubscriberId === firma.id && (
-                    <button onClick={() => removeMaterial(m.id)} className="mt-2 text-xs text-mist hover:text-tr">Sil</button>
-                  )}
-                </div>
-              );
-            })}
+        {/* Kendi materyallerim */}
+        {firma && (
+          <div className="mb-8">
+            <h2 className="text-base font-bold text-ink mb-3">Eklediğim Materyaller</h2>
+            {applyFilters(myMaterials).length === 0 ? (
+              <p className="text-sm text-mist">Henüz materyal eklemediniz. Yukarıdaki &quot;+ Materyal Ekle&quot; butonunu kullanın.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {applyFilters(myMaterials).map((m) => (
+                  <MaterialCard key={m.id} m={m} proj={m.projectId ? projectById[m.projectId] : undefined}
+                    canRemove onRemove={() => removeMaterial(m.id)} onPlay={() => setActiveVideo(m)} />
+                ))}
+              </div>
+            )}
           </div>
         )}
+
+        {/* Diğer materyaller */}
+        <div>
+          <h2 className="text-base font-bold text-ink mb-3">{firma ? "Diğer Firmalar tarafından Eklenen Materyaller" : "Tüm Materyaller"}</h2>
+          {applyFilters(firma ? otherMaterials : materials).length === 0 ? (
+            <p className="text-sm text-mist text-center py-12">Bu filtrelere uyan materyal bulunamadı.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {applyFilters(firma ? otherMaterials : materials).map((m) => (
+                <MaterialCard key={m.id} m={m} proj={m.projectId ? projectById[m.projectId] : undefined}
+                  canRemove={false} onPlay={() => setActiveVideo(m)} />
+              ))}
+            </div>
+          )}
+        </div>
 
         {activeVideo && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setActiveVideo(null)}>
@@ -268,5 +260,46 @@ export default function EgitimPage() {
         )}
       </div>
     </PageShell>
+  );
+}
+
+function MaterialCard({ m, proj, canRemove, onRemove, onPlay }: {
+  m: import("@/lib/types").TrainingVideo;
+  proj?: import("@/lib/types").Project;
+  canRemove: boolean;
+  onRemove?: () => void;
+  onPlay: () => void;
+}) {
+  return (
+    <div className="bg-white border border-line rounded-xl p-4">
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${m.kind === "video" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
+          {m.kind === "video" ? "🎬 Video" : "📄 Doküman"}
+        </span>
+        {m.category && <span className="text-xs bg-surface text-mist px-2 py-0.5 rounded">{m.category}</span>}
+      </div>
+      <h3 className="font-semibold text-ink text-sm mb-1">{m.title}</h3>
+      {m.description && <p className="text-xs text-slate mb-2 line-clamp-2">{m.description}</p>}
+      {proj && <p className="text-xs text-mist mb-2">📁 <span className="font-medium">{proj.title}</span></p>}
+      {m.keywords && m.keywords.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {m.keywords.map((k) => (
+            <span key={k} className="text-xs bg-eu-pale text-eu px-1.5 py-0.5 rounded">#{k}</span>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center justify-between">
+        {m.kind === "video" ? (
+          <button onClick={onPlay} className="text-xs font-semibold text-eu hover:underline">
+            ▶ {m.duration ? `İzle (${m.duration})` : "İzle"}
+          </button>
+        ) : (
+          <span className="text-xs text-mist">{m.documentName}{m.documentSize && ` · ${m.documentSize}`}</span>
+        )}
+        {canRemove && onRemove && (
+          <button onClick={onRemove} className="text-xs text-mist hover:text-tr">Sil</button>
+        )}
+      </div>
+    </div>
   );
 }
