@@ -2,6 +2,7 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
+  AddressGroup,
 } from "../types";
 
 export interface ProjectFilters {
@@ -110,4 +111,9 @@ export interface DataProvider {
   getNetworkConnections(ownerSubscriberId: string): Promise<NetworkConnection[]>;
   addNetworkConnection(c: Omit<NetworkConnection, "id" | "addedAt">): Promise<void>;
   removeNetworkConnection(id: string): Promise<void>;
+
+  // Adres defteri grupları
+  getAddressGroups(ownerSubscriberId: string): Promise<AddressGroup[]>;
+  saveAddressGroup(g: AddressGroup): Promise<void>;
+  removeAddressGroup(id: string): Promise<void>;
 }

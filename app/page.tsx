@@ -6,7 +6,7 @@ import { PageShell } from "@/components/PageShell";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { HOME_BANNERS } from "@/lib/home-banners";
 import { useLocale } from "@/lib/i18n/context";
-import type { Sector, Project, Listing, EventItem, BlogPost, Donor } from "@/lib/types";
+import type { Sector, Project, Listing, EventItem, BlogPost, Donor, Campaign, ExpertProfile } from "@/lib/types";
 
 export default function HomePage() {
   const { t, locale } = useLocale();
@@ -17,6 +17,8 @@ export default function HomePage() {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [donorCounts, setDonorCounts] = useState<Record<string, number>>({});
+  const [recentCampaigns, setRecentCampaigns] = useState<Campaign[]>([]);
+  const [featuredExperts, setFeaturedExperts] = useState<ExpertProfile[]>([]);
 
   useEffect(() => {
     const db = getDataProvider();
@@ -28,12 +30,16 @@ export default function HomePage() {
       db.getSectors(),
       db.getDonors(),
       db.getProjects(),
-    ]).then(([e, l, b, p, sec, don, allProjects]) => {
+      db.getCampaigns(),
+      db.getExpertProfiles(),
+    ]).then(([e, l, b, p, sec, don, allProjects, camps, experts]) => {
       setEvents(e); setListings(l); setBlogPosts(b); setFeaturedProjects(p); setSectors(sec);
       setDonors(don);
       const counts: Record<string, number> = {};
       allProjects.forEach((proj) => { counts[proj.donorId] = (counts[proj.donorId] ?? 0) + 1; });
       setDonorCounts(counts);
+      setRecentCampaigns(camps.filter((c) => c.status === "gonderildi").slice(0, 3));
+      setFeaturedExperts(experts.filter((e) => e.visible).slice(0, 3));
     });
   }, []);
 
@@ -310,6 +316,72 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Son Bültenler */}
+      {recentCampaigns.length > 0 && (
+        <section className="py-14 px-6 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-ink">{locale === "tr" ? "Son Bültenler" : "Recent Newsletters"}</h2>
+                <p className="text-slate text-sm mt-1">{locale === "tr" ? "Platformdaki firmalar tarafından yayınlanan güncel bültenler" : "Latest newsletters published by platform members"}</p>
+              </div>
+              <Link href="/araclar/bulten" className="text-eu text-sm font-semibold hover:underline">{locale === "tr" ? "Tümü →" : "All →"}</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {recentCampaigns.map((c) => (
+                <Link key={c.id} href={`/bultenler/${c.id}`}
+                  className="bg-surface border border-line rounded-xl p-5 hover:border-eu hover:shadow-sm transition-all">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-eu flex items-center justify-center text-white text-xs font-bold flex-shrink-0">B</div>
+                    <span className="text-xs text-mist">{c.sentAt ? new Date(c.sentAt).toLocaleDateString(locale === "tr" ? "tr-TR" : "en-GB") : ""}</span>
+                  </div>
+                  <h3 className="font-bold text-ink text-sm leading-tight mb-2">{c.subject}</h3>
+                  <p className="text-xs text-mist line-clamp-2">{c.body.split("\n")[0]}</p>
+                  <div className="flex gap-3 mt-3 text-xs text-mist">
+                    <span>👁 {c.openCount} açılma</span>
+                    <span>📨 {c.recipientCount} kişi</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Öne Çıkan Uzmanlar */}
+      {featuredExperts.length > 0 && (
+        <section className="py-14 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-ink">{locale === "tr" ? "Uzman Havuzundan" : "From the Expert Pool"}</h2>
+                <p className="text-slate text-sm mt-1">{locale === "tr" ? "AB-Türkiye ekosisteminde deneyimli uzmanlar" : "Experienced experts in the EU-Turkey ecosystem"}</p>
+              </div>
+              <Link href="/uzmanlar" className="text-eu text-sm font-semibold hover:underline">{locale === "tr" ? "Tüm Uzmanlar →" : "All Experts →"}</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {featuredExperts.map((e) => (
+                <Link key={e.id} href={`/uzmanlar/${e.id}`}
+                  className="bg-white border border-line rounded-xl p-5 hover:border-eu hover:shadow-sm transition-all flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-eu flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    {e.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-ink text-sm">{e.name}</h3>
+                    <p className="text-xs text-slate mb-2">{e.title}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {e.expertise.slice(0, 2).map((ex) => (
+                        <span key={ex} className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full">{ex}</span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-16 px-6 bg-eu text-white">

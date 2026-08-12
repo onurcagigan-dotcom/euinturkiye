@@ -153,6 +153,20 @@ export default function EtkinlikDetailPage({ params }: { params: Promise<{ id: s
           </div>
         )}
 
+        {event.attachments && event.attachments.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-bold text-ink mb-3">Belgeler</h2>
+            <div className="space-y-2">
+              {event.attachments.map((a) => (
+                <div key={a.id} className="flex items-center gap-3 p-3 bg-white border border-line rounded-xl">
+                  <span className="text-xl">📄</span>
+                  <span className="text-sm font-medium text-ink">{a.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {!isPast && (
           event.isPublic ? (
             <div className="mt-10 bg-eu-pale border border-eu/20 rounded-xl p-6 text-center">

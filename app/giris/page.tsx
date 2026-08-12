@@ -35,8 +35,8 @@ const PROFILE_CAPABILITIES: Record<SubscriberProfileType, { tr: string; en: stri
     en: "Add/edit projects · All digital tools · Job & procurement listings",
   },
   tedarikci: {
-    tr: "Uzman profili · Doküman & eğitim araçları · Satınalma ilanı",
-    en: "Expert profile · Document & training tools · Procurement listings",
+    tr: "Uzman profili · Eğitim materyali görüntüle · Satınalma ilanı · İhale detaylarını görür",
+    en: "Expert profile · View training materials · Procurement listings · View tender details",
   },
   delegasyon: {
     tr: "İhale ilanı (tam yetkili) · Bülten & paydaş araçları",

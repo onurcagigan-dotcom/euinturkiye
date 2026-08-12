@@ -121,6 +121,14 @@ export default function GundemDetailPage({ params }: { params: Promise<{ slug: s
             </Link>
           </div>
         )}
+
+        {/* Bu haberi içeren bülten varsa bağlantı göster */}
+        <div className="mt-8 pt-6 border-t border-line flex items-center justify-between flex-wrap gap-3">
+          <Link href="/gundem" className="text-eu text-sm hover:underline">← {t("news_all")}</Link>
+          <Link href="/araclar/bulten" className="text-xs text-mist hover:text-eu">
+            📧 Bu haberi bülteninde paylaş
+          </Link>
+        </div>
       </div>
     </PageShell>
   );

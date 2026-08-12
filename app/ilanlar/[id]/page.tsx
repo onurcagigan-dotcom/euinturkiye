@@ -43,13 +43,11 @@ export default function IlanDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   // Kilit kuralı:
-  // - Satınalma ilanları: sadece "tedarikçi" plana sahip üyelere açık.
-  // - İhale ilanları: kayıtlı herhangi bir firma/STK/tedarikçi/delegasyon/program otoritesi üyesine açık (giriş şart, plan şartı yok).
   // - İş ilanları: herkese açık.
-  const isSupplierOnly = listing.type === "satinalma";
-  const isTenderOnly = listing.type === "ihale";
-  const hasSupplierAccess = firma?.plan === "tedarikci";
-  const isLocked = (isSupplierOnly && !hasSupplierAccess) || (isTenderOnly && !firma);
+  // - Satınalma: giriş yapmış herkes görebilir (tedarikçi, firma, stk vb.).
+  // - İhale: giriş yapmış herkes görebilir.
+  const isTenderOrSatinalmaLocked = listing.type === "ihale" || listing.type === "satinalma";
+  const isLocked = isTenderOrSatinalmaLocked && !firma;
 
   const dateLocale = locale === "tr" ? "tr" : "en";
 
@@ -115,10 +113,10 @@ export default function IlanDetailPage({ params }: { params: Promise<{ id: strin
             <div className="text-3xl mb-3">🔒</div>
             <h2 className="font-bold text-ink text-lg">{t("listing_locked_title")}</h2>
             <p className="text-slate text-sm mt-2 max-w-md mx-auto">
-              {isTenderOnly ? t("listing_locked_tender_sub") : t("listing_locked_supplier_sub")}
+              {isTenderOrSatinalmaLocked ? t("listing_locked_tender_sub") : t("listing_locked_supplier_sub")}
             </p>
             <div className="mt-6 flex flex-wrap gap-3 justify-center">
-              {isTenderOnly ? (
+              {isTenderOrSatinalmaLocked ? (
                 <Link href="/giris" className="inline-block px-5 py-2.5 rounded-lg bg-eu text-white font-semibold text-sm">
                   {t("nav_login")}
                 </Link>

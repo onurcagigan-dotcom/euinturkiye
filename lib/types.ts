@@ -57,20 +57,23 @@ export interface Listing {
   type: ListingType;
   title: string;
   organization: string;
-  projectId?: string;
+  projectId?: string;              // Hangi projeye ait
   location?: string;
   publishedAt?: string;
-  deadline?: string;
+  /** Yayından kalkma tarihi — otomatik pasifleşme için */
+  expiresAt?: string;
+  deadline?: string;               // Başvuru/teklif son tarihi
   locked: boolean;
   description: string;
-  subject?: string; // İhaleye/satınalmaya konu iş — kısa özet
+  subject?: string;
   budget?: string;
   referenceNo?: string;
   contactEmail?: string;
-  documentUrl?: string; // geriye dönük uyumluluk için
+  documentUrl?: string;
   documents?: ListingDocument[];
-  /** İlanı yayınlayan abone (firma profili sayfasında "Firmanın İlanları" listelemek için) */
   publisherSubscriberId?: string;
+  /** Aktif mi yoksa süresi dolmuş/gizlenmiş mi */
+  isActive?: boolean;
 }
 
 export interface EventItem {
@@ -192,21 +195,37 @@ export interface Subscriber {
   email: string;
   organization?: string;
   accountType: "sirket" | "stk";
-  /** Profilin platformdaki rolü — yetkileri ve görebileceği/girebileceği alanları belirler */
+  /** Profilin platformdaki rolü */
   profileType: SubscriberProfileType;
   plan: "ucretsiz" | "paket1" | "paket2" | "tedarikci";
   tags: string[];
   createdAt: string;
 
-  // --- Genel/herkese açık firma profil sayfası alanları ---
+  // --- Herkese açık profil alanları ---
   logoUrl?: string;
   shortBio?: string;
   contactAddress?: string;
   contactPhone?: string;
   contactEmail?: string;
   socialLinks?: SocialLinks;
-  /** Profil sayfası herkese açık olarak yayınlanmış mı (admin onayı/firma tercihi) */
   profilePublic?: boolean;
+
+  // --- Firma/STK genişletilmiş profil ---
+  foundedYear?: number;
+  employeeCount?: string;          // "1-10" | "11-50" | "51-200" | "201+"
+  services?: string[];             // Sunulan hizmetler
+  sectorIds?: string[];            // Faaliyet sektörleri
+  mission?: string;                // STK için misyon/vizyon
+}
+
+/** Adres defteri grubu — firma kendi gruplarını oluşturur */
+export interface AddressGroup {
+  id: string;
+  ownerSubscriberId: string;
+  name: string;                    // "Tarım Projesi Ekibi", "Potansiyel Tedarikçiler"
+  description?: string;
+  memberIds: string[];             // subscriber id listesi
+  createdAt: string;
 }
 
 /** Bir profil türünün ihale ilanı verme yetkisi olup olmadığını döner. */
@@ -228,6 +247,8 @@ export interface Campaign {
   sentAt?: string;
   recipientCount: number;
   openCount: number;
+  /** Bülteni oluşturan/gönderen firma/kurum */
+  publisherSubscriberId?: string;
 }
 
 export interface Stakeholder {

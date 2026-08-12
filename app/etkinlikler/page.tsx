@@ -75,25 +75,37 @@ export default function EtkinliklerPage() {
 
 function EventCard({ event, past = false, locale }: { event: EventItem; past?: boolean; locale: string }) {
   const d = new Date(event.date);
+  const isEn = locale === "en";
+  const agendaCount = event.agenda?.length ?? 0;
+
   return (
     <Link href={`/etkinlikler/${event.id}`}
       className={`flex gap-4 p-5 border rounded-xl hover:shadow-md transition-all ${past ? "border-line bg-surface" : "border-line bg-white hover:border-eu"}`}>
+      {/* Tarih kutusu */}
       <div className="flex-shrink-0 text-center bg-eu-pale rounded-xl p-3 w-16">
         <div className="text-2xl font-extrabold text-eu">{d.getDate()}</div>
         <div className="text-xs text-eu font-semibold uppercase">
-          {d.toLocaleDateString(locale === "tr" ? "tr" : "en", { month: "short" })}
+          {d.toLocaleDateString(isEn ? "en" : "tr", { month: "short" })}
         </div>
         <div className="text-xs text-mist">{d.getFullYear()}</div>
       </div>
-      <div className="flex-1">
-        <h2 className="font-bold text-ink mb-1 leading-tight">{event.title}</h2>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h2 className="font-bold text-ink leading-tight">{event.title}</h2>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${event.isPublic ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
+            {event.isPublic ? (isEn ? "Open" : "Açık") : (isEn ? "Invite Only" : "Davetli")}
+          </span>
+        </div>
         <p className="text-sm text-mist">📍 {event.location}</p>
         {event.description && (
           <p className="text-sm text-slate mt-1 line-clamp-2">{event.description}</p>
         )}
-        {event.capacity && (
-          <p className="text-xs text-mist mt-1">👥 {event.capacity}</p>
-        )}
+        <div className="flex flex-wrap gap-3 mt-2 text-xs text-mist">
+          {event.capacity && <span>👥 {isEn ? "Capacity" : "Kapasite"}: {event.capacity}</span>}
+          {agendaCount > 0 && <span>📋 {agendaCount} {isEn ? "agenda items" : "gündem maddesi"}</span>}
+          <span>🕐 {d.toLocaleTimeString(isEn ? "en" : "tr", { hour: "2-digit", minute: "2-digit" })}</span>
+        </div>
       </div>
     </Link>
   );

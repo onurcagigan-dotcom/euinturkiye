@@ -3,6 +3,7 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
+  AddressGroup,
 } from "../types";
 import { isDemoVerified } from "../demo-access";
 
@@ -105,4 +106,10 @@ export class GatedDataProvider implements DataProvider {
   }
   addNetworkConnection(c: Omit<NetworkConnection, "id" | "addedAt">): Promise<void> { return this.inner.addNetworkConnection(c); }
   removeNetworkConnection(id: string): Promise<void> { return this.inner.removeNetworkConnection(id); }
+
+  getAddressGroups(ownerSubscriberId: string): Promise<AddressGroup[]> {
+    return this.allowed ? this.inner.getAddressGroups(ownerSubscriberId) : Promise.resolve([]);
+  }
+  saveAddressGroup(g: AddressGroup): Promise<void> { return this.inner.saveAddressGroup(g); }
+  removeAddressGroup(id: string): Promise<void> { return this.inner.removeAddressGroup(id); }
 }

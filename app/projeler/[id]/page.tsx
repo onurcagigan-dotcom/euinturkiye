@@ -8,7 +8,7 @@ import { ProjectProgressBar } from "@/components/ProjectProgressBar";
 import { ProjectLocationMap } from "@/components/ProjectLocationMap";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
-import type { Project, Sector, Donor, BlogPost, ExpertProfile, OwnershipRequest, Stakeholder, ProjectDocument, EventItem } from "@/lib/types";
+import type { Project, Sector, Donor, BlogPost, ExpertProfile, OwnershipRequest, Stakeholder, ProjectDocument, EventItem, Listing, TrainingVideo } from "@/lib/types";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -23,6 +23,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
   const [relatedEvents, setRelatedEvents] = useState<EventItem[]>([]);
+  const [relatedListings, setRelatedListings] = useState<Listing[]>([]);
+  const [trainingMaterials, setTrainingMaterials] = useState<TrainingVideo[]>([]);
 
   // Talep formu state'i
   const [showRequestForm, setShowRequestForm] = useState(false);
@@ -36,9 +38,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     db.getProject(id).then(async (p) => {
       setProject(p);
       if (p) {
-        const [sec, don, posts, exp, stk, docs, allEvents] = await Promise.all([
+        const [sec, don, posts, exp, stk, docs, allEvents, allListings, allVideos] = await Promise.all([
           db.getSector(p.sectorId), db.getDonor(p.donorId), db.getBlogPosts(), db.getProjectExperts(p.id),
-          db.getStakeholders(p.id), db.getDocuments(p.id), db.getEvents(),
+          db.getStakeholders(p.id), db.getDocuments(p.id), db.getEvents(), db.getListings(), db.getTrainingVideos(),
         ]);
         setSector(sec);
         setDonor(don);
@@ -47,6 +49,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         setStakeholders(stk);
         setDocuments(docs);
         setRelatedEvents(allEvents.filter((e) => e.projectId === p.id));
+        setRelatedListings(allListings.filter((l) => l.projectId === p.id && l.isActive !== false));
+        setTrainingMaterials(allVideos.filter((v) => v.projectId === p.id));
 
         if (firma) {
           const myReqs = await db.getOwnershipRequestsFor({ subscriberId: firma.id, projectId: p.id });
@@ -256,6 +260,37 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
+        {/* Proje İlanları */}
+        {relatedListings.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-xl font-bold text-ink mb-4">Bu Projeye Ait İlanlar</h2>
+            <div className="space-y-2">
+              {relatedListings.map((l) => {
+                const TYPE_LABEL: Record<string, string> = { is: "İş İlanı", satinalma: "Satınalma", ihale: "İhale" };
+                const TYPE_COLOR: Record<string, string> = { is: "bg-blue-100 text-blue-700", satinalma: "bg-orange-100 text-orange-700", ihale: "bg-purple-100 text-purple-700" };
+                const isExpired = l.expiresAt ? new Date(l.expiresAt) < new Date() : false;
+                return (
+                  <Link key={l.id} href={`/ilanlar/${l.id}`}
+                    className={`flex items-center justify-between gap-3 p-4 bg-white border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all ${isExpired ? "opacity-60" : ""}`}>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${TYPE_COLOR[l.type]}`}>{TYPE_LABEL[l.type]}</span>
+                        {isExpired && <span className="text-xs text-mist">Süresi dolmuş</span>}
+                      </div>
+                      <p className="font-semibold text-ink text-sm truncate">{l.title}</p>
+                      {l.subject && <p className="text-xs text-mist mt-0.5">{l.subject}</p>}
+                    </div>
+                    <div className="text-xs text-mist flex-shrink-0 text-right">
+                      {l.deadline && <p>Son: {new Date(l.deadline).toLocaleDateString("tr-TR")}</p>}
+                      {l.budget && <p className="text-eu font-semibold">{l.budget}</p>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {relatedEvents.length > 0 && (
           <div className="mb-10">
             <h2 className="text-xl font-bold text-ink mb-4">{t("project_events")}</h2>
@@ -305,6 +340,34 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </div>
             <Link href="/gundem" className="inline-block mt-4 text-eu text-sm font-semibold hover:underline">
               {t("news_all")} →
+            </Link>
+          </div>
+        )}
+
+        {/* Proje Eğitim Materyalleri */}
+        {trainingMaterials.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-xl font-bold text-ink mb-4">Proje Eğitim Materyalleri</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {trainingMaterials.map((v) => (
+                <div key={v.id} className="bg-white border border-line rounded-xl p-4 flex items-start gap-3">
+                  <span className="text-2xl flex-shrink-0">{v.kind === "video" ? "🎬" : "📄"}</span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink text-sm">{v.title}</p>
+                    {v.description && <p className="text-xs text-mist mt-0.5 line-clamp-2">{v.description}</p>}
+                    {v.keywords && v.keywords.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {v.keywords.slice(0, 3).map((k) => (
+                          <span key={k} className="text-xs bg-eu-pale text-eu px-1.5 py-0.5 rounded">#{k}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/araclar/egitim" className="text-xs text-eu hover:underline mt-2 inline-block">
+              Tüm eğitim materyallerini gör →
             </Link>
           </div>
         )}
