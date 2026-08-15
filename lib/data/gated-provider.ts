@@ -3,7 +3,7 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
-  AddressGroup,
+  AddressGroup, SavedListing, EditLog,
 } from "../types";
 import { isDemoVerified } from "../demo-access";
 
@@ -112,4 +112,15 @@ export class GatedDataProvider implements DataProvider {
   }
   saveAddressGroup(g: AddressGroup): Promise<void> { return this.inner.saveAddressGroup(g); }
   removeAddressGroup(id: string): Promise<void> { return this.inner.removeAddressGroup(id); }
+
+  getSavedListings(subscriberId: string): Promise<SavedListing[]> {
+    return this.allowed ? this.inner.getSavedListings(subscriberId) : Promise.resolve([]);
+  }
+  saveListing_bookmark(s: SavedListing): Promise<void> { return this.inner.saveListing_bookmark(s); }
+  removeSavedListing(id: string): Promise<void> { return this.inner.removeSavedListing(id); }
+
+  getEditLogs(entityId?: string): Promise<EditLog[]> {
+    return this.allowed ? this.inner.getEditLogs(entityId) : Promise.resolve([]);
+  }
+  saveEditLog(log: EditLog): Promise<void> { return this.inner.saveEditLog(log); }
 }

@@ -46,7 +46,7 @@ export function HeroCarousel({ banners, intervalMs = 6000, searchPlaceholder }: 
   };
 
   return (
-    <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 6" }}>
+    <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 5" }}>
       {banners.map((b, i) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img

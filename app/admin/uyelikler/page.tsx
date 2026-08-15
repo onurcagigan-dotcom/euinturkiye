@@ -8,7 +8,7 @@ const PLAN_LABELS: Record<PlanId, string> = {
   ucretsiz: "Ücretsiz", paket1: "Paket 1", paket2: "Paket 2", tedarikci: "Tedarikçi",
 };
 const PROFILE_TYPE_LABELS: Record<Subscriber["profileType"], string> = {
-  firma: "Firma", stk: "STK", tedarikci: "Tedarikçi", delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi",
+  firma: "Firma", stk: "STK", tedarikci: "Tedarikçi", delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi", admin2: "Admin2",
 };
 
 const emptySubscriber = (): Subscriber => ({

@@ -81,7 +81,7 @@ export default function GundemDetailPage({ params }: { params: Promise<{ slug: s
 
         {post.coverImage ? (
           <div className="h-56 md:h-80 rounded-2xl mb-8 overflow-hidden bg-surface">
-            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+              <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
           </div>
         ) : (
           <div className="h-56 bg-gradient-to-br from-eu to-blue-800 rounded-2xl mb-8 flex items-center justify-center">

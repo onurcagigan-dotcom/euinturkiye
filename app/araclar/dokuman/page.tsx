@@ -86,27 +86,59 @@ export default function DokumanAraciPage() {
         <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar", href: "/araclar" }, { label: "E-Doküman Yönetimi" }]} />
 
         <h1 className="text-2xl font-bold text-ink mb-2">E-Doküman Yönetimi</h1>
-        <p className="text-slate text-sm mb-6">Proje bazlı doküman kütüphanesi. Ekleme yalnızca projenin yürütücüsü veya konsorsiyum üyesi firmalara açıktır.</p>
 
-        <div className="flex flex-wrap gap-2 mb-6">
-          {projectFilterOptions.map((p) => (
-            <button key={p.id} onClick={() => setActiveProject(p.id)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeProject === p.id ? "bg-eu text-white" : "bg-surface text-slate hover:bg-line"}`}>
-              {p.name}
-            </button>
-          ))}
-        </div>
+        {!firma ? (
+          /* Giriş yapılmamış — açıklayıcı + genel liste */
+          <div>
+            <p className="text-slate text-sm mb-6">Proje ekiplerinin paylaştığı raporlar, sunumlar ve sözleşmeleri bu platformda bulabilirsiniz. Doküman yüklemek ve proje bazlı kütüphane yönetmek için giriş gereklidir.</p>
+            <div className="bg-eu-pale border border-eu/20 rounded-2xl p-6 mb-8 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-bold text-ink mb-1">Kendi dokümanlarınızı paylaşın</p>
+                <p className="text-sm text-slate">Proje belgelerinizi yükleyin, erişim kısıtlaması belirleyin, indirme takibi yapın.</p>
+              </div>
+              <Link href="/giris" className="flex-shrink-0 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Giriş Yap</Link>
+            </div>
+            <h2 className="text-base font-bold text-ink mb-3">Herkese Açık Belgeler</h2>
+            <div className="space-y-2">
+              {docs.filter((d) => d.accessLevel === "herkes").slice(0, 10).map((d) => {
+                const proj = projectById[d.projectId ?? ""];
+                return (
+                  <div key={d.id} className="bg-white border border-line rounded-xl p-4 flex items-center gap-3">
+                    <span className="text-xl">📄</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-ink text-sm truncate">{d.name}</p>
+                      {proj && <p className="text-xs text-mist">{proj.title}</p>}
+                    </div>
+                    <span className="text-xs text-mist flex-shrink-0">{d.fileSize}</span>
+                  </div>
+                );
+              })}
+              {docs.filter((d) => d.accessLevel === "herkes").length === 0 && (
+                <p className="text-sm text-mist">Henüz herkese açık belge bulunmuyor.</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Giriş yapılmış — yönetim alanı */
+          <>
+            <p className="text-slate text-sm mb-6">Proje bazlı doküman kütüphanesi. Ekleme yalnızca projenin yürütücüsü veya konsorsiyum üyesi firmalara açıktır.</p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {projectFilterOptions.map((p) => (
+                <button key={p.id} onClick={() => setActiveProject(p.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeProject === p.id ? "bg-eu text-white" : "bg-surface text-slate hover:bg-line"}`}>
+                  {p.name}
+                </button>
+              ))}
+            </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-sm text-mist">{shownMyDocs.length} doküman</span>
-          {firma && myEditableProjects.length > 0 ? (
-            <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">+ Doküman Ekle</button>
-          ) : firma ? (
-            <span className="text-xs text-mist">Doküman eklemek için bir projenin yürütücüsü veya üyesi olmalısınız.</span>
-          ) : (
-            <Link href="/giris" className="text-xs text-eu font-semibold hover:underline">Doküman eklemek için giriş yapın</Link>
-          )}
-        </div>
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-sm text-mist">{shownMyDocs.length} doküman</span>
+              {myEditableProjects.length > 0 ? (
+                <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">+ Doküman Ekle</button>
+              ) : (
+                <span className="text-xs text-mist">Doküman eklemek için bir projenin yürütücüsü veya üyesi olmalısınız.</span>
+              )}
+            </div>
 
         {showForm && (
           <div className="bg-eu-pale border border-eu/20 rounded-xl p-5 mb-5">
@@ -139,10 +171,10 @@ export default function DokumanAraciPage() {
 
         <div className="space-y-8">
           <div>
-            <h2 className="text-base font-bold text-ink mb-3">{firma ? "Kendi Proje Dokümanlarım" : "Tüm Dokümanlar"}</h2>
+            <h2 className="text-base font-bold text-ink mb-3">Kendi Proje Dokümanlarım</h2>
             <DocTable docs={shownMyDocs} showProjectCol={activeProject === "all"} projectById={projectById} onIncrement={incrementDownload} />
           </div>
-          {firma && activeProject === "all" && otherPublicDocs.length > 0 && (
+          {activeProject === "all" && otherPublicDocs.length > 0 && (
             <div>
               <h2 className="text-base font-bold text-ink mb-1">Diğer Projelerin Herkese Açık Dokümanları</h2>
               <p className="text-xs text-mist mb-3">Başka firmaların paylaştığı, herkese açık dokümanlar.</p>
@@ -150,6 +182,8 @@ export default function DokumanAraciPage() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </PageShell>
   );

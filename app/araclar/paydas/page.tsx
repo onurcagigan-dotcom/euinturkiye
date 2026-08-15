@@ -10,11 +10,12 @@ import type { Subscriber, SubscriberProfileType, AddressGroup } from "@/lib/type
 const ROLE_LABEL: Record<SubscriberProfileType, string> = {
   firma: "Firma", stk: "STK", tedarikci: "Tedarikçi",
   delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi",
+  admin2: "Admin2",
 };
 const ROLE_COLOR: Record<SubscriberProfileType, string> = {
   firma: "bg-blue-100 text-blue-700", stk: "bg-green-100 text-green-700",
   tedarikci: "bg-orange-100 text-orange-700", delegasyon: "bg-purple-100 text-purple-700",
-  program_otoritesi: "bg-red-100 text-red-700",
+  program_otoritesi: "bg-red-100 text-red-700", admin2: "bg-gray-100 text-gray-700",
 };
 
 export default function PaydasPage() {

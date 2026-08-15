@@ -4,7 +4,7 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
-  AddressGroup,
+  AddressGroup, SavedListing, EditLog,
 } from "../../types";
 
 const delay = <T>(v: T, ms = 60) => new Promise<T>((r) => setTimeout(() => r(v), ms));
@@ -344,6 +344,7 @@ const events: EventItem[] = [
     date: "2026-07-04T09:00:00",
     location: "Hilton Ankara, Ankara",
     isPublic: true,
+    organizerSubscriberId: "sub-6",
     description: "Türkiye'deki AB projelerinin yöneticilerini buluşturan yıllık konferans.",
     capacity: 250,
     agenda: [
@@ -359,6 +360,7 @@ const events: EventItem[] = [
     location: "Tarım Bakanlığı, Ankara",
     projectId: "tarim-modern",
     isPublic: false,
+    organizerSubscriberId: "sub-1",
     description: "Proje ekibinin aylık teknik ilerleme toplantısı.",
     capacity: 20,
     agenda: [
@@ -374,6 +376,7 @@ const events: EventItem[] = [
     location: "İstanbul Kongre Merkezi",
     projectId: "kadin-girisimcilik",
     isPublic: true,
+    organizerSubscriberId: "sub-2",
     description: "Kadın girişimcileri bir araya getiren networking ve bilgi paylaşım etkinliği.",
     capacity: 150,
     agenda: [
@@ -390,6 +393,7 @@ const events: EventItem[] = [
     date: "2026-06-29T14:00:00",
     location: "AB Türkiye Delegasyonu, Ankara",
     isPublic: true,
+    organizerSubscriberId: "sub-6",
     description: "IPA III döneminin yeni fırsatlarına ilişkin bilgilendirme.",
     capacity: 80,
     agenda: [
@@ -402,15 +406,32 @@ const events: EventItem[] = [
   {
     id: "etk-5",
     title: "Dijital Araçlar Eğitimi",
-    date: "2026-06-23T10:00:00",
+    date: "2026-09-15T10:00:00",
     location: "Online (Zoom)",
     isPublic: false,
+    organizerSubscriberId: "sub-1",
     description: "Proje yöneticileri için dijital araçlar kullanım eğitimi.",
     capacity: 30,
     agenda: [
       { id: "a16", time: "10:00", title: "Platforma Genel Bakış", presenter: "Eğitmen", durationMin: 20 },
       { id: "a17", time: "10:20", title: "Etkinlik ve Doküman Yönetimi Uygulaması", presenter: "Eğitmen", durationMin: 40 },
       { id: "a18", time: "11:00", title: "Raporlama Aracı Canlı Demo", presenter: "Eğitmen", durationMin: 30 },
+    ],
+  },
+  {
+    id: "etk-6",
+    title: "Çevre & İklim Projesi Paydaş Toplantısı",
+    date: "2026-09-22T13:00:00",
+    location: "Çevre Bakanlığı Konferans Salonu, Ankara",
+    projectId: "cevre-iklim",
+    isPublic: false,
+    organizerSubscriberId: "sub-1",
+    description: "Çevre uyum projesinin ara dönem paydaş toplantısı ve değerlendirme oturumu.",
+    capacity: 40,
+    agenda: [
+      { id: "a19", time: "13:00", title: "Açılış ve Proje Durum Sunumu", presenter: "Proje Yöneticisi", durationMin: 30 },
+      { id: "a20", time: "13:30", title: "İzleme ve Değerlendirme Bulguları", presenter: "İ&D Uzmanı", durationMin: 45 },
+      { id: "a21", time: "14:15", title: "Bir Sonraki Dönem Planlaması", presenter: "Tüm Ekip", durationMin: 30 },
     ],
   },
 ];
@@ -629,9 +650,26 @@ Proje 2024 yılı sonbaharında başlayacak ve dört yıl sürecek.`,
 
 // ── Araç Demo Verileri ────────────────────────────────────
 const rsvps: EventRsvp[] = [
-  { id: "r1", eventId: "etk-1", name: "Ahmet Yılmaz", email: "ahmet@ornek.com", organization: "Kalkınma Bakanlığı", status: "onaylandi", createdAt: "2026-06-01T10:00:00Z" },
-  { id: "r2", eventId: "etk-1", name: "Fatma Demir", email: "fatma@ornek.com", organization: "KOSGEB", status: "bekliyor", createdAt: "2026-06-02T11:00:00Z" },
-  { id: "r3", eventId: "etk-3", name: "Zeynep Kaya", email: "zeynep@ornek.com", organization: "İŞKUR", status: "onaylandi", createdAt: "2026-06-03T09:00:00Z" },
+  // etk-1: AB Konferansı — onaylılar ve bekleyenler
+  { id: "r1",  eventId: "etk-1", name: "Ayşe Kılıç",      email: "ayse@kalkinma.gov.tr",  organization: "Kalkınma Bakanlığı",   status: "onaylandi", createdAt: "2026-06-01T10:00:00Z", invited: true },
+  { id: "r2",  eventId: "etk-1", name: "Fatma Demir",     email: "fatma@firma.com",        organization: "XYZ Eğitim",          status: "bekliyor",  createdAt: "2026-06-02T11:00:00Z", invited: true },
+  { id: "r3",  eventId: "etk-1", name: "Murat Şahin",     email: "murat@kosgeb.gov.tr",    organization: "KOSGEB",              status: "onaylandi", createdAt: "2026-06-03T09:00:00Z", invited: true },
+  { id: "r4",  eventId: "etk-1", name: "Selin Yıldız",    email: "selin@iskur.gov.tr",     organization: "İŞKUR",               status: "iptal",     createdAt: "2026-06-04T14:00:00Z", invited: true },
+  { id: "r5",  eventId: "etk-1", name: "Emre Çelik",      email: "emre@tarim.gov.tr",      organization: "Tarım Bakanlığı",     status: "bekliyor",  createdAt: "2026-06-05T08:00:00Z", invited: false },
+
+  // etk-2: Tarım Teknik Toplantı — proje ekibi
+  { id: "r6",  eventId: "etk-2", name: "Zeynep Aydın",    email: "zeynep@tarimstk.org",    organization: "Tarım Geliştirme Vakfı", status: "onaylandi", createdAt: "2026-06-10T09:00:00Z", invited: true },
+  { id: "r7",  eventId: "etk-2", name: "Mevlüt Demir",    email: "mevlut@tarim.gov.tr",    organization: "Tarım Bakanlığı",     status: "onaylandi", createdAt: "2026-06-10T10:00:00Z", invited: true },
+  { id: "r8",  eventId: "etk-2", name: "Hasan Kaplan",    email: "hasan@tarimstk.org",     organization: "Tarım Geliştirme Vakfı", status: "bekliyor", createdAt: "2026-06-11T09:00:00Z", invited: true },
+
+  // etk-3: Kadın Girişimciler Zirvesi
+  { id: "r9",  eventId: "etk-3", name: "Zeynep Kaya",     email: "zeynep@ornek.com",       organization: "İŞKUR",               status: "onaylandi", createdAt: "2026-06-03T09:00:00Z", invited: true },
+  { id: "r10", eventId: "etk-3", name: "Hafize Arslan",   email: "hafize@girisimci.com",   organization: "Bağımsız Girişimci",  status: "onaylandi", createdAt: "2026-06-05T10:00:00Z", invited: false },
+  { id: "r11", eventId: "etk-3", name: "Merve Tunç",      email: "merve@kosgeb.gov.tr",    organization: "KOSGEB",              status: "bekliyor",  createdAt: "2026-06-06T11:00:00Z", invited: true },
+
+  // etk-4: IPA III Bilgilendirme
+  { id: "r12", eventId: "etk-4", name: "Ali Öztürk",      email: "ali@firma.com",          organization: "ABC Danışmanlık",     status: "onaylandi", createdAt: "2026-06-12T09:00:00Z", invited: false },
+  { id: "r13", eventId: "etk-4", name: "Kemal Yılmaz",    email: "kemal@stk.org",          organization: "İklim STK",           status: "bekliyor",  createdAt: "2026-06-13T10:00:00Z", invited: false },
 ];
 
 const documents: ProjectDocument[] = [
@@ -730,6 +768,16 @@ const subscribers: Subscriber[] = [
     contactAddress: "Söğütözü, Ankara", contactPhone: "+90 312 444 0007", contactEmail: "info@mfib.gov.tr",
     socialLinks: { website: "https://www.mfib.gov.tr" },
     profilePublic: true,
+  },
+  // ── Admin2: Platform içerik yöneticisi ──
+  {
+    id: "sub-8", name: "Platform Editörü", email: "editor@euinturkiye.com", organization: "EUinTürkiye Admin2",
+    accountType: "sirket", profileType: "admin2", plan: "paket2",
+    tags: ["admin2"], createdAt: "2024-01-01T09:00:00Z",
+    logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Admin2&backgroundColor=374151",
+    shortBio: "Platform içerik yöneticisi. Tüm projelere, ilanlara ve uzmanlara erişebilir, metin düzenleyebilir.",
+    contactEmail: "editor@euinturkiye.com",
+    profilePublic: false,
   },
 ];
 
@@ -890,6 +938,13 @@ const addressGroups: AddressGroup[] = [
     memberIds: ["sub-3"], createdAt: "2026-05-10T09:00:00Z",
   },
 ];
+
+const savedListings: SavedListing[] = [
+  { id: "sv-1", subscriberId: "sub-3", listingId: "ilan-2", savedAt: "2026-06-12T10:00:00Z", notes: "Eğitim materyali üretiminde deneyimimiz var." },
+  { id: "sv-2", subscriberId: "sub-3", listingId: "ilan-6", savedAt: "2026-06-14T09:00:00Z" },
+];
+
+const editLogs: EditLog[] = [];
 
 // ── DemoDataProvider ──────────────────────────────────────
 export class DemoDataProvider implements DataProvider {
@@ -1052,4 +1107,11 @@ export class DemoDataProvider implements DataProvider {
   getAddressGroups = (ownerSubscriberId: string) => delay(addressGroups.filter((g) => g.ownerSubscriberId === ownerSubscriberId));
   saveAddressGroup = (g: AddressGroup) => { const i = addressGroups.findIndex((x) => x.id === g.id); if (i !== -1) addressGroups[i] = g; else addressGroups.unshift(g); return delay(undefined); };
   removeAddressGroup = (id: string) => { const i = addressGroups.findIndex((x) => x.id === id); if (i !== -1) addressGroups.splice(i, 1); return delay(undefined); };
+
+  getSavedListings = (subscriberId: string) => delay(savedListings.filter((s) => s.subscriberId === subscriberId));
+  saveListing_bookmark = (s: SavedListing) => { const i = savedListings.findIndex((x) => x.id === s.id); if (i !== -1) savedListings[i] = s; else savedListings.unshift(s); return delay(undefined); };
+  removeSavedListing = (id: string) => { const i = savedListings.findIndex((x) => x.id === id); if (i !== -1) savedListings.splice(i, 1); return delay(undefined); };
+
+  getEditLogs = (entityId?: string) => delay(entityId ? editLogs.filter((l) => l.entityId === entityId) : [...editLogs]);
+  saveEditLog = (log: EditLog) => { editLogs.unshift(log); return delay(undefined); };
 }

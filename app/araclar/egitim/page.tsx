@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useFirma } from "@/lib/firma/context";
@@ -112,7 +113,13 @@ export default function EgitimPage() {
         </p>
 
         {!firma && (
-          <p className="text-xs text-mist mb-6">Materyal eklemek için firma hesabınızla giriş yapmalısınız.</p>
+          <div className="bg-eu-pale border border-eu/20 rounded-2xl p-5 mb-6 flex items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-ink mb-1">Kendi materyallerinizi ekleyin</p>
+              <p className="text-sm text-slate">Giriş yaparak proje kapsamındaki eğitim video ve dokümanlarını paylaşabilirsiniz.</p>
+            </div>
+            <Link href="/giris" className="flex-shrink-0 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Giriş Yap</Link>
+          </div>
         )}
 
         {adding && (

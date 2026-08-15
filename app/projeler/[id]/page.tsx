@@ -25,6 +25,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [relatedEvents, setRelatedEvents] = useState<EventItem[]>([]);
   const [relatedListings, setRelatedListings] = useState<Listing[]>([]);
   const [trainingMaterials, setTrainingMaterials] = useState<TrainingVideo[]>([]);
+  const [editLogs, setEditLogs] = useState<import("@/lib/types").EditLog[]>([]);
 
   // Talep formu state'i
   const [showRequestForm, setShowRequestForm] = useState(false);
@@ -38,9 +39,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     db.getProject(id).then(async (p) => {
       setProject(p);
       if (p) {
-        const [sec, don, posts, exp, stk, docs, allEvents, allListings, allVideos] = await Promise.all([
+        const [sec, don, posts, exp, stk, docs, allEvents, allListings, allVideos, logs] = await Promise.all([
           db.getSector(p.sectorId), db.getDonor(p.donorId), db.getBlogPosts(), db.getProjectExperts(p.id),
           db.getStakeholders(p.id), db.getDocuments(p.id), db.getEvents(), db.getListings(), db.getTrainingVideos(),
+          db.getEditLogs(p.id),
         ]);
         setSector(sec);
         setDonor(don);
@@ -51,6 +53,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         setRelatedEvents(allEvents.filter((e) => e.projectId === p.id));
         setRelatedListings(allListings.filter((l) => l.projectId === p.id && l.isActive !== false));
         setTrainingMaterials(allVideos.filter((v) => v.projectId === p.id));
+        setEditLogs(logs);
 
         if (firma) {
           const myReqs = await db.getOwnershipRequestsFor({ subscriberId: firma.id, projectId: p.id });
@@ -325,7 +328,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 <Link key={post.id} href={`/gundem/${post.slug}`}
                   className="flex items-start gap-4 p-4 border border-line rounded-xl hover:border-eu hover:shadow-sm transition-all">
                   {post.coverImage ? (
-                    <img src={post.coverImage} alt={post.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+              <img src={post.coverImage} alt={post.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
                   ) : (
                     <div className="flex-shrink-0 text-xs text-eu font-semibold bg-eu-pale px-2 py-1 rounded">
                       {post.category}
@@ -369,6 +372,15 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <Link href="/araclar/egitim" className="text-xs text-eu hover:underline mt-2 inline-block">
               Tüm eğitim materyallerini gör →
             </Link>
+          </div>
+        )}
+
+        {/* Admin2 Edit Logları */}
+        {editLogs.length > 0 && (
+          <div className="mb-8 pt-6 border-t border-line">
+            <p className="text-xs text-mist">
+              Son düzenleme: {editLogs[0].editorName} tarafından {new Date(editLogs[0].editedAt).toLocaleDateString("tr-TR")} tarihinde güncellendi.
+            </p>
           </div>
         )}
 

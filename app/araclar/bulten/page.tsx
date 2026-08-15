@@ -117,15 +117,22 @@ export default function BultenPage() {
   }
 
   if (!firma) {
+    // Giriş yapılmamışsa açıklayıcı + yayınlanmış bültenler listesi
+    const publicCampaigns: import("@/lib/types").Campaign[] = [];
     return (
       <PageShell>
         <div className="max-w-3xl mx-auto px-6 py-8">
           <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Dijital Araçlar", href: "/araclar" }, { label: "Bülten Gönderimi" }]} />
-          <h1 className="text-2xl font-bold text-ink mb-3">Bülten Gönderimi</h1>
-          <div className="bg-surface rounded-2xl p-8 text-center">
-            <p className="text-slate mb-4">Bülten oluşturmak ve göndermek için firma hesabınızla giriş yapmalısınız.</p>
-            <Link href="/giris" className="inline-block px-5 py-2.5 bg-eu text-white rounded-lg text-sm font-semibold">Giriş Yap</Link>
+          <h1 className="text-2xl font-bold text-ink mb-2">Bültenler</h1>
+          <p className="text-slate text-sm mb-6">Platformdaki firma ve STK'ların proje haberleri ve duyurularını içeren bültenleri.</p>
+          <div className="bg-eu-pale border border-eu/20 rounded-2xl p-6 mb-8 flex items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-ink mb-1">Kendi bülteninizi oluşturun</p>
+              <p className="text-sm text-slate">Proje haberlerinizi seçin, alıcılara gönderin ve istatistikleri takip edin.</p>
+            </div>
+            <Link href="/giris" className="flex-shrink-0 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Giriş Yap</Link>
           </div>
+          <p className="text-xs text-mist text-center">Yayınlanmış bültenler için platforma giriş yapmanız gerekmektedir.</p>
         </div>
       </PageShell>
     );

@@ -2,7 +2,7 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
-  AddressGroup,
+  AddressGroup, SavedListing, EditLog,
 } from "../types";
 
 export interface ProjectFilters {
@@ -116,4 +116,13 @@ export interface DataProvider {
   getAddressGroups(ownerSubscriberId: string): Promise<AddressGroup[]>;
   saveAddressGroup(g: AddressGroup): Promise<void>;
   removeAddressGroup(id: string): Promise<void>;
+
+  // İzlenen ilanlar
+  getSavedListings(subscriberId: string): Promise<SavedListing[]>;
+  saveListing_bookmark(s: SavedListing): Promise<void>;
+  removeSavedListing(id: string): Promise<void>;
+
+  // Admin2 düzenleme logu
+  getEditLogs(entityId?: string): Promise<EditLog[]>;
+  saveEditLog(log: EditLog): Promise<void>;
 }

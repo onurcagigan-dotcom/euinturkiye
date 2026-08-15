@@ -5,12 +5,14 @@ import { getDataProvider } from "@/lib/data";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
+import { useFirma } from "@/lib/firma/context";
 import type { EventItem } from "@/lib/types";
 
 type ViewMode = "liste" | "takvim";
 
 export default function EtkinliklerPage() {
   const { t, locale } = useLocale();
+  const { current: firma } = useFirma();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [view, setView] = useState<ViewMode>("liste");
 
@@ -31,19 +33,44 @@ export default function EtkinliklerPage() {
       <div className="max-w-5xl mx-auto px-6 py-8">
         <Breadcrumb items={[{ label: t("breadcrumb_home"), href: "/" }, { label: t("events_title") }]} />
 
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
           <h1 className="text-3xl font-extrabold text-ink">{t("events_title")}</h1>
-          <div className="flex items-center rounded-full border border-line overflow-hidden">
-            <button onClick={() => setView("liste")}
-              className={`px-4 py-2 text-sm font-semibold transition-colors ${view === "liste" ? "bg-eu text-white" : "text-slate hover:bg-surface"}`}>
-              {locale === "tr" ? "Liste" : "List"}
-            </button>
-            <button onClick={() => setView("takvim")}
-              className={`px-4 py-2 text-sm font-semibold transition-colors ${view === "takvim" ? "bg-eu text-white" : "text-slate hover:bg-surface"}`}>
-              {locale === "tr" ? "Takvim" : "Calendar"}
-            </button>
+          <div className="flex items-center gap-3">
+            {firma && (
+              <Link href="/araclar/etkinlik"
+                className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+                + {locale === "tr" ? "Etkinlik Oluştur" : "Create Event"}
+              </Link>
+            )}
+            <div className="flex items-center rounded-full border border-line overflow-hidden">
+              <button onClick={() => setView("liste")}
+                className={`px-4 py-2 text-sm font-semibold transition-colors ${view === "liste" ? "bg-eu text-white" : "text-slate hover:bg-surface"}`}>
+                {locale === "tr" ? "Liste" : "List"}
+              </button>
+              <button onClick={() => setView("takvim")}
+                className={`px-4 py-2 text-sm font-semibold transition-colors ${view === "takvim" ? "bg-eu text-white" : "text-slate hover:bg-surface"}`}>
+                {locale === "tr" ? "Takvim" : "Calendar"}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Giriş yapılmamışsa tanıtım bandı */}
+        {!firma && (
+          <div className="bg-eu-pale border border-eu/20 rounded-2xl p-5 mb-8 flex items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-ink mb-1">{locale === "tr" ? "Etkinliklerinizi Yönetin" : "Manage Your Events"}</p>
+              <p className="text-sm text-slate">
+                {locale === "tr"
+                  ? "Giriş yaparak etkinlik oluşturabilir, müsaitlik anketi, gündem ve davetiye araçlarını kullanabilirsiniz."
+                  : "Log in to create events and use availability polls, agenda, and invitation tools."}
+              </p>
+            </div>
+            <Link href="/giris" className="flex-shrink-0 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+              {locale === "tr" ? "Giriş Yap" : "Log In"}
+            </Link>
+          </div>
+        )}
 
         {view === "takvim" ? (
           <CalendarView events={publicEvents} locale={locale} />

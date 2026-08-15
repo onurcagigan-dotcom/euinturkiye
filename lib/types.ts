@@ -101,11 +101,19 @@ export interface EventAttachment {
   uploadedAt: string;
 }
 
+export interface PollVote {
+  email: string;
+  name?: string;
+  votedAt: string;
+}
+
 export interface AvailabilityPollOption {
   id: string;
   label: string;
-  /** Bu seçeneği uygun bulan davetlilerin e-postaları */
+  /** Bu seçeneği uygun bulan davetlilerin e-postaları (geriye dönük uyum) */
   votes: string[];
+  /** Detaylı oy kaydı */
+  voteDetails?: PollVote[];
 }
 
 export interface AgendaItem {
@@ -179,7 +187,7 @@ export interface ProjectDocument {
  * - tedarikci: sadece tedarikçi paywall'lı ilanları görebilir, kendi iş ilanı/satınalma ilanı verebilir
  * - delegasyon / program_otoritesi: ihale ilanı verme yetkisine sahip tek profil türleri
  */
-export type SubscriberProfileType = "firma" | "stk" | "tedarikci" | "delegasyon" | "program_otoritesi";
+export type SubscriberProfileType = "firma" | "stk" | "tedarikci" | "delegasyon" | "program_otoritesi" | "admin2";
 
 export interface SocialLinks {
   website?: string;
@@ -229,8 +237,28 @@ export interface AddressGroup {
 }
 
 /** Bir profil türünün ihale ilanı verme yetkisi olup olmadığını döner. */
+/** İzlenen ilan — tedarikçi veya firma tarafından kaydedilen ilan */
+export interface SavedListing {
+  id: string;
+  subscriberId: string;
+  listingId: string;
+  savedAt: string;
+  notes?: string;
+}
+
+/** Admin2 tarafından yapılan içerik düzenlemelerinin logu */
+export interface EditLog {
+  id: string;
+  editorSubscriberId: string;
+  editorName: string;
+  entityType: "project" | "listing" | "expert" | "subscriber";
+  entityId: string;
+  editedAt: string;
+  summary?: string;
+}
+
 export function canPostTender(profileType: SubscriberProfileType): boolean {
-  return profileType === "delegasyon" || profileType === "program_otoritesi";
+  return profileType === "delegasyon" || profileType === "program_otoritesi" || profileType === "admin2";
 }
 
 export interface Campaign {

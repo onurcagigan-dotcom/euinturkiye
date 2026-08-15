@@ -3,9 +3,11 @@ import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
+import { useFirma } from "@/lib/firma/context";
 
 export default function AraclarPage() {
   const { t, locale } = useLocale();
+  const { current: firma } = useFirma();
   const isEn = locale === "en";
 
   const TOOLS = [
@@ -38,6 +40,32 @@ export default function AraclarPage() {
         <Breadcrumb items={[{ label: t("breadcrumb_home"), href: "/" }, { label: t("tools_title") }]} />
 
         <h1 className="text-3xl font-extrabold text-ink mb-2">{t("tools_title")}</h1>
+        <p className="text-slate text-sm mb-6">{isEn ? "Digital tools for EU-Turkey project ecosystem actors." : "AB-Türkiye proje ekosistemi aktörleri için dijital araçlar."}</p>
+
+        {firma ? (
+          <div className="bg-eu-pale border border-eu/20 rounded-2xl p-4 mb-6 flex items-center justify-between gap-3">
+            <p className="text-sm text-ink font-medium">
+              {firma.organization ?? firma.name} olarak giriş yaptınız — araçlara doğrudan panelden de erişebilirsiniz.
+            </p>
+            <Link href="/firma" className="flex-shrink-0 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+              Panelime Git →
+            </Link>
+          </div>
+        ) : (
+          <div className="bg-eu-pale border border-eu/20 rounded-2xl p-5 mb-8 flex items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-ink mb-1">{isEn ? "Manage your own content" : "Kendi içeriklerinizi yönetin"}</p>
+              <p className="text-sm text-slate">
+                {isEn
+                  ? "Log in to create events, upload documents, send newsletters and manage your listings."
+                  : "Giriş yaparak etkinlik oluşturun, doküman yükleyin, bülten gönderin ve ilanlarınızı yönetin."}
+              </p>
+            </div>
+            <Link href="/giris" className="flex-shrink-0 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+              {isEn ? "Log In" : "Giriş Yap"}
+            </Link>
+          </div>
+        )}
         <p className="text-slate mb-10">{t("tools_sub")}</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -46,8 +74,8 @@ export default function AraclarPage() {
               <>
                 {tool.imageUrl ? (
                   <div className="h-24 overflow-hidden relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={tool.imageUrl} alt={tool.title} className={`w-full h-full object-cover ${tool.comingSoon ? "opacity-60" : ""}`} />
+
+              <img src={tool.imageUrl} alt={tool.title} className={`w-full h-full object-cover ${tool.comingSoon ? "opacity-60" : ""}`} />
                   </div>
                 ) : (
                   <div className={`h-24 flex items-center justify-center ${tool.comingSoon ? "opacity-60" : ""}`}

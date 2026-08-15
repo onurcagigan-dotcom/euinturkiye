@@ -15,6 +15,7 @@ const PROFILE_TYPE_LABEL: Record<SubscriberProfileType, TranslationKey> = {
   tedarikci: "company_profile_type_tedarikci",
   delegasyon: "company_profile_type_delegasyon",
   program_otoritesi: "company_profile_type_program_otoritesi",
+  admin2: "company_profile_type_delegasyon", // admin2 giriş listesinde gösterilmez
 };
 
 const PROFILE_TYPE_COLOR: Record<SubscriberProfileType, string> = {
@@ -23,6 +24,7 @@ const PROFILE_TYPE_COLOR: Record<SubscriberProfileType, string> = {
   tedarikci: "bg-orange-100 text-orange-700",
   delegasyon: "bg-purple-100 text-purple-700",
   program_otoritesi: "bg-red-100 text-red-700",
+  admin2: "bg-gray-100 text-gray-700",
 };
 
 const PROFILE_CAPABILITIES: Record<SubscriberProfileType, { tr: string; en: string }> = {
@@ -46,6 +48,10 @@ const PROFILE_CAPABILITIES: Record<SubscriberProfileType, { tr: string; en: stri
     tr: "İhale ilanı (tam yetkili) · Bülten & paydaş araçları",
     en: "Tender listings (full authority) · Newsletter & stakeholder tools",
   },
+  admin2: {
+    tr: "Tüm içeriklere erişim · Metin düzenleme · İhale & ilan yönetimi",
+    en: "Full content access · Text editing · Tender & listing management",
+  },
 };
 
 export default function GirisPage() {
@@ -58,7 +64,10 @@ export default function GirisPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
 
   useEffect(() => {
-    getDataProvider().getSubscribers().then(setSubscribers);
+    // admin2 rolleri demo listesinde gösterilmez — ayrı kod ile girilir
+    getDataProvider().getSubscribers().then((all) =>
+      setSubscribers(all.filter((s) => s.profileType !== "admin2"))
+    );
   }, []);
 
   const handle = () => {
@@ -154,6 +163,16 @@ export default function GirisPage() {
               </div>
             </div>
           )}
+
+          {/* Admin2 erişimi */}
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 mt-3">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Admin2 Erişimi</p>
+            <p className="text-xs text-gray-500 mb-3">Delegasyon ve program otoritesi hesapları için: e-posta kutusuna "admin2" yazıp giriş yapın.</p>
+            <button onClick={() => loginAsFirma("sub-6")}
+              className="w-full py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:border-eu hover:text-eu transition-colors">
+              AB Türkiye Delegasyonu (Admin2) →
+            </button>
+          </div>
 
           <div className="text-center mt-4">
             <Link href="/admin" className="text-eu text-sm hover:underline">

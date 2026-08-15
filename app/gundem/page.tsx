@@ -55,7 +55,7 @@ function GundemPageInner() {
               className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-md transition-shadow group">
               {post.coverImage ? (
                 <div className="h-40 relative overflow-hidden">
-                  <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+              <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4">
                     <span className="text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full backdrop-blur-sm">
                       {post.category}

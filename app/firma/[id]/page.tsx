@@ -11,11 +11,12 @@ import type { Subscriber, Project, Listing, SubscriberProfileType } from "@/lib/
 const ROLE_LABEL: Record<SubscriberProfileType, string> = {
   firma: "Firma", stk: "STK", tedarikci: "Tedarikçi",
   delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi",
+  admin2: "Admin2",
 };
 const ROLE_COLOR: Record<SubscriberProfileType, string> = {
   firma: "bg-blue-100 text-blue-700", stk: "bg-green-100 text-green-700",
   tedarikci: "bg-orange-100 text-orange-700", delegasyon: "bg-purple-100 text-purple-700",
-  program_otoritesi: "bg-red-100 text-red-700",
+  program_otoritesi: "bg-red-100 text-red-700", admin2: "bg-gray-100 text-gray-700",
 };
 
 export default function FirmaProfilPage({ params }: { params: Promise<{ id: string }> }) {
@@ -92,6 +93,28 @@ export default function FirmaProfilPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
+          {/* Proje rozetleri */}
+          {(ownedProjects.length > 0 || memberProjects.length > 0) && (
+            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-line">
+              {ownedProjects.filter((p) => p.status === "devam").length > 0 && (
+                <span className="flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-full px-3 py-1.5 text-xs font-semibold text-green-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  {ownedProjects.filter((p) => p.status === "devam").length} Aktif Proje
+                </span>
+              )}
+              {ownedProjects.filter((p) => p.status === "tamamlandi").length > 0 && (
+                <span className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 text-xs font-semibold text-gray-600">
+                  ✓ {ownedProjects.filter((p) => p.status === "tamamlandi").length} Tamamlanan
+                </span>
+              )}
+              {memberProjects.length > 0 && (
+                <span className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-full px-3 py-1.5 text-xs font-semibold text-blue-700">
+                  🤝 {memberProjects.length} Konsorsiyum Üyeliği
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Kuruluş bilgileri */}
           {isOrgProfile && (subscriber.foundedYear || subscriber.employeeCount) && (
             <div className="flex flex-wrap gap-5 mt-4 pt-4 border-t border-line text-sm text-slate">
@@ -105,10 +128,10 @@ export default function FirmaProfilPage({ params }: { params: Promise<{ id: stri
           )}
 
           {/* Hizmetler */}
-          {isOrgProfile && subscriber.services && subscriber.services.length > 0 && (
+          {(isOrgProfile || subscriber.profileType === "tedarikci") && subscriber.services && subscriber.services.length > 0 && (
             <div className="mt-4 pt-4 border-t border-line">
               <p className="text-xs font-bold text-mist uppercase tracking-wide mb-2">
-                {subscriber.profileType === "stk" ? "Faaliyet Alanları" : "Hizmetler & Uzmanlık"}
+                {subscriber.profileType === "stk" ? "Faaliyet Alanları" : subscriber.profileType === "tedarikci" ? "Sunulan Hizmetler" : "Hizmetler & Uzmanlık"}
               </p>
               <div className="flex flex-wrap gap-2">
                 {subscriber.services.map((s) => (

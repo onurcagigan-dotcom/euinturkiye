@@ -13,7 +13,7 @@ import { canPostTender } from "@/lib/types";
 import type {
   Project, OwnershipRequest, Listing, ListingType,
   Sector, Donor, IpaPeriod, SubscriberProfileType, ExpertProfile,
-  Subscriber, AddressGroup,
+  Subscriber, AddressGroup, SavedListing, EditLog,
 } from "@/lib/types";
 import type { TranslationKey } from "@/lib/i18n/translations";
 
@@ -25,11 +25,12 @@ const IS_AUTHORITY: SubscriberProfileType[] = ["delegasyon", "program_otoritesi"
 const ROLE_LABEL: Record<SubscriberProfileType, string> = {
   firma: "Firma", stk: "STK", tedarikci: "Tedarikçi",
   delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi",
+  admin2: "Admin2",
 };
 const ROLE_COLOR: Record<SubscriberProfileType, string> = {
   firma: "bg-blue-100 text-blue-700", stk: "bg-green-100 text-green-700",
   tedarikci: "bg-orange-100 text-orange-700", delegasyon: "bg-purple-100 text-purple-700",
-  program_otoritesi: "bg-red-100 text-red-700",
+  program_otoritesi: "bg-red-100 text-red-700", admin2: "bg-gray-100 text-gray-700",
 };
 
 // ─── SVG ikonlar ──────────────────────────────────────────────
@@ -59,17 +60,16 @@ function Icon({ id, className = "w-5 h-5" }: { id: string; className?: string })
 }
 
 // ─── Tab tanımları ─────────────────────────────────────────────
-type TabId = "projeler" | "ilanlar" | "etkinlikler" | "araclar" | "adres" | "profil";
+type TabId = "projeler" | "ilanlar" | "araclar" | "adres" | "profil";
 
 interface TabDef { id: TabId; label: string; icon: string; roles: SubscriberProfileType[] }
 
 const TABS: TabDef[] = [
   { id: "projeler",    label: "Projelerim",      icon: "project",  roles: ["firma", "stk"] },
-  { id: "ilanlar",     label: "İlanlarım",        icon: "listing",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi"] },
-  { id: "etkinlikler", label: "Etkinliklerim",    icon: "event",    roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { id: "araclar",     label: "Dijital Araçlar",  icon: "tools",    roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { id: "adres",       label: "Adres Defteri",    icon: "address",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi"] },
-  { id: "profil",      label: "Profil & Hesap",   icon: "profile",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi"] },
+  { id: "ilanlar",     label: "İlanlarım",        icon: "listing",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi", "admin2"] },
+  { id: "araclar",     label: "Dijital Araçlar",  icon: "tools",    roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { id: "adres",       label: "Adres Defteri",    icon: "address",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi", "admin2"] },
+  { id: "profil",      label: "Profil & Hesap",   icon: "profile",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi", "admin2"] },
 ];
 
 // Dijital araçlar — role göre
@@ -162,12 +162,26 @@ export default function FirmaPanelPage() {
             <Link href={`/firma/${current.id}`} className="text-xs text-eu font-semibold hover:underline hidden sm:block">
               Profil Sayfam →
             </Link>
+            <button onClick={() => setActiveTab("profil")} className="text-xs text-slate hover:text-eu font-medium hidden sm:block">
+              ✏️ Profili Düzenle
+            </button>
             <button onClick={() => { logout(); router.push("/"); }}
               className="text-xs text-mist hover:text-tr font-medium">
               Çıkış
             </button>
           </div>
         </div>
+
+        {/* Admin2 banner */}
+        {role === "admin2" && (
+          <div className="bg-gray-800 text-white rounded-2xl p-4 mb-4 flex items-center gap-3">
+            <span className="text-2xl">🛡️</span>
+            <div>
+              <p className="font-bold text-sm">Admin2 Modu</p>
+              <p className="text-xs text-gray-300">Tüm içeriklere erişebilirsiniz. Düzenlediğiniz metinlere otomatik "admin2 tarafından düzenlendi" etiketi düşer.</p>
+            </div>
+          </div>
+        )}
 
         {/* Tab navigasyonu */}
         <div className="flex gap-1 mb-6 bg-surface rounded-xl p-1 overflow-x-auto">
@@ -193,6 +207,8 @@ export default function FirmaPanelPage() {
               ownedProjects={ownedProjects} setOwnedProjects={setOwnedProjects}
               memberProjects={memberProjects}
               sectors={sectors} donors={donors}
+              allSubscribers={allSubscribers}
+              myListings={myListings} setMyListings={setMyListings}
             />
           )}
           {activeTab === "ilanlar" && (
@@ -202,9 +218,6 @@ export default function FirmaPanelPage() {
               ownedProjects={ownedProjects}
               canTender={canTender}
             />
-          )}
-          {activeTab === "etkinlikler" && (
-            <EventsTab current={current} locale={locale} />
           )}
           {activeTab === "araclar" && (
             <ToolsTab role={role} />
@@ -228,16 +241,24 @@ export default function FirmaPanelPage() {
 // ─── SEKMELER ─────────────────────────────────────────────────
 
 // ── Projelerim ────────────────────────────────────────────────
-function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberProjects, sectors, donors }: {
+function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberProjects, sectors, donors, allSubscribers, myListings, setMyListings }: {
   current: Subscriber; locale: string;
   ownedProjects: Project[]; setOwnedProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   memberProjects: Project[];
   sectors: Sector[]; donors: Donor[];
+  allSubscribers: Subscriber[];
+  myListings: Listing[]; setMyListings: React.Dispatch<React.SetStateAction<Listing[]>>;
 }) {
   const isEn = locale === "en";
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [locText, setLocText] = useState("");
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [projectTab, setProjectTab] = useState<"bilgiler" | "ekip" | "dosyalar" | "ilanlar">("bilgiler");
+
+  // Dosyalar state
+  const [projectDocs, setProjectDocs] = useState<import("@/lib/types").ProjectDocument[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
 
   const emptyProject = (): Project => ({
     id: `prj-${Date.now()}`, title: "", summary: "", sectorId: sectors[0]?.id ?? "tarim",
@@ -246,24 +267,83 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
     ownerSubscriberId: current.id, ownerSubscriberName: current.organization ?? current.name,
   });
 
-  const openNew = () => { setEditProject(emptyProject()); setLocText(""); setShowForm(true); };
-  const openEdit = (p: Project) => { setEditProject({ ...p }); setLocText(p.locations.join(", ")); setShowForm(true); };
+  const openNew = () => { setEditProject(emptyProject()); setLocText(""); setShowForm(true); setActiveProjectId(null); };
+  const openManage = (p: Project) => {
+    setActiveProjectId(p.id); setProjectTab("bilgiler");
+    setEditProject({ ...p }); setLocText(p.locations.join(", "));
+    setShowForm(false);
+    // Dosyaları yükle
+    setDocsLoading(true);
+    getDataProvider().getDocuments(p.id).then((docs) => { setProjectDocs(docs); setDocsLoading(false); });
+  };
 
   const save = async () => {
     if (!editProject?.title || !editProject.summary) return;
     const updated = { ...editProject, locations: locText.split(",").map((l) => l.trim()).filter(Boolean) };
     await getDataProvider().saveProject(updated);
+    // Admin2 ise edit log kaydet
+    if (current.profileType === "admin2") {
+      await getDataProvider().saveEditLog({
+        id: `log-${Date.now()}`, editorSubscriberId: current.id, editorName: current.name,
+        entityType: "project", entityId: updated.id, editedAt: new Date().toISOString(),
+        summary: `Proje düzenlendi: ${updated.title}`,
+      });
+    }
     setOwnedProjects((prev) => {
       const i = prev.findIndex((p) => p.id === updated.id);
       return i !== -1 ? prev.map((p, j) => j === i ? updated : p) : [updated, ...prev];
     });
-    setShowForm(false); setEditProject(null);
+    if (showForm) { setShowForm(false); setEditProject(null); }
   };
 
   const del = async (id: string) => {
     if (!confirm(isEn ? "Delete this project?" : "Bu projeyi silmek istiyor musunuz?")) return;
     await getDataProvider().removeProject(id);
     setOwnedProjects((prev) => prev.filter((p) => p.id !== id));
+    if (activeProjectId === id) setActiveProjectId(null);
+  };
+
+  const activeProject = ownedProjects.find((p) => p.id === activeProjectId);
+  const projectListings = myListings.filter((l) => l.projectId === activeProjectId);
+
+  // Ekip üyeleri = konsorsiyum üyeleri
+  const consortiumMembers = activeProject?.consortiumMembers ?? [];
+
+  const addMember = async (subId: string, role: string) => {
+    if (!activeProject) return;
+    const sub = allSubscribers.find((s) => s.id === subId);
+    if (!sub || consortiumMembers.some((m) => m.subscriberId === subId)) return;
+    const newMember: import("@/lib/types").ConsortiumMember = {
+      subscriberId: subId, subscriberName: sub.organization ?? sub.name,
+      role: role || undefined, joinedAt: new Date().toISOString(),
+    };
+    const updated = { ...activeProject, consortiumMembers: [...consortiumMembers, newMember] };
+    await getDataProvider().saveProject(updated);
+    setOwnedProjects((prev) => prev.map((p) => p.id === updated.id ? updated : p));
+    setEditProject(updated);
+  };
+
+  const removeMember = async (subId: string) => {
+    if (!activeProject) return;
+    const updated = { ...activeProject, consortiumMembers: consortiumMembers.filter((m) => m.subscriberId !== subId) };
+    await getDataProvider().saveProject(updated);
+    setOwnedProjects((prev) => prev.map((p) => p.id === updated.id ? updated : p));
+    setEditProject(updated);
+  };
+
+  const uploadDoc = async (fileName: string) => {
+    if (!activeProjectId) return;
+    const doc: import("@/lib/types").ProjectDocument = {
+      id: `doc-${Date.now()}`, name: fileName, projectId: activeProjectId,
+      category: "diger", accessLevel: "ekip", fileSize: "—",
+      uploadedAt: new Date().toISOString(), downloadCount: 0,
+    };
+    await getDataProvider().saveDocument(doc);
+    setProjectDocs((prev) => [doc, ...prev]);
+  };
+
+  const removeDoc = async (id: string) => {
+    setProjectDocs((prev) => prev.filter((d) => d.id !== id));
   };
 
   return (
@@ -275,12 +355,13 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
         </button>
       </div>
 
+      {/* Yeni proje oluşturma formu */}
       {showForm && editProject && (
         <ProjectForm
           form={editProject} setForm={setEditProject}
           locText={locText} setLocText={setLocText}
           sectors={sectors} donors={donors} locale={locale}
-          isNew={!ownedProjects.find((p) => p.id === editProject.id)}
+          isNew={true}
           onSave={save} onCancel={() => { setShowForm(false); setEditProject(null); }}
         />
       )}
@@ -293,36 +374,94 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 mb-6">
           {ownedProjects.map((p) => (
-            <div key={p.id} className="bg-white border border-line rounded-xl p-4">
-              <div className="flex items-start justify-between gap-3">
+            <div key={p.id} className={`bg-white border rounded-xl ${activeProjectId === p.id ? "border-eu shadow-sm" : "border-line"}`}>
+              <div className="flex items-center justify-between gap-3 p-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${p.status === "devam" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-                      {p.status === "devam" ? (isEn ? "Ongoing" : "Devam Ediyor") : (isEn ? "Completed" : "Tamamlandı")}
+                      {p.status === "devam" ? "Devam Ediyor" : "Tamamlandı"}
                     </span>
                     <span className="text-xs text-mist">{p.ipaPeriod}</span>
                   </div>
-                  <h3 className="font-bold text-ink">{p.title}</h3>
-                  <p className="text-sm text-slate mt-1 line-clamp-2">{p.summary}</p>
-                  {p.locations.length > 0 && (
-                    <p className="text-xs text-mist mt-1">📍 {p.locations.join(", ")}</p>
-                  )}
+                  <h3 className="font-bold text-ink text-sm">{p.title}</h3>
+                  {p.locations.length > 0 && <p className="text-xs text-mist">📍 {p.locations.join(", ")}</p>}
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <Link href={`/projeler/${p.id}`} className="text-xs text-mist hover:text-eu">Gör</Link>
-                  <button onClick={() => openEdit(p)} className="text-xs text-eu font-semibold hover:underline">Düzenle</button>
+                  <button onClick={() => activeProjectId === p.id ? setActiveProjectId(null) : openManage(p)}
+                    className="text-xs text-eu font-semibold hover:underline">
+                    {activeProjectId === p.id ? "Kapat" : "Yönet"}
+                  </button>
                   <button onClick={() => del(p.id)} className="text-xs text-mist hover:text-tr">Sil</button>
                 </div>
               </div>
+
+              {/* Proje yönetim paneli — sekmeli */}
+              {activeProjectId === p.id && editProject && (
+                <div className="border-t border-line">
+                  {/* Sekme navigasyonu */}
+                  <div className="flex gap-1 px-4 pt-3 pb-0 overflow-x-auto">
+                    {(["bilgiler", "ekip", "dosyalar", "ilanlar"] as const).map((tab) => (
+                      <button key={tab} onClick={() => setProjectTab(tab)}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${
+                          projectTab === tab ? "border-eu text-eu bg-eu-pale" : "border-transparent text-slate hover:text-ink"
+                        }`}>
+                        {tab === "bilgiler" ? "📋 Bilgiler" : tab === "ekip" ? "👥 Ekip" : tab === "dosyalar" ? "📁 Dosyalar" : "📢 İlanlar"}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="p-4">
+                    {/* Bilgiler sekmesi */}
+                    {projectTab === "bilgiler" && (
+                      <ProjectForm
+                        form={editProject} setForm={setEditProject}
+                        locText={locText} setLocText={setLocText}
+                        sectors={sectors} donors={donors} locale={locale}
+                        isNew={false}
+                        onSave={save} onCancel={() => setActiveProjectId(null)}
+                      />
+                    )}
+
+                    {/* Ekip sekmesi */}
+                    {projectTab === "ekip" && (
+                      <ProjectTeamTab
+                        project={activeProject!} members={consortiumMembers}
+                        allSubscribers={allSubscribers} currentId={current.id}
+                        onAdd={addMember} onRemove={removeMember} locale={locale}
+                      />
+                    )}
+
+                    {/* Dosyalar sekmesi */}
+                    {projectTab === "dosyalar" && (
+                      <ProjectDocsTab
+                        docs={docsLoading ? [] : projectDocs}
+                        loading={docsLoading}
+                        onUpload={uploadDoc} onRemove={removeDoc} locale={locale}
+                      />
+                    )}
+
+                    {/* İlanlar sekmesi */}
+                    {projectTab === "ilanlar" && (
+                      <ProjectListingsTab
+                        projectId={p.id} projectTitle={p.title}
+                        listings={projectListings}
+                        setMyListings={setMyListings}
+                        current={current} locale={locale}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
       {memberProjects.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-4">
           <h2 className="text-base font-bold text-ink mb-3">{isEn ? "Projects I'm a Member Of" : "Konsorsiyum Üyesi Olduğum Projeler"}</h2>
           <div className="space-y-2">
             {memberProjects.map((p) => (
@@ -341,6 +480,133 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
   );
 }
 
+// ── Proje Ekip Sekmesi ──────────────────────────────────────
+function ProjectTeamTab({ project, members, allSubscribers, currentId, onAdd, onRemove, locale }: {
+  project: Project;
+  members: import("@/lib/types").ConsortiumMember[];
+  allSubscribers: Subscriber[]; currentId: string;
+  onAdd: (subId: string, role: string) => void;
+  onRemove: (subId: string) => void;
+  locale: string;
+}) {
+  const [newSubId, setNewSubId] = useState("");
+  const [newRole, setNewRole] = useState("");
+  const available = allSubscribers.filter((s) => s.id !== currentId && !members.some((m) => m.subscriberId === s.id));
+
+  return (
+    <div>
+      <p className="text-xs text-mist mb-3">Konsorsiyum üyeleri ve proje ekibi. Yürütücü: <strong className="text-ink">{project.ownerSubscriberName}</strong></p>
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center gap-2 p-2.5 bg-eu-pale rounded-lg">
+          <span className="text-xs font-bold text-eu">🏆 Yürütücü</span>
+          <span className="text-sm font-medium text-ink">{project.ownerSubscriberName}</span>
+        </div>
+        {members.map((m) => (
+          <div key={m.subscriberId} className="flex items-center gap-3 p-2.5 bg-white border border-line rounded-lg">
+            <div className="flex-1">
+              <span className="text-sm font-medium text-ink">{m.subscriberName}</span>
+              {m.role && <span className="text-xs text-mist ml-2">— {m.role}</span>}
+            </div>
+            <button onClick={() => onRemove(m.subscriberId)} className="text-xs text-mist hover:text-tr">Çıkar</button>
+          </div>
+        ))}
+      </div>
+      {available.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <select value={newSubId} onChange={(e) => setNewSubId(e.target.value)}
+            className="flex-1 min-w-[160px] px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
+            <option value="">— Üye seçin —</option>
+            {available.map((s) => <option key={s.id} value={s.id}>{s.organization ?? s.name}</option>)}
+          </select>
+          <input value={newRole} onChange={(e) => setNewRole(e.target.value)} placeholder="Rol (opsiyonel)"
+            className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu min-w-[120px]" />
+          <button onClick={() => { onAdd(newSubId, newRole); setNewSubId(""); setNewRole(""); }} disabled={!newSubId}
+            className="px-3 py-2 bg-eu text-white rounded-lg text-sm font-semibold disabled:opacity-40">+ Ekle</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Proje Dosyalar Sekmesi ──────────────────────────────────
+function ProjectDocsTab({ docs, loading, onUpload, onRemove, locale }: {
+  docs: import("@/lib/types").ProjectDocument[]; loading: boolean;
+  onUpload: (name: string) => void; onRemove: (id: string) => void; locale: string;
+}) {
+  const ACCESS: Record<string, string> = { herkes: "Herkese Açık", uye: "Üyeler", ekip: "Ekip" };
+  return (
+    <div>
+      <label className="flex items-center justify-center gap-2 px-4 py-5 border-2 border-dashed border-line rounded-xl cursor-pointer hover:border-eu hover:bg-eu-pale transition-colors mb-4">
+        <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f.name); e.target.value = ""; }} />
+        <span className="text-slate text-sm">📎 Dosya yüklemek için tıklayın</span>
+      </label>
+      {loading ? <p className="text-sm text-mist">Yükleniyor…</p> : docs.length === 0 ? (
+        <p className="text-sm text-mist">Bu projeye henüz dosya eklenmemiş.</p>
+      ) : (
+        <div className="space-y-2">
+          {docs.map((d) => (
+            <div key={d.id} className="flex items-center justify-between gap-3 p-3 bg-white border border-line rounded-xl">
+              <div>
+                <span className="text-sm font-medium text-ink">📄 {d.name}</span>
+                <span className="text-xs text-mist ml-2">{ACCESS[d.accessLevel] ?? d.accessLevel}</span>
+              </div>
+              <button onClick={() => onRemove(d.id)} className="text-xs text-mist hover:text-tr">Sil</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Proje İlanlar Sekmesi ───────────────────────────────────
+function ProjectListingsTab({ projectId, projectTitle, listings, setMyListings, current, locale }: {
+  projectId: string; projectTitle: string;
+  listings: Listing[]; setMyListings: React.Dispatch<React.SetStateAction<Listing[]>>;
+  current: Subscriber; locale: string;
+}) {
+  const canTender = canPostTender(current.profileType);
+  const TYPE_LABEL: Record<string, string> = { is: "İş İlanı", satinalma: "Satınalma", ihale: "İhale" };
+  const TYPE_COLOR: Record<string, string> = { is: "bg-blue-100 text-blue-700", satinalma: "bg-orange-100 text-orange-700", ihale: "bg-purple-100 text-purple-700" };
+
+  const addListing = async (type: import("@/lib/types").ListingType) => {
+    const l: Listing = {
+      id: `ilan-${Date.now()}`, type, projectId, title: `${projectTitle} — Yeni ${TYPE_LABEL[type]}`,
+      organization: current.organization ?? current.name, locked: type !== "is",
+      description: "", publisherSubscriberId: current.id, publishedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 86400000).toISOString(), isActive: true,
+    };
+    await getDataProvider().saveListing(l);
+    setMyListings((prev) => [l, ...prev]);
+  };
+
+  return (
+    <div>
+      <p className="text-xs text-mist mb-3">Bu projeye bağlı ilanlar. Yeni ilan oluşturunca otomatik projeye bağlanır.</p>
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {!canTender && <button onClick={() => addListing("is")} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold">+ İş İlanı</button>}
+        {!canTender && <button onClick={() => addListing("satinalma")} className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-semibold">+ Satınalma</button>}
+        {canTender && <button onClick={() => addListing("ihale")} className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold">+ İhale</button>}
+      </div>
+      {listings.length === 0 ? (
+        <p className="text-sm text-mist">Bu projeye ait ilan yok.</p>
+      ) : (
+        <div className="space-y-2">
+          {listings.map((l) => (
+            <div key={l.id} className="flex items-center justify-between gap-3 p-3 bg-white border border-line rounded-xl">
+              <div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold mr-2 ${TYPE_COLOR[l.type]}`}>{TYPE_LABEL[l.type]}</span>
+                <span className="text-sm font-medium text-ink">{l.title}</span>
+              </div>
+              <Link href={`/ilanlar/${l.id}`} className="text-xs text-eu hover:underline">Gör →</Link>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── İlanlarım ─────────────────────────────────────────────────
 function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects, canTender }: {
   current: Subscriber; locale: string;
@@ -348,10 +614,34 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
   ownedProjects: Project[]; canTender: boolean;
 }) {
   const isEn = locale === "en";
+  const isSupplier = current.profileType === "tedarikci";
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Listing | null>(null);
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
   const [expiryDays, setExpiryDays] = useState("30");
+  const [savedListings, setSavedListings] = useState<SavedListing[]>([]);
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+  const [activeView, setActiveView] = useState<"mine" | "saved">("mine");
+
+  useEffect(() => {
+    if (!isSupplier) return;
+    Promise.all([
+      getDataProvider().getSavedListings(current.id),
+      getDataProvider().getListings(),
+    ]).then(([saved, all]) => { setSavedListings(saved); setAllListings(all); });
+  }, [current.id, isSupplier]);
+
+  const bookmarkListing = async (listingId: string) => {
+    if (savedListings.some((s) => s.listingId === listingId)) return;
+    const s: SavedListing = { id: `sv-${Date.now()}`, subscriberId: current.id, listingId, savedAt: new Date().toISOString() };
+    await getDataProvider().saveListing_bookmark(s);
+    setSavedListings((prev) => [s, ...prev]);
+  };
+
+  const unbookmark = async (id: string) => {
+    await getDataProvider().removeSavedListing(id);
+    setSavedListings((prev) => prev.filter((s) => s.id !== id));
+  };
 
   const TYPE_LABEL: Record<string, string> = { is: "İş İlanı", satinalma: "Satınalma", ihale: "İhale" };
   const TYPE_COLOR: Record<string, string> = { is: "bg-blue-100 text-blue-700", satinalma: "bg-orange-100 text-orange-700", ihale: "bg-purple-100 text-purple-700" };
@@ -395,8 +685,16 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
     <div>
       <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
         <h2 className="text-lg font-bold text-ink">{isEn ? "My Listings" : "İlanlarım"}</h2>
-        <div className="flex gap-2">
-          {!canTender && (
+        <div className="flex gap-2 flex-wrap">
+          {isSupplier && (
+            <div className="flex gap-1 bg-surface rounded-lg p-1">
+              <button onClick={() => setActiveView("mine")} className={`px-3 py-1.5 text-xs font-semibold rounded ${activeView === "mine" ? "bg-white shadow-sm text-ink" : "text-slate"}`}>Kendi İlanlarım</button>
+              <button onClick={() => setActiveView("saved")} className={`px-3 py-1.5 text-xs font-semibold rounded ${activeView === "saved" ? "bg-white shadow-sm text-ink" : "text-slate"}`}>
+                İzlediklerim {savedListings.length > 0 && <span className="ml-1 bg-eu text-white rounded-full px-1.5 text-xs">{savedListings.length}</span>}
+              </button>
+            </div>
+          )}
+          {!canTender && activeView === "mine" && (
             <>
               <button onClick={() => openNew("is")} className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">
                 <Icon id="plus" className="w-3.5 h-3.5" /> İş İlanı
@@ -406,7 +704,7 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
               </button>
             </>
           )}
-          {canTender && (
+          {canTender && activeView === "mine" && (
             <button onClick={() => openNew("ihale")} className="flex items-center gap-1.5 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
               <Icon id="plus" className="w-4 h-4" /> Yeni İhale
             </button>
@@ -414,14 +712,54 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
         </div>
       </div>
 
-      {showForm && form && (
+      {/* İzlenen ilanlar görünümü */}
+      {activeView === "saved" && isSupplier && (
+        <div>
+          <p className="text-xs text-mist mb-4">
+            Takip ettiğiniz ilanlar. İlanlar sayfasından herhangi bir ilanı bu listeye ekleyebilirsiniz.
+          </p>
+          {savedListings.length === 0 ? (
+            <div className="bg-white border border-line rounded-2xl p-8 text-center">
+              <p className="text-slate text-sm mb-3">Henüz izlediğiniz ilan yok.</p>
+              <Link href="/ilanlar" className="text-eu text-sm font-semibold hover:underline">İlanlara Göz At →</Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {savedListings.map((sv) => {
+                const l = allListings.find((x) => x.id === sv.listingId);
+                if (!l) return null;
+                const TYPE_LABEL: Record<string, string> = { is: "İş İlanı", satinalma: "Satınalma", ihale: "İhale" };
+                const TYPE_COLOR: Record<string, string> = { is: "bg-blue-100 text-blue-700", satinalma: "bg-orange-100 text-orange-700", ihale: "bg-purple-100 text-purple-700" };
+                return (
+                  <div key={sv.id} className="bg-white border border-line rounded-xl p-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold mr-2 ${TYPE_COLOR[l.type]}`}>{TYPE_LABEL[l.type]}</span>
+                      <span className="font-semibold text-ink text-sm">{l.title}</span>
+                      {l.deadline && <span className="text-xs text-mist ml-2">Son: {new Date(l.deadline).toLocaleDateString("tr-TR")}</span>}
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Link href={`/ilanlar/${l.id}`} className="text-xs text-eu hover:underline">Gör</Link>
+                      <button onClick={() => unbookmark(sv.id)} className="text-xs text-mist hover:text-tr">Kaldır</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Kendi ilanlarım görünümü */}
+      {activeView === "mine" && (
+        <>
+        {showForm && form && (
         <ListingForm
           form={form} setForm={(f: Listing) => setForm(f)}
           ownedProjects={ownedProjects} canTender={canTender}
           expiryDays={expiryDays} setExpiryDays={setExpiryDays}
           locale={locale} onSave={save} onCancel={() => { setShowForm(false); setForm(null); }}
         />
-      )}
+        )}
 
       {myListings.length === 0 && !showForm ? (
         <div className="bg-white border border-line rounded-2xl p-8 text-center">
@@ -466,6 +804,8 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
             </div>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );
@@ -849,7 +1189,7 @@ function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
   return (
     <div className="space-y-6">
       {/* Profil düzenleme */}
-      {(canOwnProjects || isSupplier) && (
+      {(canOwnProjects || isSupplier || current.profileType === "admin2") && (
         <ProfileEditSection current={current} locale={locale} />
       )}
 
@@ -858,7 +1198,8 @@ function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
         <ExpertProfileSection current={current} profile={myExpertProfile} onSave={setMyExpertProfile} locale={locale} />
       )}
 
-      {/* Abonelik */}
+      {/* Abonelik — admin2 için yok */}
+      {current.profileType !== "admin2" && (
       <div className="bg-white border border-line rounded-2xl p-5">
         <h3 className="font-bold text-ink mb-4">{isEn ? "Subscription" : "Abonelik"}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
@@ -910,6 +1251,7 @@ function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
         </div>
         <p className="text-xs text-mist mt-2">Demo modu — gerçek Stripe entegrasyonu Firebase aşamasında aktif olacak.</p>
       </div>
+      )}
     </div>
   );
 }
@@ -962,6 +1304,23 @@ function ProfileEditSection({ current, locale }: { current: Subscriber; locale: 
   };
 
   const isStk = current.profileType === "stk";
+  const isSupplier = current.profileType === "tedarikci";
+
+  // Tedarikçi hizmet kategorileri
+  const SUPPLIER_SERVICE_CATS = [
+    "İnşaat & Altyapı", "Bilişim & Yazılım", "Eğitim & Danışmanlık", "Tercüme & Çeviri",
+    "Medya & İletişim", "Lojistik & Nakliye", "Araştırma & Analiz", "Hukuki Hizmetler",
+    "Mali Hizmetler", "Yiyecek & İkram", "Ekipman & Malzeme", "Çevre & Enerji",
+  ];
+
+  const selectedServices = form.servicesText ? form.servicesText.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  const toggleService = (cat: string) => {
+    const current_set = new Set(selectedServices);
+    if (current_set.has(cat)) { current_set.delete(cat); }
+    else { current_set.add(cat); }
+    setForm((f) => ({ ...f, servicesText: Array.from(current_set).join(", ") }));
+  };
 
   return (
     <div className="bg-white border border-line rounded-2xl overflow-hidden">
@@ -1011,12 +1370,29 @@ function ProfileEditSection({ current, locale }: { current: Subscriber; locale: 
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-mist mb-1">
-                  {isStk ? "Faaliyet Alanları (virgülle ayırın)" : "Hizmetler & Uzmanlık (virgülle ayırın)"}
+                <label className="block text-xs font-semibold text-mist mb-2">
+                  {isStk ? "Faaliyet Alanları" : isSupplier ? "Sunduğunuz Hizmet Kategorileri" : "Hizmetler & Uzmanlık"}
                 </label>
-                <input value={form.servicesText} onChange={(e) => setForm((f) => ({ ...f, servicesText: e.target.value }))}
-                  placeholder="Proje Yönetimi, Eğitim, Kapasite Geliştirme"
-                  className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+                {isSupplier ? (
+                  <div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {SUPPLIER_SERVICE_CATS.map((cat) => (
+                        <button key={cat} type="button"
+                          onClick={() => toggleService(cat)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${selectedServices.includes(cat) ? "bg-eu text-white border-eu" : "bg-white text-slate border-line hover:border-eu"}`}>
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                    <input value={form.servicesText} onChange={(e) => setForm((f) => ({ ...f, servicesText: e.target.value }))}
+                      placeholder="Yukarıdaki listede olmayanlar için virgülle ekleyin"
+                      className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu mt-1" />
+                  </div>
+                ) : (
+                  <input value={form.servicesText} onChange={(e) => setForm((f) => ({ ...f, servicesText: e.target.value }))}
+                    placeholder={isStk ? "Tarım, Gençlik, Kırsal Kalkınma" : "Proje Yönetimi, Eğitim, Kapasite Geliştirme"}
+                    className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
+                )}
               </div>
             </div>
           </div>

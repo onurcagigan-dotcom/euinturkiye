@@ -134,11 +134,17 @@ export function PageShell({ children }: { children: React.ReactNode }) {
             )}
             <LangToggle />
             {firma ? (
-              <Link href="/firma" className="flex items-center gap-2 text-sm px-3 py-1.5 bg-eu-pale text-eu rounded-lg font-semibold hover:bg-eu/10 transition-colors">
-                <span className="w-6 h-6 rounded-full bg-eu text-white flex items-center justify-center text-xs font-bold">
+              <Link href="/firma" className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                firma.profileType === "admin2"
+                  ? "bg-gray-800 text-white hover:bg-gray-700"
+                  : "bg-eu-pale text-eu hover:bg-eu/10"
+              }`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  firma.profileType === "admin2" ? "bg-white text-gray-800" : "bg-eu text-white"
+                }`}>
                   {(firma.organization ?? firma.name).charAt(0)}
                 </span>
-                {firma.organization ?? firma.name}
+                {firma.profileType === "admin2" ? "🛡️ Admin2" : (firma.organization ?? firma.name)}
               </Link>
             ) : (
               <>

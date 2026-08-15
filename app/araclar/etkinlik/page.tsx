@@ -5,7 +5,7 @@ import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useFirma } from "@/lib/firma/context";
 import { getDataProvider } from "@/lib/data";
-import type { EventItem, EventRsvp, AgendaItem, EventAttachment, AvailabilityPollOption, Project, Subscriber } from "@/lib/types";
+import type { EventItem, EventRsvp, AgendaItem, EventAttachment, AvailabilityPollOption, PollVote, Project, Subscriber } from "@/lib/types";
 
 // ─── Tip sabitleri ─────────────────────────────────────────────
 type RsvpStatus = EventRsvp["status"];
@@ -135,12 +135,18 @@ export default function EtkinlikAraciPage() {
             <>
               {/* Etkinlik seçici */}
               <div className="flex flex-wrap gap-2 mb-5">
-                {events.map((e) => (
-                  <button key={e.id} onClick={() => { setActiveEventId(e.id); setActiveTab("bilgiler"); }}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeEventId === e.id ? "bg-eu text-white" : "bg-surface text-slate hover:bg-line"}`}>
-                    {e.title || "(Başlıksız)"}
-                  </button>
-                ))}
+                {events.map((e) => {
+                  const isPast = new Date(e.date) < new Date();
+                  return (
+                    <button key={e.id} onClick={() => { setActiveEventId(e.id); setActiveTab("bilgiler"); }}
+                      className={`flex flex-col items-start px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors text-left ${activeEventId === e.id ? "bg-eu text-white" : "bg-white border border-line text-slate hover:border-eu"}`}>
+                      <span className="truncate max-w-[180px]">{e.title || "(Başlıksız)"}</span>
+                      <span className={`text-xs font-normal mt-0.5 ${activeEventId === e.id ? "text-white/70" : isPast ? "text-mist" : "text-green-600"}`}>
+                        {new Date(e.date).toLocaleDateString("tr-TR")} {isPast ? "· Geçmiş" : "· Yaklaşan"}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               {activeEvent && (
@@ -159,7 +165,7 @@ export default function EtkinlikAraciPage() {
                   </div>
 
                   {activeTab === "bilgiler" && <EventInfoTab event={activeEvent} myProjects={myProjects} onUpdate={updateEvent} />}
-                  {activeTab === "musaitlik" && <AvailabilityTab event={activeEvent} onUpdate={updateEvent} />}
+                  {activeTab === "musaitlik" && <AvailabilityTab event={activeEvent} onUpdate={updateEvent} rsvps={rsvps} />}
                   {activeTab === "gundem"    && <AgendaTab event={activeEvent} onUpdate={updateEvent} />}
                   {activeTab === "dosyalar"  && <AttachmentsTab event={activeEvent} onUpdate={updateEvent} />}
                   {activeTab === "davetiye"  && <InvitationTab event={activeEvent} rsvps={rsvps} setRsvps={setRsvps} allSubscribers={allSubscribers} />}
@@ -298,50 +304,150 @@ function EventInfoTab({ event, myProjects, onUpdate }: { event: EventItem; myPro
 }
 
 // ─── Sekme: Müsaitlik Anketi ───────────────────────────────────
-function AvailabilityTab({ event, onUpdate }: { event: EventItem; onUpdate: (p: Partial<EventItem>) => void }) {
+function AvailabilityTab({ event, onUpdate, rsvps }: {
+  event: EventItem; onUpdate: (p: Partial<EventItem>) => void; rsvps: EventRsvp[];
+}) {
   const [newOption, setNewOption] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const options = event.availabilityPoll ?? [];
 
   const addOption = () => {
     if (!newOption.trim()) return;
-    const opt: AvailabilityPollOption = { id: `poll-${Date.now()}`, label: newOption.trim(), votes: [] };
+    const opt: AvailabilityPollOption = { id: `poll-${Date.now()}`, label: newOption.trim(), votes: [], voteDetails: [] };
     onUpdate({ availabilityPoll: [...options, opt] });
     setNewOption("");
   };
+
   const removeOption = (id: string) => onUpdate({ availabilityPoll: options.filter((o) => o.id !== id) });
-  const simulateVote = (id: string) => {
-    const fake = `katilimci${Math.floor(Math.random() * 999)}@ornek.com`;
-    onUpdate({ availabilityPoll: options.map((o) => o.id === id ? { ...o, votes: [...o.votes, fake] } : o) });
+
+  // Demo: davetlinin oy kullanması simülasyonu
+  const castVote = (optionId: string, email: string, name: string) => {
+    const vote: PollVote = { email, name, votedAt: new Date().toISOString() };
+    onUpdate({
+      availabilityPoll: options.map((o) => {
+        if (o.id !== optionId) return o;
+        // Zaten oy kullanmış mı?
+        if ((o.voteDetails ?? []).some((v) => v.email === email)) return o;
+        return {
+          ...o,
+          votes: [...o.votes, email],
+          voteDetails: [...(o.voteDetails ?? []), vote],
+        };
+      }),
+    });
   };
+
   const maxVotes = Math.max(1, ...options.map((o) => o.votes.length));
+
+  // Davetliler — invited RSVP'ler
+  const invited = rsvps.filter((r) => r.invited);
 
   return (
     <div className="bg-white border border-line rounded-2xl p-5">
       <h3 className="font-bold text-ink mb-1">Müsaitlik Anketi</h3>
-      <p className="text-sm text-mist mb-4">Tarih netleşmeden önce davetlilerden uygun oldukları seçenekleri toplayın.</p>
-      <div className="flex gap-2 mb-4">
+      <p className="text-sm text-mist mb-4">
+        Tarih netleşmeden önce davetlilerden uygun seçenekleri toplayın.
+        {invited.length > 0 && (
+          <span className="ml-1 font-semibold text-ink">{invited.length} davetliye gönderildi.</span>
+        )}
+      </p>
+
+      <div className="flex gap-2 mb-5">
         <input value={newOption} onChange={(e) => setNewOption(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addOption()}
           placeholder="Örn. 14 Temmuz Pazartesi, 10:00"
           className="flex-1 px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
         <button onClick={addOption} className="px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">Ekle</button>
       </div>
-      {options.length === 0 ? <p className="text-sm text-mist">Henüz seçenek eklenmedi.</p> : (
+
+      {options.length === 0 ? (
+        <p className="text-sm text-mist">Henüz seçenek eklenmedi.</p>
+      ) : (
         <div className="space-y-3">
-          {options.map((o) => (
-            <div key={o.id} className="p-3 bg-surface rounded-xl">
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <span className="font-semibold text-ink text-sm">{o.label}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-mist">{o.votes.length} oy</span>
-                  <button onClick={() => simulateVote(o.id)} className="text-xs text-eu hover:underline">+ Demo Oy</button>
-                  <button onClick={() => removeOption(o.id)} className="text-xs text-mist hover:text-tr">Sil</button>
+          {options.map((o) => {
+            const details: PollVote[] = o.voteDetails ?? o.votes.map((email) => ({ email, votedAt: "" }));
+            const isExpanded = expandedId === o.id;
+            return (
+              <div key={o.id} className="border border-line rounded-xl overflow-hidden">
+                <div className="p-4 bg-surface">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <span className="font-semibold text-ink text-sm">{o.label}</span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setExpandedId(isExpanded ? null : o.id)}
+                        className="text-xs text-eu hover:underline font-semibold">
+                        {o.votes.length} oy {isExpanded ? "▲" : "▼"}
+                      </button>
+                      <button onClick={() => removeOption(o.id)} className="text-xs text-mist hover:text-tr">Sil</button>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-line rounded-full overflow-hidden">
+                    <div className="h-2 bg-eu rounded-full transition-all"
+                      style={{ width: `${(o.votes.length / maxVotes) * 100}%` }} />
+                  </div>
                 </div>
+
+                {/* Genişletilmiş oy listesi */}
+                {isExpanded && (
+                  <div className="border-t border-line">
+                    {details.length === 0 ? (
+                      <p className="text-sm text-mist p-4">Henüz oy yok.</p>
+                    ) : (
+                      <div className="divide-y divide-line">
+                        {details.map((v, i) => (
+                          <div key={i} className="flex items-center gap-3 px-4 py-2.5">
+                            <div className="w-7 h-7 rounded-full bg-eu-pale flex items-center justify-center text-eu text-xs font-bold flex-shrink-0">
+                              {(v.name ?? v.email).charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-ink truncate">{v.name ?? v.email}</p>
+                              <p className="text-xs text-mist truncate">{v.email}</p>
+                            </div>
+                            {v.votedAt && (
+                              <span className="text-xs text-mist flex-shrink-0">
+                                {new Date(v.votedAt).toLocaleDateString("tr-TR")}
+                              </span>
+                            )}
+                            <span className="text-green-600 text-xs font-semibold flex-shrink-0">✓ Uygun</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Demo: davetlilerden birini oy kullandır */}
+                    {invited.length > 0 && (
+                      <div className="border-t border-line p-3 bg-surface">
+                        <p className="text-xs text-mist mb-2">Demo: Davetliden oy simüle et</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {invited.filter((r) => !details.some((v) => v.email === r.email)).map((r) => (
+                            <button key={r.id} onClick={() => castVote(o.id, r.email, r.name)}
+                              className="text-xs px-2 py-1 bg-white border border-line rounded-lg hover:border-eu hover:text-eu transition-colors">
+                              + {r.name}
+                            </button>
+                          ))}
+                          {invited.every((r) => details.some((v) => v.email === r.email)) && (
+                            <span className="text-xs text-mist">Tüm davetliler oy kullandı.</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="h-2 bg-line rounded-full overflow-hidden">
-                <div className="h-2 bg-eu rounded-full transition-all" style={{ width: `${(o.votes.length / maxVotes) * 100}%` }} />
-              </div>
+            );
+          })}
+
+          {/* Özet: En popüler seçenek */}
+          {options.length > 1 && options.some((o) => o.votes.length > 0) && (
+            <div className="mt-4 p-4 bg-eu-pale border border-eu/20 rounded-xl">
+              <p className="text-xs font-bold text-eu uppercase tracking-wide mb-1">En Uygun Tarih</p>
+              <p className="font-semibold text-ink">
+                {[...options].sort((a, b) => b.votes.length - a.votes.length)[0].label}
+                <span className="text-sm text-mist ml-2">
+                  ({[...options].sort((a, b) => b.votes.length - a.votes.length)[0].votes.length} oy)
+                </span>
+              </p>
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
@@ -445,6 +551,79 @@ function InvitationTab({ event, rsvps, setRsvps, allSubscribers }: {
   const [subSearch, setSubSearch] = useState("");
   const [subFilterType, setSubFilterType] = useState("");
 
+  // PDF davetiye oluşturma — yeni sekmede print-ready HTML
+  const generateInvitePDF = (withAgenda: boolean) => {
+    const d = new Date(event.date);
+    const dateStr = d.toLocaleString("tr-TR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    const agenda = event.agenda ?? [];
+
+    const agendaHTML = withAgenda && agenda.length > 0 ? `
+      <div class="section">
+        <h2 style="color:#003399;font-size:14px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:12px;">GÜNDEM</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          ${agenda.map((a) => `
+            <tr style="border-bottom:1px solid #f3f4f6;">
+              <td style="padding:6px 8px;color:#003399;font-weight:bold;white-space:nowrap;width:60px;">${a.time}</td>
+              <td style="padding:6px 8px;color:#111827;font-weight:600;">${a.title}</td>
+              <td style="padding:6px 8px;color:#6b7280;font-size:11px;">${a.presenter ?? ""}</td>
+              <td style="padding:6px 8px;color:#9ca3af;font-size:11px;text-align:right;">${a.durationMin} dk</td>
+            </tr>
+          `).join("")}
+        </table>
+      </div>` : "";
+
+    const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<title>Davetiye — ${event.title}</title>
+<style>
+  @page { margin: 20mm; }
+  body { font-family: Arial, sans-serif; color: #111827; margin: 0; padding: 0; }
+  .header { background: #003399; color: white; padding: 28px 32px; }
+  .header-tag { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; }
+  .header-title { font-size: 22px; font-weight: bold; line-height: 1.3; }
+  .body { padding: 24px 32px; }
+  .section { margin-bottom: 20px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .meta-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
+  .meta-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .meta-value { font-size: 13px; font-weight: 600; color: #111827; }
+  .desc { font-size: 13px; color: #374151; line-height: 1.6; }
+  .footer { border-top: 1px solid #e5e7eb; padding: 16px 32px; font-size: 11px; color: #9ca3af; }
+  h2 { margin: 0 0 8px; }
+  @media print { button { display: none; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-tag">EUinTürkiye · Etkinlik Davetiyesi</div>
+  <div class="header-title">${event.title}</div>
+</div>
+<div class="body">
+  <div class="section">
+    <div class="meta-grid">
+      <div class="meta-item"><div class="meta-label">Tarih & Saat</div><div class="meta-value">${dateStr}</div></div>
+      <div class="meta-item"><div class="meta-label">Lokasyon</div><div class="meta-value">${event.location || "—"}</div></div>
+      ${event.capacity ? `<div class="meta-item"><div class="meta-label">Kapasite</div><div class="meta-value">${event.capacity} Kişi</div></div>` : ""}
+      <div class="meta-item"><div class="meta-label">Katılım</div><div class="meta-value">${event.isPublic ? "Açık Etkinlik" : "Davetli"}</div></div>
+    </div>
+  </div>
+  ${event.description ? `<div class="section"><h2 style="color:#003399;font-size:14px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:12px;">ETKİNLİK HAKKINDA</h2><p class="desc">${event.description}</p></div>` : ""}
+  ${agendaHTML}
+  <div class="section" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin-top:8px;">
+    <p style="margin:0;font-size:12px;color:#1e40af;">Bu davetiye EUinTürkiye platformu üzerinden oluşturulmuştur. Katılımınızı onaylamak için platform üzerinden RSVP'nizi iletiniz.</p>
+  </div>
+</div>
+<div class="footer">EUinTürkiye · euinturkiye.com · ${new Date().toLocaleDateString("tr-TR")}</div>
+<script>window.onload = function(){ window.print(); }</script>
+</body>
+</html>`;
+
+    const win = window.open("", "_blank");
+    if (win) { win.document.write(html); win.document.close(); }
+  };
+
   const sendInvite = async (name: string, email: string, organization?: string) => {
     if (!name || !email) return;
     if (rsvps.some((r) => r.email === email)) return; // zaten davetli
@@ -481,6 +660,30 @@ function InvitationTab({ event, rsvps, setRsvps, allSubscribers }: {
 
   return (
     <div className="space-y-5">
+      {/* PDF Davetiye */}
+      <div className="bg-white border border-line rounded-2xl p-5">
+        <h3 className="font-bold text-ink mb-1">Davetiye PDF</h3>
+        <p className="text-sm text-mist mb-4">Etkinlik davetiyesini PDF olarak indirin. Tarayıcının yazdır/PDF kaydet özelliğini kullanabilirsiniz.</p>
+        <div className="flex flex-wrap gap-3">
+          <button onClick={() => generateInvitePDF(false)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-eu text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+            </svg>
+            Gündemsiz Davetiye
+          </button>
+          <button onClick={() => generateInvitePDF(true)}
+            disabled={!event.agenda || event.agenda.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 border border-eu text-eu rounded-lg text-sm font-semibold hover:bg-eu-pale transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" />
+            </svg>
+            Gündemli Davetiye
+            {(!event.agenda || event.agenda.length === 0) && <span className="text-xs opacity-60">(önce gündem ekleyin)</span>}
+          </button>
+        </div>
+      </div>
+
       {/* Toplu e-posta girişi */}
       <div className="bg-white border border-line rounded-2xl p-5">
         <h3 className="font-bold text-ink mb-1">E-posta ile Davet</h3>
