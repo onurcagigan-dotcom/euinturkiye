@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useFirma } from "@/lib/firma/context";
@@ -86,10 +87,25 @@ const TOOL_CARDS: { href: string; icon: string; label: string; roles: Subscriber
 
 // ─── Ana component ─────────────────────────────────────────────
 export default function FirmaPanelPage() {
+  return (
+    <Suspense>
+      <FirmaPanelInner />
+    </Suspense>
+  );
+}
+
+function FirmaPanelInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { locale } = useLocale();
   const { current, loading, logout } = useFirma();
-  const [activeTab, setActiveTab] = useState<TabId>("projeler");
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && ["projeler","ilanlar","araclar","adres","profil"].includes(tabParam)) {
+      return tabParam as TabId;
+    }
+    return "projeler";
+  });
   const [dataLoading, setDataLoading] = useState(true);
 
   // Veriler

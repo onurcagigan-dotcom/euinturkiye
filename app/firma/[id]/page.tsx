@@ -6,6 +6,7 @@ import { PageShell } from "@/components/PageShell";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ProjectProgressBar } from "@/components/ProjectProgressBar";
 import { useLocale } from "@/lib/i18n/context";
+import { useFirma } from "@/lib/firma/context";
 import type { Subscriber, Project, Listing, SubscriberProfileType } from "@/lib/types";
 
 const ROLE_LABEL: Record<SubscriberProfileType, string> = {
@@ -22,6 +23,7 @@ const ROLE_COLOR: Record<SubscriberProfileType, string> = {
 export default function FirmaProfilPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t } = useLocale();
+  const { current: firma } = useFirma();
   const [subscriber, setSubscriber] = useState<Subscriber | null | undefined>(undefined);
   const [ownedProjects, setOwnedProjects] = useState<Project[]>([]);
   const [memberProjects, setMemberProjects] = useState<Project[]>([]);
@@ -60,6 +62,7 @@ export default function FirmaProfilPage({ params }: { params: Promise<{ id: stri
   const procurementListings = listings.filter((l) => l.type === "satinalma");
   const tenderListings = listings.filter((l) => l.type === "ihale");
   const isOrgProfile = ["firma", "stk"].includes(subscriber.profileType);
+  const isOwner = firma?.id === subscriber.id;
 
   return (
     <PageShell>
@@ -78,11 +81,23 @@ export default function FirmaProfilPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <h1 className="text-2xl font-extrabold text-ink leading-tight">{displayName}</h1>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${ROLE_COLOR[subscriber.profileType]}`}>
-                  {ROLE_LABEL[subscriber.profileType]}
-                </span>
+              <div className="flex items-start justify-between gap-3 flex-wrap mb-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-extrabold text-ink leading-tight">{displayName}</h1>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${ROLE_COLOR[subscriber.profileType]}`}>
+                    {ROLE_LABEL[subscriber.profileType]}
+                  </span>
+                </div>
+                {/* Sahip ise düzenleme butonu */}
+                {isOwner && (
+                  <Link href="/firma?tab=profil"
+                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                    </svg>
+                    Profili Düzenle
+                  </Link>
+                )}
               </div>
               {subscriber.shortBio && (
                 <p className="text-slate text-sm leading-relaxed mt-2">{subscriber.shortBio}</p>
