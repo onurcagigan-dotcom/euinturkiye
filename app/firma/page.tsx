@@ -118,14 +118,17 @@ function FirmaPanelInner() {
   const [allSubscribers, setAllSubscribers] = useState<Subscriber[]>([]);
   const [addressGroups, setAddressGroups] = useState<AddressGroup[]>([]);
 
+  // Gelen talep sayısını ana bileşende de tut — tab badge için
+  const [incomingRequestCount, setIncomingRequestCount] = useState(0);
+
   useEffect(() => {
-    if (loading) return;
-    if (!current) { router.push("/giris"); return; }
+    if (loading || !current) return;
     const db = getDataProvider();
     Promise.all([
       db.getProjects(), db.getListings(), db.getSectors(), db.getDonors(),
       db.getExpertProfiles(), db.getSubscribers(), db.getAddressGroups(current.id),
-    ]).then(([allProjects, allListings, allSectors, allDonors, allExperts, subs, groups]) => {
+      db.getOwnershipRequestsFor({ approverSubscriberId: current.id }),
+    ]).then(([allProjects, allListings, allSectors, allDonors, allExperts, subs, groups, reqs]) => {
       setOwnedProjects(allProjects.filter((p) => p.ownerSubscriberId === current.id));
       setMemberProjects(allProjects.filter((p) =>
         p.ownerSubscriberId !== current.id &&
@@ -137,6 +140,7 @@ function FirmaPanelInner() {
       setMyExpertProfile(allExperts.find((ep) => ep.subscriberId === current.id) ?? null);
       setAllSubscribers(subs);
       setAddressGroups(groups);
+      setIncomingRequestCount(reqs.filter((r) => r.status === "bekliyor").length);
       setDataLoading(false);
     });
   }, [current, loading, router]);
@@ -229,6 +233,11 @@ function FirmaPanelInner() {
               }`}>
               <Icon id={tab.icon} className="w-4 h-4" />
               {tab.label}
+              {tab.id === "projeler" && incomingRequestCount > 0 && (
+                <span className="bg-orange-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+                  {incomingRequestCount}
+                </span>
+              )}
             </button>
           ))}
           <div className="flex-1" />
@@ -297,10 +306,20 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
   const [locText, setLocText] = useState("");
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [projectTab, setProjectTab] = useState<"bilgiler" | "ekip" | "dosyalar" | "ilanlar">("bilgiler");
-
-  // Dosyalar state
+  const [incomingRequests, setIncomingRequests] = useState<import("@/lib/types").OwnershipRequest[]>([]);
   const [projectDocs, setProjectDocs] = useState<import("@/lib/types").ProjectDocument[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
+
+  // Gelen konsorsiyum taleplerini yükle
+  useEffect(() => {
+    getDataProvider().getOwnershipRequestsFor({ approverSubscriberId: current.id })
+      .then((reqs) => setIncomingRequests(reqs.filter((r) => r.status === "bekliyor")));
+  }, [current.id]);
+
+  const resolveRequest = async (reqId: string, status: "onaylandi" | "reddedildi") => {
+    await getDataProvider().resolveOwnershipRequest(reqId, status);
+    setIncomingRequests((prev) => prev.filter((r) => r.id !== reqId));
+  };
 
   const emptyProject = (): Project => ({
     id: `prj-${Date.now()}`, title: "", summary: "", sectorId: sectors[0]?.id ?? "tarim",
@@ -537,6 +556,69 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
                 <Link href={`/projeler/${p.id}`} className="text-xs text-eu hover:underline">Gör →</Link>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Gelen Konsorsiyum Talepleri ── */}
+      {incomingRequests.length > 0 && (
+        <div className="mt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-base font-bold text-ink">Gelen Konsorsiyum Talepleri</h2>
+            <span className="bg-orange-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+              {incomingRequests.length}
+            </span>
+          </div>
+          <p className="text-xs text-mist mb-3">
+            Aşağıdaki firmalar projelerinize katılmak istiyor. İnceleyip onaylayabilir veya reddedebilirsiniz.
+          </p>
+          <div className="space-y-3">
+            {incomingRequests.map((req) => {
+              const project = ownedProjects.find((p) => p.id === req.projectId);
+              return (
+                <div key={req.id} className="bg-white border border-orange-200 rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="font-semibold text-ink">{req.subscriberName}</span>
+                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+                          {req.requestedRole === "yurutucu" ? "Yürütücü Talebi" : "Üye Katılım Talebi"}
+                        </span>
+                      </div>
+                      {project && (
+                        <p className="text-xs text-mist mb-1">
+                          📁 Proje: <span className="font-medium text-ink">{project.title}</span>
+                        </p>
+                      )}
+                      {req.note && (
+                        <p className="text-sm text-slate bg-surface rounded-lg px-3 py-2 mt-2 italic">
+                          "{req.note}"
+                        </p>
+                      )}
+                      <p className="text-xs text-mist mt-1">
+                        {new Date(req.createdAt).toLocaleDateString("tr-TR")} tarihinde gönderildi
+                      </p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button onClick={() => resolveRequest(req.id, "onaylandi")}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                        Onayla
+                      </button>
+                      <button onClick={() => resolveRequest(req.id, "reddedildi")}
+                        className="flex items-center gap-1.5 px-3 py-2 border border-line text-mist rounded-lg text-xs font-semibold hover:border-red-300 hover:text-red-500 transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                        Reddet
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -35,6 +35,11 @@ export default function AdminKonsorsiyumPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold text-ink mb-2">Konsorsiyum & Sahiplik Talepleri</h1>
+      <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-5 text-sm text-blue-800">
+        <strong>Not:</strong> Bu sayfada yalnızca <strong>sahipsiz projelere</strong> gelen talepler görünür.
+        Yürütücüsü olan projelere gelen talepler, yürütücü firmanın kendi panelinde (Projelerim → Gelen Talepler) onaylanır.
+        Admin müdahalesine gerek yoktur.
+      </div>
       <p className="text-slate text-sm mb-8">
         Yürütücüsü olmayan projelere yapılan başvurular (admin onayı gerektirir).
         Yürütücüsü olan projelerdeki üyelik talepleri ilgili firmanın kendi panelinde onaylanır.
