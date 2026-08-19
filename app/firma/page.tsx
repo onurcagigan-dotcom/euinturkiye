@@ -161,30 +161,48 @@ function FirmaPanelInner() {
         <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Panelim" }]} />
 
         {/* Profil özet başlığı */}
-        <div className="bg-white border border-line rounded-2xl p-5 mb-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-eu flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-            {(current.organization ?? current.name).charAt(0)}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-bold text-ink truncate">{current.organization ?? current.name}</h1>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${ROLE_COLOR[role]}`}>
-                {ROLE_LABEL[role]}
-              </span>
+        <div className="bg-white border border-line rounded-2xl p-5 mb-5">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-eu flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+              {(current.organization ?? current.name).charAt(0)}
             </div>
-            <p className="text-sm text-slate">{current.name} · {current.email}</p>
-          </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Link href={`/firma/${current.id}`} className="text-xs text-eu font-semibold hover:underline hidden sm:block">
-              Profil Sayfam →
-            </Link>
-            <button onClick={() => setActiveTab("profil")} className="text-xs text-slate hover:text-eu font-medium hidden sm:block">
-              ✏️ Profili Düzenle
-            </button>
-            <button onClick={() => { logout(); router.push("/"); }}
-              className="text-xs text-mist hover:text-tr font-medium">
-              Çıkış
-            </button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg font-bold text-ink truncate">{current.organization ?? current.name}</h1>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${ROLE_COLOR[role]}`}>
+                  {ROLE_LABEL[role]}
+                </span>
+              </div>
+              <p className="text-sm text-slate mt-0.5">{current.name} · {current.email}</p>
+              {current.contactAddress && <p className="text-xs text-mist mt-0.5">📍 {current.contactAddress}</p>}
+              {current.services && current.services.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {current.services.slice(0, 3).map((s) => (
+                    <span key={s} className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full">{s}</span>
+                  ))}
+                  {current.services.length > 3 && <span className="text-xs text-mist">+{current.services.length - 3}</span>}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <button
+                onClick={() => setActiveTab("profil")}
+                title="Profili Düzenle"
+                className="flex items-center gap-1.5 px-3 py-2 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                </svg>
+                Düzenle
+              </button>
+              <Link href={`/firma/${current.id}`}
+                className="flex items-center gap-1.5 px-3 py-2 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+                Profilim
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -213,6 +231,14 @@ function FirmaPanelInner() {
               {tab.label}
             </button>
           ))}
+          <div className="flex-1" />
+          <button onClick={() => { logout(); router.push("/"); }}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-mist hover:text-red-500 transition-colors flex-shrink-0 rounded-lg hover:bg-red-50">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+            </svg>
+            Çıkış
+          </button>
         </div>
 
         {/* Tab içerikleri */}
@@ -404,13 +430,35 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
                   <h3 className="font-bold text-ink text-sm">{p.title}</h3>
                   {p.locations.length > 0 && <p className="text-xs text-mist">📍 {p.locations.join(", ")}</p>}
                 </div>
-                <div className="flex gap-2 flex-shrink-0">
-                  <Link href={`/projeler/${p.id}`} className="text-xs text-mist hover:text-eu">Gör</Link>
-                  <button onClick={() => activeProjectId === p.id ? setActiveProjectId(null) : openManage(p)}
-                    className="text-xs text-eu font-semibold hover:underline">
-                    {activeProjectId === p.id ? "Kapat" : "Yönet"}
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <Link href={`/projeler/${p.id}`}
+                    title="Proje sayfasını gör"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-line text-mist hover:border-eu hover:text-eu transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                  </Link>
+                  <button
+                    title={activeProjectId === p.id ? "Kapat" : "Yönet"}
+                    onClick={() => activeProjectId === p.id ? setActiveProjectId(null) : openManage(p)}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-colors ${
+                      activeProjectId === p.id
+                        ? "border-eu bg-eu text-white"
+                        : "border-line text-eu hover:border-eu hover:bg-eu-pale"
+                    }`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                    </svg>
                   </button>
-                  <button onClick={() => del(p.id)} className="text-xs text-mist hover:text-tr">Sil</button>
+                  <button
+                    title="Projeyi sil"
+                    onClick={() => del(p.id)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-line text-mist hover:border-red-300 hover:text-red-500 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -630,7 +678,6 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
   ownedProjects: Project[]; canTender: boolean;
 }) {
   const isEn = locale === "en";
-  const isSupplier = current.profileType === "tedarikci";
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Listing | null>(null);
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
@@ -640,12 +687,11 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
   const [activeView, setActiveView] = useState<"mine" | "saved">("mine");
 
   useEffect(() => {
-    if (!isSupplier) return;
     Promise.all([
       getDataProvider().getSavedListings(current.id),
       getDataProvider().getListings(),
     ]).then(([saved, all]) => { setSavedListings(saved); setAllListings(all); });
-  }, [current.id, isSupplier]);
+  }, [current.id]);
 
   const bookmarkListing = async (listingId: string) => {
     if (savedListings.some((s) => s.listingId === listingId)) return;
@@ -700,39 +746,43 @@ function ListingsTab({ current, locale, myListings, setMyListings, ownedProjects
   return (
     <div>
       <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
-        <h2 className="text-lg font-bold text-ink">{isEn ? "My Listings" : "İlanlarım"}</h2>
-        <div className="flex gap-2 flex-wrap">
-          {isSupplier && (
-            <div className="flex gap-1 bg-surface rounded-lg p-1">
-              <button onClick={() => setActiveView("mine")} className={`px-3 py-1.5 text-xs font-semibold rounded ${activeView === "mine" ? "bg-white shadow-sm text-ink" : "text-slate"}`}>Kendi İlanlarım</button>
-              <button onClick={() => setActiveView("saved")} className={`px-3 py-1.5 text-xs font-semibold rounded ${activeView === "saved" ? "bg-white shadow-sm text-ink" : "text-slate"}`}>
-                İzlediklerim {savedListings.length > 0 && <span className="ml-1 bg-eu text-white rounded-full px-1.5 text-xs">{savedListings.length}</span>}
-              </button>
-            </div>
-          )}
-          {!canTender && activeView === "mine" && (
-            <>
-              <button onClick={() => openNew("is")} className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">
-                <Icon id="plus" className="w-3.5 h-3.5" /> İş İlanı
-              </button>
-              <button onClick={() => openNew("satinalma")} className="flex items-center gap-1 px-3 py-2 bg-orange-500 text-white rounded-lg text-xs font-semibold">
-                <Icon id="plus" className="w-3.5 h-3.5" /> Satınalma
-              </button>
-            </>
-          )}
-          {canTender && activeView === "mine" && (
-            <button onClick={() => openNew("ihale")} className="flex items-center gap-1.5 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
-              <Icon id="plus" className="w-4 h-4" /> Yeni İhale
-            </button>
-          )}
+        <div className="flex gap-1 bg-surface rounded-xl p-1">
+          <button onClick={() => setActiveView("mine")} className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeView === "mine" ? "bg-white shadow-sm text-ink" : "text-slate"}`}>
+            Kendi İlanlarım
+          </button>
+          <button onClick={() => setActiveView("saved")} className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeView === "saved" ? "bg-white shadow-sm text-ink" : "text-slate"}`}>
+            🔖 İzlediklerim
+            {savedListings.length > 0 && (
+              <span className="bg-eu text-white rounded-full px-1.5 py-0.5 text-xs leading-none">{savedListings.length}</span>
+            )}
+          </button>
         </div>
+        {activeView === "mine" && (
+          <div className="flex gap-2">
+            {!canTender && (
+              <>
+                <button onClick={() => openNew("is")} className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">
+                  <Icon id="plus" className="w-3.5 h-3.5" /> İş İlanı
+                </button>
+                <button onClick={() => openNew("satinalma")} className="flex items-center gap-1 px-3 py-2 bg-orange-500 text-white rounded-lg text-xs font-semibold">
+                  <Icon id="plus" className="w-3.5 h-3.5" /> Satınalma
+                </button>
+              </>
+            )}
+            {canTender && (
+              <button onClick={() => openNew("ihale")} className="flex items-center gap-1.5 px-4 py-2 bg-eu text-white rounded-lg text-sm font-semibold">
+                <Icon id="plus" className="w-4 h-4" /> Yeni İhale
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* İzlenen ilanlar görünümü */}
-      {activeView === "saved" && isSupplier && (
+      {activeView === "saved" && (
         <div>
           <p className="text-xs text-mist mb-4">
-            Takip ettiğiniz ilanlar. İlanlar sayfasından herhangi bir ilanı bu listeye ekleyebilirsiniz.
+            İzlediğiniz ilanlar. Herhangi bir ilanın detay sayfasında "İzle" butonunu kullanarak buraya ekleyebilirsiniz.
           </p>
           {savedListings.length === 0 ? (
             <div className="bg-white border border-line rounded-2xl p-8 text-center">

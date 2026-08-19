@@ -942,6 +942,8 @@ const addressGroups: AddressGroup[] = [
 const savedListings: SavedListing[] = [
   { id: "sv-1", subscriberId: "sub-3", listingId: "ilan-2", savedAt: "2026-06-12T10:00:00Z", notes: "Eğitim materyali üretiminde deneyimimiz var." },
   { id: "sv-2", subscriberId: "sub-3", listingId: "ilan-6", savedAt: "2026-06-14T09:00:00Z" },
+  { id: "sv-3", subscriberId: "sub-1", listingId: "ilan-3", savedAt: "2026-06-15T09:00:00Z", notes: "Yazılım ihalesini takip et." },
+  { id: "sv-4", subscriberId: "sub-1", listingId: "ilan-7", savedAt: "2026-06-16T10:00:00Z" },
 ];
 
 const editLogs: EditLog[] = [];
