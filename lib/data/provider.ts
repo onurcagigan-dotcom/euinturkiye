@@ -2,7 +2,8 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
-  AddressGroup, SavedListing, EditLog,
+  AddressGroup, SavedListing, EditLog, Survey, SurveyResponse, InstitutionProfile,
+  ProjectWebsite,
 } from "../types";
 
 export interface ProjectFilters {
@@ -85,8 +86,6 @@ export interface DataProvider {
   // Proje sahiplenme / konsorsiyum üyelik talepleri
   getOwnershipRequests(): Promise<OwnershipRequest[]>;
   getOwnershipRequestsFor(filter: { subscriberId?: string; approverSubscriberId?: string; projectId?: string }): Promise<OwnershipRequest[]>;
-  /** Bir firmanın bir projeye katılma talebi oluşturur. approverType ve approverSubscriberId,
-   *  projenin mevcut yürütücüsüne göre otomatik belirlenir (proje yürütücüsüzse admin'e, varsa yürütücüye gider). */
   createOwnershipRequest(input: {
     projectId: string;
     subscriberId: string;
@@ -94,9 +93,7 @@ export interface DataProvider {
     requestedRole: "yurutucu" | "uye";
     note?: string;
   }): Promise<OwnershipRequest>;
-  /** Talebi onaylar/reddeder. Onaylanırsa projeye yürütücü atanır veya konsorsiyum üyesi eklenir. */
   resolveOwnershipRequest(id: string, status: "onaylandi" | "reddedildi"): Promise<void>;
-  /** Admin'in doğrudan ata/çıkar işlemleri (panel kısayolu) */
   assignProjectOwner(projectId: string, subscriberId: string | undefined, subscriberName?: string): Promise<void>;
   removeConsortiumMember(projectId: string, subscriberId: string): Promise<void>;
 
@@ -107,7 +104,7 @@ export interface DataProvider {
   removeExpertProfile(id: string): Promise<void>;
   getProjectExperts(projectId: string): Promise<{ profile: ExpertProfile; expertise: string; role: string }[]>;
 
-  // Paydaş ağı (firmanın eklediği uzman/tedarikçi kısayolları)
+  // Paydaş ağı
   getNetworkConnections(ownerSubscriberId: string): Promise<NetworkConnection[]>;
   addNetworkConnection(c: Omit<NetworkConnection, "id" | "addedAt">): Promise<void>;
   removeNetworkConnection(id: string): Promise<void>;
@@ -125,4 +122,24 @@ export interface DataProvider {
   // Admin2 düzenleme logu
   getEditLogs(entityId?: string): Promise<EditLog[]>;
   saveEditLog(log: EditLog): Promise<void>;
+
+  // Anketler
+  getSurveys(ownerSubscriberId?: string): Promise<Survey[]>;
+  getSurvey(id: string): Promise<Survey | null>;
+  saveSurvey(s: Survey): Promise<void>;
+  removeSurvey(id: string): Promise<void>;
+  getSurveyResponses(surveyId: string): Promise<SurveyResponse[]>;
+  saveSurveyResponse(r: SurveyResponse): Promise<void>;
+
+  // Kurum profilleri (admin2 tarafından yönetilen)
+  getInstitutionProfiles(): Promise<InstitutionProfile[]>;
+  getInstitutionProfile(id: string): Promise<InstitutionProfile | null>;
+  saveInstitutionProfile(p: InstitutionProfile): Promise<void>;
+  removeInstitutionProfile(id: string): Promise<void>;
+
+  // Proje web sitesi
+  getProjectWebsite(projectId: string): Promise<ProjectWebsite | null>;
+  getProjectWebsiteBySlug(slug: string): Promise<ProjectWebsite | null>;
+  saveProjectWebsite(w: ProjectWebsite): Promise<void>;
+  isSlugAvailable(slug: string, excludeProjectId?: string): Promise<boolean>;
 }

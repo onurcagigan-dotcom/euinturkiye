@@ -3,7 +3,8 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
-  AddressGroup, SavedListing, EditLog,
+  AddressGroup, SavedListing, EditLog, Survey, SurveyResponse, InstitutionProfile,
+  ProjectWebsite,
 } from "../types";
 import { isDemoVerified } from "../demo-access";
 
@@ -123,4 +124,30 @@ export class GatedDataProvider implements DataProvider {
     return this.allowed ? this.inner.getEditLogs(entityId) : Promise.resolve([]);
   }
   saveEditLog(log: EditLog): Promise<void> { return this.inner.saveEditLog(log); }
+
+  // Anketler
+  getSurveys(ownerSubscriberId?: string): Promise<Survey[]> {
+    return this.allowed ? this.inner.getSurveys(ownerSubscriberId) : Promise.resolve([]);
+  }
+  getSurvey(id: string): Promise<Survey | null> {
+    return this.allowed ? this.inner.getSurvey(id) : Promise.resolve(null);
+  }
+  saveSurvey(s: Survey): Promise<void> { return this.inner.saveSurvey(s); }
+  removeSurvey(id: string): Promise<void> { return this.inner.removeSurvey(id); }
+  getSurveyResponses(surveyId: string): Promise<SurveyResponse[]> {
+    return this.allowed ? this.inner.getSurveyResponses(surveyId) : Promise.resolve([]);
+  }
+  saveSurveyResponse(r: SurveyResponse): Promise<void> { return this.inner.saveSurveyResponse(r); }
+
+  // Kurum profilleri (herkese açık — demo doğrulama gerekmez)
+  getInstitutionProfiles(): Promise<InstitutionProfile[]> { return this.inner.getInstitutionProfiles(); }
+  getInstitutionProfile(id: string): Promise<InstitutionProfile | null> { return this.inner.getInstitutionProfile(id); }
+  saveInstitutionProfile(p: InstitutionProfile): Promise<void> { return this.inner.saveInstitutionProfile(p); }
+  removeInstitutionProfile(id: string): Promise<void> { return this.inner.removeInstitutionProfile(id); }
+
+  // Proje web sitesi — herkese açık (yayınlanmış slug'lar)
+  getProjectWebsite(projectId: string): Promise<ProjectWebsite | null> { return this.inner.getProjectWebsite(projectId); }
+  getProjectWebsiteBySlug(slug: string): Promise<ProjectWebsite | null> { return this.inner.getProjectWebsiteBySlug(slug); }
+  saveProjectWebsite(w: ProjectWebsite): Promise<void> { return this.inner.saveProjectWebsite(w); }
+  isSlugAvailable(slug: string, excludeProjectId?: string): Promise<boolean> { return this.inner.isSlugAvailable(slug, excludeProjectId); }
 }

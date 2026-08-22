@@ -1,19 +1,22 @@
 // Üyelik paketleri için merkezi fiyatlandırma mantığı.
-// İlk yıl ve yenileme (2. yıl ve sonrası) ücretleri farklıdır (Tedarikçi hariç — sabittir).
+// Onur'un yeni yapısı (Ağustos 2026):
+//   - Uzman Paketi: Ücretsiz
+//   - Yönetici Paketi: 2.500€ + KDV / yıl (yenileme aynı ücret)
+//   - Tedarikçi Paketi: 2.500€ + KDV / yıl (sabit)
 
-export type PlanId = "ucretsiz" | "paket1" | "paket2" | "tedarikci";
+export type PlanId = "uzman" | "yonetici" | "tedarikci";
 
 export interface PlanPricing {
-  firstYearPrice: number; // Euro, ilk yıl ücreti
-  renewalPrice: number; // Euro, 2. yıl ve sonrası yenileme ücreti
-  hasRenewalDiscount: boolean; // yenileme ücreti ilk yıldan farklı mı
+  firstYearPrice: number;    // Euro + KDV hariç, ilk yıl
+  renewalPrice: number;      // Euro + KDV hariç, 2. yıl ve sonrası
+  hasRenewalDiscount: boolean;
+  vatRate: number;           // KDV oranı (0.20 = %20)
 }
 
 export const PLAN_PRICING: Record<PlanId, PlanPricing> = {
-  ucretsiz: { firstYearPrice: 0, renewalPrice: 0, hasRenewalDiscount: false },
-  paket1: { firstYearPrice: 2500, renewalPrice: 500, hasRenewalDiscount: true },
-  paket2: { firstYearPrice: 4000, renewalPrice: 1000, hasRenewalDiscount: true },
-  tedarikci: { firstYearPrice: 1000, renewalPrice: 1000, hasRenewalDiscount: false },
+  uzman:     { firstYearPrice: 0,    renewalPrice: 0,    hasRenewalDiscount: false, vatRate: 0 },
+  yonetici:  { firstYearPrice: 2500, renewalPrice: 2500, hasRenewalDiscount: false, vatRate: 0.20 },
+  tedarikci: { firstYearPrice: 2500, renewalPrice: 2500, hasRenewalDiscount: false, vatRate: 0.20 },
 };
 
 /** Üyeliğin başlangıç tarihine göre kaçıncı yılında olduğunu hesaplar (1 = ilk yıl). */

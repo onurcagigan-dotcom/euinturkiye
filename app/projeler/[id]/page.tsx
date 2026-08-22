@@ -130,7 +130,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface rounded-2xl p-6 mb-6">
           <Info label={t("info_donor")} value={donor?.name ?? project.donorId} />
           <Info label={t("info_beneficiary")} value={project.beneficiary} />
-          {project.budget && <Info label={t("info_budget")} value={project.budget} />}
+          {project.priorityArea && <Info label="Öncelik Alanı" value={project.priorityArea} />}
+          {project.euBudget && (
+            <Info label="AB Katkısı" value={"€" + project.euBudget.toLocaleString("tr-TR")} />
+          )}
+          {project.totalBudget && (
+            <Info label="Toplam Bütçe" value={"€" + project.totalBudget.toLocaleString("tr-TR")} />
+          )}
+          {!project.euBudget && project.budget && <Info label={t("info_budget")} value={project.budget} />}
           {project.startDate && <Info label={t("info_start")} value={project.startDate} />}
           {project.endDate && <Info label={t("info_end")} value={project.endDate} />}
           {project.locations.length > 0 && (
@@ -156,6 +163,22 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 </span>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Proje Web Sitesi Butonu — sadece proje sahibi veya admin2 görür */}
+        {(isOwner || firma?.isAdmin2) && (
+          <div className="mb-6">
+            <Link href={`/projeler/${project.id}/website`}
+              className="inline-flex items-center gap-2.5 px-5 py-3 border-2 border-eu text-eu rounded-xl font-semibold text-sm hover:bg-eu hover:text-white transition-all group">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+              🌐 Proje Web Sitesi Oluştur
+              <svg className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
           </div>
         )}
 

@@ -157,19 +157,74 @@ export default function HomePage() {
               {locale === "tr" ? "Tüm Donörler" : "All Donors"} →
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {[...donors]
-              .sort((a, b) => (donorCounts[b.id] ?? 0) - (donorCounts[a.id] ?? 0))
-              .slice(0, 5)
-              .map((d) => (
-                <Link key={d.id} href={`/projeler?donor=${d.id}`}
-                  className="bg-white rounded-xl border border-line p-5 text-center hover:border-eu hover:shadow-md transition-all">
-                  <div className="text-2xl font-extrabold text-eu">{donorCounts[d.id] ?? 0}</div>
-                  <p className="text-xs text-mist mb-1">{t("home_donor_projects")}</p>
-                  <div className="text-sm font-semibold text-ink leading-tight">{d.name}</div>
-                  <p className="text-xs text-mist mt-0.5">{d.country}</p>
-                </Link>
-              ))}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {/* Avrupa Birliği */}
+            <Link href="/projeler?donor=eu"
+              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
+              {/* EU yıldız çemberi — SVG inline */}
+              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="Avrupa Birliği">
+                <rect width="120" height="80" fill="#003399" rx="6" />
+                {Array.from({length:12},(_,i)=>{
+                  const a=(i*30-90)*Math.PI/180;
+                  const cx=60+22*Math.cos(a), cy=40+22*Math.sin(a);
+                  return (
+                    <g key={i} transform={`translate(${cx},${cy})`}>
+                      <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.9 2.6,4 0,2 -2.6,4 -1.7,0.9 -4.3,-1.4 -1.1,-1.4" fill="#FFCC00" />
+                    </g>
+                  );
+                })}
+              </svg>
+              <div className="text-center">
+                <div className="text-lg font-extrabold text-eu">{donorCounts["eu"] ?? 0}</div>
+                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
+              </div>
+            </Link>
+
+            {/* GIZ */}
+            <Link href="/projeler?donor=giz"
+              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
+              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="GIZ">
+                <rect width="120" height="80" fill="#fff" rx="6" />
+                {/* GIZ logosu — tipografik */}
+                <rect x="8" y="20" width="104" height="40" rx="4" fill="#007A3D" />
+                <text x="60" y="48" textAnchor="middle" fontSize="22" fontWeight="900" fill="white" fontFamily="Arial, sans-serif" letterSpacing="3">GIZ</text>
+              </svg>
+              <div className="text-center">
+                <div className="text-lg font-extrabold text-eu">{donorCounts["giz"] ?? 0}</div>
+                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
+              </div>
+            </Link>
+
+            {/* Dünya Bankası */}
+            <Link href="/projeler?donor=wb"
+              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
+              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="Dünya Bankası">
+                <rect width="120" height="80" fill="#fff" rx="6" />
+                <circle cx="60" cy="40" r="28" fill="none" stroke="#009FDA" strokeWidth="3" />
+                <ellipse cx="60" cy="40" rx="14" ry="28" fill="none" stroke="#009FDA" strokeWidth="2" />
+                <line x1="32" y1="40" x2="88" y2="40" stroke="#009FDA" strokeWidth="2" />
+                <line x1="35" y1="28" x2="85" y2="28" stroke="#009FDA" strokeWidth="1.5" />
+                <line x1="35" y1="52" x2="85" y2="52" stroke="#009FDA" strokeWidth="1.5" />
+              </svg>
+              <div className="text-center">
+                <div className="text-lg font-extrabold text-eu">{donorCounts["wb"] ?? 0}</div>
+                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
+              </div>
+            </Link>
+
+            {/* UNDP */}
+            <Link href="/projeler?donor=undp"
+              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
+              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="UNDP">
+                <rect width="120" height="80" fill="#fff" rx="6" />
+                <rect x="8" y="20" width="104" height="40" rx="4" fill="#009EDB" />
+                <text x="60" y="47" textAnchor="middle" fontSize="19" fontWeight="900" fill="white" fontFamily="Arial, sans-serif" letterSpacing="2">UNDP</text>
+              </svg>
+              <div className="text-center">
+                <div className="text-lg font-extrabold text-eu">{donorCounts["undp"] ?? 0}</div>
+                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -297,30 +352,116 @@ export default function HomePage() {
       <section className="py-10 px-6 bg-surface">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Link href="/araclar/harita"
-              className="bg-white border border-line rounded-2xl p-6 hover:border-eu hover:shadow-md transition-all flex items-center gap-5">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg,#B45309,#92400e)" }}>
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0Z" />
+
+            {/* Harita kartı */}
+            <div className="bg-white border border-line rounded-2xl overflow-hidden hover:shadow-md transition-all group">
+              {/* Mini harita görseli */}
+              <div className="relative h-40 overflow-hidden bg-gradient-to-br from-blue-50 to-eu-pale">
+                <svg viewBox="0 0 800 400" className="w-full h-full opacity-60" style={{ position: "absolute", inset: 0 }}>
+                  {/* Türkiye ikonlaştırılmış şekli */}
+                  <ellipse cx="400" cy="200" rx="340" ry="130" fill="#2563eb" fillOpacity="0.08" stroke="#2563eb" strokeOpacity="0.2" strokeWidth="1" />
+                  {/* Proje lokasyon noktaları - gerçek iller */}
+                  {[
+                    [200,160,"Edirne"],[310,185,"İstanbul"],[380,165,"Ankara"],[290,230,"İzmir"],
+                    [460,230,"Konya"],[530,190,"Kayseri"],[590,175,"Sivas"],[650,185,"Erzurum"],
+                    [480,280,"Adana"],[540,290,"Gaziantep"],[610,250,"Diyarbakır"],[700,200,"Van"],
+                    [420,150,"Bursa"],[350,240,"Denizli"],[580,210,"Malatya"],[670,165,"Trabzon"],
+                  ].map(([x,y,il],i) => (
+                    <g key={i}>
+                      <circle cx={x} cy={y} r="5" fill="#2563eb" fillOpacity="0.7">
+                        <animate attributeName="r" values="5;7;5" dur={`${1.5+i*0.1}s`} repeatCount="indefinite" />
+                      </circle>
+                      <circle cx={x} cy={y} r="9" fill="none" stroke="#2563eb" strokeWidth="1" strokeOpacity="0.3" />
+                    </g>
+                  ))}
+                  <text x="400" y="360" textAnchor="middle" fontSize="13" fill="#2563eb" fillOpacity="0.5" fontWeight="600">
+                    {locale === "tr" ? "81 İl Kapsamında IPA Projeleri" : "IPA Projects Across 81 Provinces"}
+                  </text>
                 </svg>
+                <div className="absolute inset-0 bg-gradient-to-t from-white/60 to-transparent" />
+                <div className="absolute bottom-3 left-4 flex gap-3">
+                  {[
+                    { label: locale === "tr" ? "İl" : "Province", val: "81" },
+                    { label: locale === "tr" ? "Proje" : "Project", val: "499+" },
+                  ].map((s) => (
+                    <div key={s.label} className="bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 text-center shadow-sm">
+                      <div className="text-xs font-bold text-eu">{s.val}</div>
+                      <div className="text-xs text-slate">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-ink text-base">{locale === "tr" ? "Proje Haritası" : "Project Map"}</h3>
-                <p className="text-slate text-sm mt-1">{locale === "tr" ? "Türkiye'nin il bazlı proje dağılımını keşfedin." : "Explore project distribution across Turkish provinces."}</p>
+              <div className="p-5 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-ink text-base mb-1">{locale === "tr" ? "Proje Haritası" : "Project Map"}</h3>
+                  <p className="text-slate text-sm leading-relaxed">
+                    {locale === "tr"
+                      ? "Türkiye'nin 81 ilinde yürütülen AB destekli IPA projelerinin coğrafi dağılımını keşfedin. Doğu sınırından Trakya'ya kadar geniş bir coğrafyada 14 sektörde aktif proje."
+                      : "Explore the geographical distribution of EU-funded IPA projects across all 81 provinces of Turkey."}
+                  </p>
+                </div>
+                <Link href="/araclar/harita"
+                  className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-eu hover:underline whitespace-nowrap mt-1">
+                  {locale === "tr" ? "Haritayı Aç" : "Open Map"}
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
               </div>
-            </Link>
-            <Link href="/araclar/infografik"
-              className="bg-white border border-line rounded-2xl p-6 hover:border-eu hover:shadow-md transition-all flex items-center gap-5">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg,#C2410C,#9a3412)" }}>
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                </svg>
+            </div>
+
+            {/* İnfografik kartı */}
+            <div className="bg-white border border-line rounded-2xl overflow-hidden hover:shadow-md transition-all group">
+              {/* Mini bar chart */}
+              <div className="relative h-40 overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50 p-4">
+                <div className="flex items-end gap-1.5 h-full pb-6">
+                  {[
+                    { label:"Ulaşım", val:275, color:"#1d4ed8" },
+                    { label:"İçişleri", val:160, color:"#0e7490" },
+                    { label:"Çevre", val:140, color:"#15803d" },
+                    { label:"Enerji", val:40, color:"#ca8a04" },
+                    { label:"Rekabet", val:50, color:"#7c3aed" },
+                    { label:"Yargı", val:30, color:"#b45309" },
+                    { label:"Haklar", val:28, color:"#be185d" },
+                  ].map((s,i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1">
+                      <div
+                        className="w-full rounded-t-sm transition-all"
+                        style={{
+                          background: s.color,
+                          height: `${Math.round((s.val/275)*80)}%`,
+                          opacity: 0.85,
+                          minHeight: "8px",
+                        }}
+                      />
+                      <span className="text-[9px] text-slate truncate w-full text-center">{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute top-3 right-4 bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 shadow-sm text-center">
+                  <div className="text-xs font-bold text-eu">€1.2 Milyar+</div>
+                  <div className="text-xs text-slate">IPA II Toplam</div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-ink text-base">{locale === "tr" ? "Portföy İnfografikleri" : "Portfolio Infographics"}</h3>
-                <p className="text-slate text-sm mt-1">{locale === "tr" ? "Sektör, donör ve dönem bazlı portföy analizleri." : "Portfolio analysis by sector, donor, and period."}</p>
+              <div className="p-5 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-ink text-base mb-1">{locale === "tr" ? "Portföy İnfografikleri" : "Portfolio Infographics"}</h3>
+                  <p className="text-slate text-sm leading-relaxed">
+                    {locale === "tr"
+                      ? "IPA II döneminde €1,2 milyar+ AB katkısı. Halkalı-Kapıkule demiryolu tek başına €275 milyon. Sektör, donör ve dönem bazlı detaylı portföy analizi."
+                      : "Over €1.2 billion EU contribution in IPA II. Detailed portfolio analysis by sector, donor, and period."}
+                  </p>
+                </div>
+                <Link href="/araclar/infografik"
+                  className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-eu hover:underline whitespace-nowrap mt-1">
+                  {locale === "tr" ? "Tümünü Gör" : "See All"}
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
               </div>
-            </Link>
+            </div>
+
           </div>
         </div>
       </section>

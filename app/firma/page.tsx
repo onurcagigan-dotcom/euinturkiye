@@ -1326,7 +1326,7 @@ function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
   const subscriptionYear = getSubscriptionYear(current.createdAt);
   const currentYearPrice = getCurrentYearPrice(current.plan, current.createdAt);
   const PLAN_LABELS: Record<string, string> = {
-    ucretsiz: "Ücretsiz", paket1: "Paket 1", paket2: "Paket 2", tedarikci: "Tedarikçi",
+    uzman: "Uzman (Ücretsiz)", yonetici: "Yönetici Paketi", tedarikci: "Tedarikçi Paketi",
   };
 
   const startDate = new Date(current.createdAt);
@@ -1744,9 +1744,27 @@ function ProjectForm({ form, setForm, locText, setLocText, sectors, donors, loca
               <input value={locText} onChange={(e) => setLocText(e.target.value)} placeholder="Ankara, Konya, İzmir"
                 className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
             </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-mist mb-1">Öncelik Alanı</label>
+              <input value={form.priorityArea ?? ""} onChange={(e) => set({ priorityArea: e.target.value })}
+                placeholder="Ör. Entegre Sınır Yönetimi, Su Altyapısı…"
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+            </div>
             <div>
-              <label className="block text-xs font-semibold text-mist mb-1">Bütçe</label>
-              <input value={form.budget ?? ""} onChange={(e) => set({ budget: e.target.value })} placeholder="€12.5M"
+              <label className="block text-xs font-semibold text-mist mb-1">AB Katkısı (€)</label>
+              <input type="number" value={form.euBudget ?? ""} onChange={(e) => set({ euBudget: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="Ör. 12500000"
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-mist mb-1">Toplam Proje Bütçesi (€)</label>
+              <input type="number" value={form.totalBudget ?? ""} onChange={(e) => set({ totalBudget: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="Ör. 14000000"
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-mist mb-1">Bütçe Gösterimi</label>
+              <input value={form.budget ?? ""} onChange={(e) => set({ budget: e.target.value })} placeholder="€12.5M (otomatik veya özel)"
                 className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
             </div>
             <div className="grid grid-cols-2 gap-2">

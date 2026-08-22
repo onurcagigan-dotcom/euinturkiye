@@ -14,9 +14,9 @@ export default function KayitFormPage({ params }: { params: Promise<{ plan: stri
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
   const PLAN_LABELS: Record<string, string> = {
-    ucretsiz: isEn ? "Free Plan" : "Ücretsiz Plan",
-    paket1: isEn ? "Package 1" : "Paket 1",
-    paket2: isEn ? "Package 2" : "Paket 2",
+    uzman: isEn ? "Expert Package" : "Uzman Paketi",
+    yonetici: isEn ? "Manager Package" : "Yönetici Paketi",
+    tedarikci2: isEn ? "Supplier Package" : "Tedarikçi Paketi",
     tedarikci: isEn ? "Supplier Package" : "Tedarikçi Paketi",
   };
 
@@ -127,8 +127,8 @@ export default function KayitFormPage({ params }: { params: Promise<{ plan: stri
 
           <div className="bg-surface rounded-xl p-4 text-xs text-mist leading-relaxed">
             {isEn
-              ? <>Our team will contact you once your application is received.{plan !== "ucretsiz" && " Payment details will be shared separately."}</>
-              : <>Başvurunuz alındıktan sonra ekibimiz sizinle iletişime geçecektir.{plan !== "ucretsiz" && " Ödeme bilgileri ayrıca iletilecektir."}</>
+              ? <>Our team will contact you once your application is received.{plan !== "uzman" && " Payment details will be shared separately."}</>
+              : <>Başvurunuz alındıktan sonra ekibimiz sizinle iletişime geçecektir.{plan !== "uzman" && " Ödeme bilgileri ayrıca iletilecektir."}</>
             }
           </div>
 

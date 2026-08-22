@@ -3,6 +3,7 @@ import "./globals.css";
 import { LocaleProvider } from "@/lib/i18n/context";
 import { FirmaProvider } from "@/lib/firma/context";
 import { DemoAccessProvider } from "@/lib/demo-access-context";
+import { DemoRoleModal } from "@/components/DemoRoleModal";
 
 export const metadata: Metadata = {
   title: {
@@ -32,7 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <LocaleProvider>
           <DemoAccessProvider>
-            <FirmaProvider>{children}</FirmaProvider>
+            <FirmaProvider>
+              {children}
+              <DemoRoleModal />
+            </FirmaProvider>
           </DemoAccessProvider>
         </LocaleProvider>
       </body>

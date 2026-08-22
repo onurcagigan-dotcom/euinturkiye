@@ -22,6 +22,7 @@ export function PageShell({ children }: { children: React.ReactNode }) {
     { href: "/ilanlar", label: t("nav_listings") },
     { href: "/etkinlikler", label: t("nav_events") },
     { href: "/gundem", label: t("nav_news") },
+    { href: "/kurumlar", label: locale === "tr" ? "Dizin" : "Directory" },
     { href: "/araclar", label: t("nav_tools") },
   ];
 

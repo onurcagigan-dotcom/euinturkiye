@@ -4,7 +4,8 @@ import type {
   Sector, Donor, Project, Listing, ListingType, EventItem, BlogPost,
   HomeStats, EventRsvp, ProjectDocument, Subscriber, Campaign,
   Stakeholder, TrainingVideo, OwnershipRequest, ExpertProfile, NetworkConnection,
-  AddressGroup, SavedListing, EditLog,
+  AddressGroup, SavedListing, EditLog, Survey, SurveyResponse, InstitutionProfile,
+  ProjectWebsite,
 } from "../../types";
 
 const delay = <T>(v: T, ms = 60) => new Promise<T>((r) => setTimeout(() => r(v), ms));
@@ -35,57 +36,224 @@ const donors: Donor[] = [
 
 // ── Projeler (13 özel + 469 otomatik = 482 adet) ───────────
 const projects: Project[] = [
+  // ── YARGI ──────────────────────────────────────────────────
+  {
+    id: "adli-tebligat",
+    title: "Adli Tebligat Sisteminin İyileştirilmesi",
+    summary: "Yargılamaların ve adli süreçlerin hızlandırılması için AB ile uyumlu adli tebligat sisteminin iyileştirilmesi. 36 milyon elektronik tebligat hedefiyle dijital dönüşüm sağlandı.",
+    sectorId: "yargi", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "Adalet Bakanlığı",
+    locations: ["Ankara", "İzmir", "Gaziantep", "Trabzon", "Malatya"],
+    euBudget: 1567500, totalBudget: 1650000,
+    budget: "€1.57M", priorityArea: "Yargı Reformu",
+    status: "tamamlandi", featured: false,
+    objective: "Yargılamaların ve adli süreçlerin hızlandırılması ve yargının etkinliğinin sağlanması için AB ile uyumlu adli tebligat sisteminin iyileştirilmesi.",
+    specificObjectives: "Adli süreçlerin hızlandırılması, teknolojik gelişmelerin mevcut sisteme dahil edilmesi ve adli tebligat prosedürlerinde yer alan paydaşların eğitim almasının sağlanması.",
+    expectedOutputs: "36 milyon elektronik tebligat; Adalet Bakanlığı ile PTT arasında Adli Tebligat İşbirliği protokolü; 5.887 kişiye eğitim (1.622 yargı çalışanı, 2.529 PTT çalışanı, 1.736 muhtar); Elektronik tebligat sistemi güçlendirilmesi.",
+  },
+  {
+    id: "aile-mahkemeleri",
+    title: "Aile Mahkemelerinin Etkinliğinin Artırılması",
+    summary: "Türkiye'de hukukun üstünlüğü ve temel hakların uluslararası standartlarla uyumlu hale getirilmesi; kadın, çocuk ve aile üyelerinin haklarının korunması.",
+    sectorId: "yargi", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "Türkiye Adalet Akademisi",
+    locations: ["Ankara", "İzmir", "Ordu", "Kars", "Hatay", "Sakarya", "Mardin"],
+    euBudget: 2000000, totalBudget: 2223000,
+    budget: "€2M", priorityArea: "Yargı Reformu",
+    status: "tamamlandi", featured: false,
+    objective: "Türkiye'de hukukun üstünlüğünün ve temel hakların uluslararası ve Avrupa standartlarıyla tam uyumlu hale getirilmesini sağlamak.",
+    specificObjectives: "Kadınların, çocukların ve diğer aile üyelerinin haklarının korunması sürecinde aile mahkemelerinin etkinliğini artırmak.",
+    expectedOutputs: "Aile mahkemelerinin etkinliğinin geliştirilmesi; hakim, savcı ve uzmanların kapasitelerinin artırılması; paydaşlar arasındaki işbirliği mekanizmalarının iyileştirilmesi.",
+  },
+
+  // ── TEMEL HAKLAR ───────────────────────────────────────────
+  {
+    id: "demokrasi-egitim",
+    title: "Temel Eğitimde Demokrasi Kültürünün Güçlendirilmesi",
+    summary: "Ortak değerler, temel hak ve hürriyetler ile uyumlu demokratik okul kültürünün eğitim sistemine entegre edilmesi. 110 pilot okulda Bütüncül Okul Modeli.",
+    sectorId: "temel-haklar", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "Milli Eğitim Bakanlığı Temel Eğitim Genel Müdürlüğü",
+    locations: ["Adana", "Aydın", "Burdur", "Çanakkale", "Iğdır", "Kars", "Muğla", "Sinop", "Sivas", "Yozgat"],
+    euBudget: 3600000, totalBudget: 4000000,
+    budget: "€3.6M", priorityArea: "Temel Haklar",
+    status: "tamamlandi", featured: false,
+    objective: "Ortak değerler, temel hak ve hürriyetler ile uyumlu bir demokratik okul kültürünün eğitim sistemine entegre edilmesi.",
+    expectedOutputs: "110 okulda Bütüncül Okul Modeli uygulandı; 240 öğretmen eğitildi; 48.470 öğrenciye ve 90.000 veliye ulaşıldı.",
+  },
+  {
+    id: "anayasa-mahkemesi",
+    title: "Anayasa Mahkemesi Kararlarının Uygulanmasının Desteklenmesi",
+    summary: "İnsan hakları alanında Anayasa Mahkemesi kararlarının etkin uygulanmasının güçlendirilmesi; mahkeme içtihatları ve bireysel başvuru mekanizması hakkında farkındalığın artırılması.",
+    sectorId: "temel-haklar", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "Anayasa Mahkemesi",
+    locations: ["Ankara"],
+    euBudget: 5000000, totalBudget: 5000000,
+    budget: "€5M", priorityArea: "Temel Haklar",
+    status: "tamamlandi", featured: false,
+    objective: "İnsan hakları alanında Anayasa Mahkemesi kararlarının etkin uygulanmasının güçlendirilmesi.",
+    expectedOutputs: "AB standartlarına uygun izleme mekanizması; hakim, savcı ve avukatlara yönelik eğitimler; Türk mahkemeleri ile Avrupa kurumları işbirliğinin güçlendirilmesi.",
+  },
+
+  // ── İÇİŞLERİ (SINIR YÖNETİMİ) ─────────────────────────────
+  {
+    id: "sinir-gozleme-1",
+    title: "Türkiye'nin Doğu ve Batı Sınırlarında Sınır Gözetleme Kapasitesinin Artırılması – Aşama I",
+    summary: "Türkiye'nin doğu sınırında modern elektro-optik gözetleme sistemi kurulması; sınır personelinin eğitimi; düzensiz göç ve kaçakçılıkla mücadele.",
+    sectorId: "icisleri", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "İçişleri Bakanlığı, İller İdaresi Genel Müdürlüğü, Kara Kuvvetleri Komutanlığı",
+    locations: ["Kars", "Ardahan", "Iğdır", "Edirne"],
+    euBudget: 49284849, totalBudget: 57728057,
+    budget: "€49.3M", priorityArea: "Entegre Sınır Yönetimi",
+    status: "tamamlandi", featured: true,
+    objective: "Türkiye'nin doğu sınırlarında sınır gözetleme kapasitesinin artırılması.",
+    specificObjectives: "Modern sistemlerle sınır gözetleme kapasitesinin artırılması; sınır personelinin eğitimi; düzensiz göçün, insan ticaretinin ve kaçakçılığın önlenmesi.",
+    expectedOutputs: "Elektro-optik gözetleme kulelerinden oluşan modern sistem kuruldu; 800 personele eğitim verildi; 400 İçişleri Bakanlığı personeline entegre sınır yönetimi eğitimi verildi.",
+  },
+  {
+    id: "e-pasaport",
+    title: "İkinci Nesil Türkiye Cumhuriyeti E-Pasaportları",
+    summary: "2010'dan beri üretilen yeni nesil e-pasaportların biyometrik verilerin depolanmasına imkan verecek şekilde AB standartlarına uyumlu güncellenmesi.",
+    sectorId: "icisleri", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "Dışişleri Bakanlığı",
+    locations: ["Ankara"],
+    euBudget: 19766665, totalBudget: 19766665,
+    budget: "€19.8M", priorityArea: "Entegre Sınır Yönetimi",
+    status: "tamamlandi", featured: false,
+    objective: "E-pasaportların AB standartlarına uyumlu biyometrik güvenlik özellikleriyle güncellenmesi.",
+    expectedOutputs: "AB standartlarına uygun ikinci nesil e-pasaportlar; 4.250.000 adet pasaport basımı tamamlandı.",
+  },
+
+  // ── ULAŞTIRMA (USOP) ───────────────────────────────────────
+  {
+    id: "halkali-kapikule",
+    title: "Halkalı-Kapıkule Hattı Çerkezköy-Kapıkule Kesiminin İnşası",
+    summary: "IPA II döneminin amiral gemisi projesi. 153 km çift hat, 200 km/saat hız AB standartlarında demiryolu. Türkiye'yi doğrudan AB ülkelerine bağlıyor; Londra-Pekin Demir İpek Yolu'nun kritik halkası.",
+    sectorId: "ulasim", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "TCDD Genel Müdürlüğü",
+    locations: ["Edirne", "Tekirdağ", "Kırklareli"],
+    euBudget: 275000000, totalBudget: 553200000,
+    budget: "€275M", priorityArea: "Sürdürülebilir ve Emniyetli Ulaştırma",
+    status: "devam", featured: true,
+    objective: "Güvenilir, ekonomik, çevre dostu, yüksek kalitede demiryolu ulaşım altyapısı sağlanması.",
+    specificObjectives: "Türkiye'nin AB ülkelerine doğrudan bağlanması; Demir İpek Yolu'nun AB standartlarına yükseltilmesi; Trans Avrupa Ulaştırma Ağları'nın genişletilmesi.",
+    expectedOutputs: "153 km çift hat – 200 km/saat hız AB standartlarında demiryolu; altyapı, üstyapı, sinyalizasyon, telekomünikasyon, elektrifikasyon tamamlanması.",
+  },
+  {
+    id: "smart-ankara",
+    title: "SMART ANKARA",
+    summary: "Ankara için AB iyi uygulamalarıyla uyumlu Sürdürülebilir Kentsel Ulaşım Planı ve Akıllı Bisiklet Paylaşım Sistemi.",
+    sectorId: "ulasim", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "Ankara Büyükşehir Belediyesi",
+    locations: ["Ankara"],
+    euBudget: 4312000, totalBudget: 4312000,
+    budget: "€4.3M", priorityArea: "Erişilebilir ve Kapsayıcı Ulaştırma",
+    status: "devam", featured: false,
+    objective: "Ankara için AB iyi uygulamalarıyla uyumlu Sürdürülebilir Kentsel Ulaşım Planı geliştirmek ve Akıllı Bisiklet Paylaşım Sistemi kurmak.",
+    expectedOutputs: "Pilot Akıllı Bisiklet Paylaşım Sistemi; SUMP İstanbul ile uyumlu kentsel ulaşım planı; belediye kapasitesinin güçlendirilmesi.",
+  },
+
+  // ── ÇEVRE VE İKLİM EYLEMİ ─────────────────────────────────
+  {
+    id: "iklim-uyum",
+    title: "Türkiye'de İklim Uyum Eyleminin Geliştirilmesi",
+    summary: "İklim değişikliği uyumunu sektör ve kentsel düzeyde güçlendirerek toplumsal direnç oluşturma. Ulusal İklim Uyum Stratejisi ve 4 il için yerel eylem planları.",
+    sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı",
+    locations: ["Türkiye geneli"],
+    euBudget: 9350000, totalBudget: 11025000,
+    budget: "€9.35M", priorityArea: "Sürdürülebilir Kalkınma için Çevre Yönetimi",
+    status: "devam", featured: true,
+    objective: "İklim değişikliği uyumunu sektör ve kentsel düzeyde güçlendirerek toplumsal direnç ve esneklik oluşturmak.",
+    specificObjectives: "Gerekli politika, teknik ve operasyonel temel çizgileri geliştirerek iklim değişikliğine uyum için uygun bir ortam oluşturmak.",
+    expectedOutputs: "Ulusal İklim Değişikliğine Uyum Stratejisi güncellendi; E-adaptasyon sistemi hazırlandı; 4 ilde Yerel İklim Uyum Stratejileri oluşturuldu; Ulusal Uyum Platformu kuruldu.",
+  },
+  {
+    id: "giresun-atiksu",
+    title: "Giresun Atık Su Projesi",
+    summary: "Karadeniz'in su kalitesinin artırılması ve nüfusun iyileştirilmiş atık su hizmetlerinden yararlanması. 2047'ye kadar bölgenin atık su arıtma ihtiyacını karşılar.",
+    sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "Giresun Belediyesi",
+    locations: ["Giresun"],
+    euBudget: 22285000, totalBudget: 22285000,
+    budget: "€22.3M", priorityArea: "Su (Altyapı Faaliyetleri)",
+    status: "devam", featured: false,
+    objective: "Türkiye'nin çevre koruma ve AB atık su sektörü direktiflerine uyumunu sağlayarak katılım sürecine destek verilmesi.",
+    expectedOutputs: "Atık su arıtma tesisi ve şebeke inşası; Karadeniz su kalitesinin artırılması; bölgenin 2047'ye kadar ihtiyacının karşılanması.",
+  },
+
+  // ── ENERJİ ─────────────────────────────────────────────────
+  {
+    id: "belediye-yenilenebilir",
+    title: "Belediyeler için Yenilenebilir Enerji ve Enerji Verimliliği Ekipman Alımı",
+    summary: "7 büyükşehir belediyesinde güneş ve hidroelektrik enerji kullanımı ile 234 enerji verimli su pompası. AB kaynak verimliliği ve iklim eylemi hedefleri.",
+    sectorId: "enerji", donorId: "eu", ipaPeriod: "IPA-II",
+    beneficiary: "Enerji ve Tabii Kaynaklar Bakanlığı, Malatya, Şanlıurfa, Hatay, Kahramanmaraş, Denizli, Trabzon ve Manisa Büyükşehir Belediyeleri",
+    locations: ["Malatya", "Şanlıurfa", "Hatay", "Kahramanmaraş", "Denizli", "Manisa", "Trabzon"],
+    euBudget: 7900000, totalBudget: 9300000,
+    budget: "€7.9M", priorityArea: "Yenilenebilir Enerji ve Enerji Verimliliği",
+    status: "tamamlandi", featured: false,
+    objective: "AB kaynak verimliliği ve iklim eylemi hedefleri doğrultusunda yenilenebilir enerjilerin teşvik edilmesi.",
+    expectedOutputs: "5 belediyede güneş enerjisi santrali kuruldu; 234 enerji verimli su pompası temin edildi; Trabzon için hidroelektrik santral kuruldu.",
+  },
+  {
+    id: "offshore-ruzgar",
+    title: "Off-shore Rüzgar Enerjisi için Enerji Bakanlığı'nın Hazırlıklarının Güçlendirilmesi",
+    summary: "Türkiye'de offshore rüzgar enerjisi potansiyelinin kullanılması için ihale, sözleşme ve rekabet süreçlerinin uluslararası standartlara yükseltilmesi.",
+    sectorId: "enerji", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "Enerji ve Tabii Kaynaklar Bakanlığı",
+    locations: ["Ankara"],
+    euBudget: 9300000, totalBudget: 9300000,
+    budget: "€9.3M", priorityArea: "Yenilenebilir Enerji ve Enerji Verimliliği",
+    status: "devam", featured: false,
+    objective: "AB'nin kaynak etkinliği ve iklim eylem hedefleri doğrultusunda Türkiye'de offshore rüzgar enerjisi potansiyelinin kullanılması için yatırım imkânlarının iyileştirilmesi.",
+  },
+
+  // ── REKABETÇİLİK VE YENİLİK (RYSOP) ───────────────────────
+  {
+    id: "sanayi40-beysad",
+    title: "Sanayi 4.0 Yetkinlik Merkezi Kurulması ile KOBİ'lerin Dijital Dönüşümü",
+    summary: "Beyaz eşya yan sanayii üreticilerinin dijital dönüşümü. Endüstri 4.0 Merkezi; 50 KOBİ atölyeden faydalandı; 100 girişim ve start-up desteklendi.",
+    sectorId: "rekabet", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "Beyaz Eşya Yan Sanayicileri Derneği (BEYSAD)",
+    locations: ["İstanbul"],
+    euBudget: 8100000, totalBudget: 8100000,
+    budget: "€8.1M", priorityArea: "Özel Sektörün Geliştirilmesi – İmalat Sanayi",
+    status: "devam", featured: true,
+    objective: "Beyaz eşya yan sanayii üreticilerinin dijital dönüşümünde rehberlik, eğitim, destek sağlayarak rekabet güçlerini küresel düzeye çıkarmak.",
+    expectedOutputs: "Dijital Dönüşüm Ortak Kullanım Atölyesi; 50 KOBİ desteklendi; 100 girişimci ve start-up desteklendi; 5 yeni işletme kuruldu.",
+    ownerSubscriberId: "sub-2", ownerSubscriberName: "XYZ Eğitim ve Danışmanlık",
+  },
+  {
+    id: "innofood",
+    title: "Gıda Sektörü Anadolu Teknoloji Platformu (INNOFOOD)",
+    summary: "Gıda ve içecek sektörü KOBİ'lerini destekleyen AR-GE altyapısı. TÜBİTAK MAM bünyesinde Gıda Yenilik Merkezi; bölgesel laboratuvarlar; Türkiye Gıda İnovasyon Platformu.",
+    sectorId: "rekabet", donorId: "eu", ipaPeriod: "IPA-III",
+    beneficiary: "TÜBİTAK Marmara Araştırma Merkezi (MAM)",
+    locations: ["Kocaeli", "Giresun", "Gaziantep", "Şanlıurfa"],
+    euBudget: 20450000, totalBudget: 20450000,
+    budget: "€20.5M", priorityArea: "Bilim, Teknoloji, Yenilik – AR-GE",
+    status: "devam", featured: true,
+    objective: "Gıda ve içecek sektörü KOBİ'lerinin ürün kalitesini iyileştirmelerine ve rekabet güçlerini artırmalarına destek olmak.",
+    expectedOutputs: "Gıda Yenilik Merkezi kuruldu; 4 bölgede laboratuvar ve pilot tesis; Türkiye Gıda İnovasyon Platformu oluşturuldu; 12 AR-GE projesi; 3 patent.",
+  },
+
+  // ── TARIM (kendi eklediğimiz) ───────────────────────────────
   {
     id: "tarim-modern",
     title: "Türkiye Tarımın Modernizasyonu",
     summary: "AB finansmanlı tarım modernizasyon projesi. Çiftçilere modern teknikler ve dijital araçlar kazandırır.",
     sectorId: "tarim", donorId: "eu", ipaPeriod: "IPA-III",
     beneficiary: "T.C. Tarım ve Orman Bakanlığı", locations: ["Konya", "Ankara", "İzmir"],
-    budget: "€12.5M", startDate: "2023-01-01", endDate: "2026-12-31",
+    euBudget: 12500000, totalBudget: 14000000,
+    budget: "€12.5M", priorityArea: "Tarım ve Kırsal Kalkınma",
+    startDate: "2023-01-01", endDate: "2026-12-31",
     status: "devam", featured: true,
     objective: "Türkiye'nin tarım sektörünü AB standartlarına uyumlu hale getirerek çiftçilerin gelirini artırmak ve sürdürülebilir tarım uygulamalarını yaygınlaştırmak.",
-    expectedOutputs: "500 çiftçiye eğitim verilmesi, 50 tarım kooperatifinin desteklenmesi, 10 pilot çiftlikte akıllı tarım sistemlerinin kurulması.",
-    activities: "Çiftçi eğitim programları düzenlenmesi, kooperatif kapasite geliştirme atölyeleri, dijital tarım platformunun kurulması ve test edilmesi.",
+    expectedOutputs: "500 çiftçiye eğitim; 50 tarım kooperatifinin desteklenmesi; 10 pilot çiftlikte akıllı tarım sistemleri.",
     ownerSubscriberId: "sub-1", ownerSubscriberName: "ABC Danışmanlık",
     consortiumMembers: [
       { subscriberId: "sub-4", subscriberName: "Tarım Geliştirme Vakfı", role: "Saha Uygulama Ortağı", joinedAt: "2026-02-01T09:00:00Z" },
     ],
-  },
-  {
-    id: "cevre-iklim",
-    title: "Çevre Uyum ve İklim Değişikliği",
-    summary: "Türkiye'nin iklim değişikliğine uyum kapasitesinin güçlendirilmesi.",
-    sectorId: "cevre", donorId: "eu", ipaPeriod: "IPA-III",
-    beneficiary: "T.C. Çevre Bakanlığı", locations: ["Ankara", "İstanbul"],
-    budget: "€8.2M", startDate: "2024-03-01", endDate: "2027-03-31",
-    status: "devam", featured: true,
-    objective: "Ulusal iklim değişikliği uyum planının güçlendirilmesi ve yerel yönetimlerin kapasitelerinin artırılması.",
-    expectedOutputs: "5 iklim eylem planı hazırlanması, 200 yerel yönetim personeline eğitim verilmesi.",
-    activities: "Durum analizi yapılması, kapasite geliştirme programları, politika danışmanlığı.",
-  },
-  {
-    id: "genc-istihdam",
-    title: "Genç İstihdamın Desteklenmesi",
-    summary: "15-29 yaş grubundaki gençlerin istihdama erişimini kolaylaştıran kapsamlı program.",
-    sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-III",
-    beneficiary: "İŞKUR", locations: ["İstanbul", "Ankara", "İzmir", "Bursa", "Gaziantep"],
-    budget: "€15M", startDate: "2022-06-01", endDate: "2025-12-31",
-    status: "devam", featured: true,
-    objective: "Genç işsizliğini azaltmak ve gençlerin iş piyasasına geçişini hızlandırmak.",
-    expectedOutputs: "10.000 gencin mesleki eğitim alması, 3.000 genç için staj imkânı.",
-    activities: "Mesleki eğitim kursları, kariyer danışmanlığı, işveren iş birlikleri.",
-  },
-  {
-    id: "adli-tebligat",
-    title: "Adli Tebligat Sisteminin Modernizasyonu",
-    summary: "Türkiye'nin adli tebligat altyapısının dijitalleştirilmesi ve AB standartlarına uyumu.",
-    sectorId: "yargi", donorId: "eu", ipaPeriod: "IPA-II",
-    beneficiary: "T.C. Adalet Bakanlığı", locations: ["Ankara"],
-    budget: "€5.5M", startDate: "2021-01-01", endDate: "2024-06-30",
-    status: "tamamlandi", featured: false,
-    objective: "Adli tebligat süreçlerinin dijitalleştirilmesi ve uluslararası standartlarla uyumunun sağlanması.",
-    expectedOutputs: "Tüm adliyelerde e-tebligat sisteminin devreye alınması, ortalama tebligat süresinin %60 azaltılması, 81 ilde personel eğitimi tamamlanması.",
-    activities: "Mevcut tebligat süreçlerinin analizi, e-tebligat yazılımının geliştirilmesi ve test edilmesi, UYAP entegrasyonu, adliye personeline saha eğitimleri verilmesi.",
   },
   {
     id: "kadin-girisimcilik",
@@ -93,117 +261,22 @@ const projects: Project[] = [
     summary: "Kadın girişimcilere iş kurma, finansmana erişim ve mentorluk desteği sağlayan program.",
     sectorId: "rekabet", donorId: "eu", ipaPeriod: "IPA-III",
     beneficiary: "KOSGEB", locations: ["İstanbul", "Ankara", "Gaziantep", "Diyarbakır"],
-    budget: "€6.8M", startDate: "2023-09-01", endDate: "2026-08-31",
+    euBudget: 6800000, totalBudget: 7500000,
+    budget: "€6.8M", priorityArea: "Girişimcilik ve KOBİ Geliştirme",
+    startDate: "2023-09-01", endDate: "2026-08-31",
     status: "devam", featured: true,
-    objective: "Kadınların ekonomiye katılımını artırmak; girişimcilik, finansmana erişim ve sürdürülebilir iş modelleri konusunda kadın girişimcilerin kapasitesini güçlendirmek.",
-    expectedOutputs: "1.500 kadın girişimciye eğitim verilmesi, 300 yeni kadın girişiminin kurulmasına destek olunması, 4 ilde girişimcilik merkezi açılması.",
-    activities: "İş planı geliştirme atölyeleri, mentorluk eşleştirme programı, mikro kredi danışmanlığı, dijital pazarlama eğitimleri, yerel girişimcilik fuarları düzenlenmesi.",
-  },
-  {
-    id: "dijital-donusum",
-    title: "Kamu Hizmetlerinde Dijital Dönüşüm",
-    summary: "Belediyelerin dijital hizmet kapasitesinin güçlendirilmesi.",
-    sectorId: "icisleri", donorId: "wb", ipaPeriod: "IPA-III",
-    beneficiary: "İçişleri Bakanlığı", locations: ["İstanbul", "Ankara", "İzmir", "Bursa"],
-    budget: "€9.3M", startDate: "2024-01-01", endDate: "2027-12-31",
-    status: "devam", featured: false,
-    objective: "Belediyelerin vatandaşa sunduğu hizmetleri dijitalleştirmek, e-belediyecilik altyapısını güçlendirmek ve hizmet erişilebilirliğini artırmak.",
-    expectedOutputs: "25 belediyede e-hizmet platformunun kurulması, 500 belediye personeline dijital beceri eğitimi, vatandaş memnuniyetinde %30 artış.",
-    activities: "İhtiyaç analizi ve dijital olgunluk değerlendirmesi, e-belediye yazılım altyapısının kurulması, personel eğitimleri, pilot uygulama ve yaygınlaştırma.",
-  },
-  {
-    id: "enerji-verimlilik",
-    title: "Enerji Verimliliği ve Yenilenebilir Enerji",
-    summary: "Türkiye'nin enerji verimliliği kapasitesinin artırılması ve yenilenebilir enerji yatırımlarının desteklenmesi.",
-    sectorId: "enerji", donorId: "eu", ipaPeriod: "IPA-III",
-    beneficiary: "Enerji ve Tabii Kaynaklar Bakanlığı", locations: ["Ankara", "Konya", "Kayseri"],
-    budget: "€11.2M", startDate: "2023-03-01", endDate: "2026-02-28",
-    status: "devam", featured: false,
-    objective: "Sanayi ve kamu binalarında enerji verimliliğini artırmak, yenilenebilir enerji yatırımlarını teşvik etmek ve ilgili mevzuatı AB normlarına uyumlu hale getirmek.",
-    expectedOutputs: "150 kamu binasında enerji verimliliği etüdü yapılması, 20 MW kurulu güçte güneş enerjisi pilot tesisinin devreye alınması, enerji verimliliği mevzuatının güncellenmesi.",
-    activities: "Enerji etütleri ve denetimleri, teknik personel eğitimleri, pilot yenilenebilir enerji tesislerinin kurulumu, farkındalık kampanyaları.",
-  },
-  {
-    id: "saglik-reform",
-    title: "Sağlık Sektörü Reform Desteği",
-    summary: "Türkiye sağlık sisteminin güçlendirilmesi ve AB sağlık standartlarına uyum.",
-    sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-II",
-    beneficiary: "Sağlık Bakanlığı", locations: ["Ankara", "İstanbul", "İzmir"],
-    budget: "€7.5M", startDate: "2020-01-01", endDate: "2023-12-31",
-    status: "tamamlandi", featured: false,
-    objective: "Birinci basamak sağlık hizmetlerinin kalitesini artırmak ve sağlık sisteminin AB sağlık güvenliği standartlarıyla uyumunu sağlamak.",
-    expectedOutputs: "60 sağlık kuruluşunun akreditasyon sürecine hazırlanması, 1.200 sağlık personeline hizmet içi eğitim verilmesi, ulusal kalite rehberlerinin güncellenmesi.",
-    activities: "Sağlık kuruluşlarında kalite değerlendirmesi, klinik rehberlerin AB standartlarına göre güncellenmesi, personel eğitim programları, izleme ve değerlendirme sisteminin kurulması.",
-  },
-  {
-    id: "bolgesel-kalkinma",
-    title: "Doğu Anadolu Bölgesel Kalkınma",
-    summary: "Doğu Anadolu illerinde ekonomik kalkınma ve altyapı iyileştirme.",
-    sectorId: "ulasim", donorId: "eu", ipaPeriod: "IPA-III",
-    beneficiary: "Kalkınma Bakanlığı", locations: ["Erzurum", "Van", "Ağrı", "Iğdır"],
-    budget: "€18M", startDate: "2022-01-01", endDate: "2025-12-31",
-    status: "devam", featured: false,
-    objective: "Doğu Anadolu bölgesinde ekonomik kalkınmayı hızlandırmak, küçük ölçekli altyapıyı iyileştirmek ve yerel istihdam olanaklarını artırmak.",
-    expectedOutputs: "40 km kırsal yol iyileştirmesi, 2.000 kişiye yönelik istihdam odaklı eğitim, 15 yerel kalkınma projesinin desteklenmesi.",
-    activities: "Altyapı iyileştirme çalışmaları, yerel kalkınma ajanslarıyla iş birliği, küçük ölçekli hibe programlarının yürütülmesi, izleme ziyaretleri.",
-  },
-  {
-    id: "egitim-kalite",
-    title: "Eğitimde Kalite ve Erişim",
-    summary: "Türkiye'de eğitim kalitesinin artırılması ve dezavantajlı gruplara erişimin genişletilmesi.",
-    sectorId: "istihdam", donorId: "eu", ipaPeriod: "IPA-III",
-    beneficiary: "Milli Eğitim Bakanlığı", locations: ["Türkiye geneli"],
-    budget: "€22M", startDate: "2024-09-01", endDate: "2028-08-31",
-    status: "devam", featured: true,
-    objective: "Eğitimde fırsat eşitliğini güçlendirmek, dezavantajlı bölgelerdeki okullarda eğitim kalitesini artırmak ve okul terkini azaltmak.",
-    expectedOutputs: "500 okulda öğretmen kapasite geliştirme programının uygulanması, 50.000 öğrenciye destekleyici eğitim materyali sağlanması, okul terk oranında %15 azalma.",
-    activities: "Öğretmen eğitim modüllerinin geliştirilmesi, dezavantajlı bölge okullarına materyal desteği, veli farkındalık çalışmaları, izleme ve değerlendirme sisteminin kurulması.",
-  },
-  {
-    id: "mesleki-egitim-giz",
-    title: "Mesleki Eğitimde İkili Sistem Reformu",
-    summary: "Almanya'nın ikili mesleki eğitim modelinin Türkiye'ye uyarlanması.",
-    sectorId: "istihdam", donorId: "giz", ipaPeriod: "IPA-III",
-    beneficiary: "Milli Eğitim Bakanlığı", locations: ["Bursa", "Kocaeli", "Gaziantep"],
-    budget: "€8.4M", startDate: "2023-06-01", endDate: "2026-05-31",
-    status: "devam", featured: true,
-    objective: "Almanya'nın ikili mesleki eğitim modelini (işletme + okul) Türkiye'deki mesleki ve teknik eğitim sistemine uyarlamak, sanayinin nitelikli işgücü ihtiyacını karşılamak.",
-    expectedOutputs: "30 mesleki eğitim merkezinde ikili sistem pilot uygulaması, 5.000 öğrencinin işletmelerde staj yapması, 200 işletmeyle eğitim ortaklığı protokolü imzalanması.",
-    activities: "Müfredat uyarlama çalıştayları, işletme-okul eşleştirme, öğretmen ve usta öğretici eğitimleri, pilot bölgelerde uygulama ve izleme.",
-  },
-  {
-    id: "afet-direnci",
-    title: "Afetlere Dirençli Topluluklar Programı",
-    summary: "Deprem riski yüksek bölgelerde toplum temelli afet hazırlık kapasitesinin güçlendirilmesi.",
-    sectorId: "icisleri", donorId: "wb", ipaPeriod: "IPA-III",
-    beneficiary: "AFAD", locations: ["Hatay", "Kahramanmaraş", "Adıyaman", "Malatya"],
-    budget: "€14.6M", startDate: "2024-02-01", endDate: "2027-01-31",
-    status: "devam", featured: true,
-    objective: "Deprem bölgesindeki toplulukların afet öncesi hazırlık, afet anı müdahale ve afet sonrası toparlanma kapasitesini güçlendirmek.",
-    expectedOutputs: "120 mahallede gönüllü afet ekiplerinin kurulması, 50.000 kişiye afet bilinci eğitimi, 4 ilde erken uyarı sisteminin kurulması.",
-    activities: "Toplum temelli risk haritalama, gönüllü eğitim programları, erken uyarı sistemi altyapı kurulumu, tatbikatlar ve farkındalık kampanyaları.",
-  },
-  {
-    id: "surdurulebilir-kalkinma-undp",
-    title: "Sürdürülebilir Kalkınma Hedefleri Yerelleştirme Programı",
-    summary: "BM Sürdürülebilir Kalkınma Hedeflerinin yerel yönetimler düzeyinde uygulanması.",
-    sectorId: "sivil-toplum", donorId: "undp", ipaPeriod: "IPA-III",
-    beneficiary: "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı", locations: ["İzmir", "Antalya", "Eskişehir", "Samsun"],
-    budget: "€6.2M", startDate: "2023-10-01", endDate: "2026-09-30",
-    status: "devam", featured: false,
-    objective: "BM Sürdürülebilir Kalkınma Hedeflerini yerel yönetim politika ve uygulamalarına entegre etmek, yerel SKH izleme sistemlerini kurmak.",
-    expectedOutputs: "12 belediyede yerel SKH eylem planının hazırlanması, yerel SKH gösterge setinin oluşturulması, yıllık SKH izleme raporlarının yayınlanması.",
-    activities: "Belediye personeline SKH eğitimleri, katılımcı planlama çalıştayları, gösterge sistemi tasarımı, yıllık izleme ve raporlama.",
+    objective: "Kadınların ekonomiye katılımını artırmak; girişimcilik ve finansmana erişim konularında kapasiteyi güçlendirmek.",
+    expectedOutputs: "1.500 kadın girişimciye eğitim; 300 yeni girişim; 4 ilde girişimcilik merkezi.",
+    ownerSubscriberId: "sub-2", ownerSubscriberName: "XYZ Eğitim ve Danışmanlık",
   },
 ];
 
-// Kalan 469 projeyi otomatik oluştur
-for (let i = 11; i <= 499; i++) {
+// Kalan projeleri otomatik oluştur (toplam 499'a tamamlamak için)
+for (let i = projects.length; i < 499; i++) {
   const sec = sectors[i % sectors.length];
   const don = donors[i % donors.length];
   const periods = ["IPA-I", "IPA-II", "IPA-III"] as const;
   const period = periods[i % 3];
-  // IPA-I dönemi tamamlanmış kabul edilir; diğerleri ağırlıklı olarak devam ediyor, bir kısmı tamamlanmış.
   const status: Project["status"] = period === "IPA-I" ? "tamamlandi" : (i % 4 === 0 ? "tamamlandi" : "devam");
   projects.push({
     id: `proje-${i}`,
@@ -211,7 +284,8 @@ for (let i = 11; i <= 499; i++) {
     summary: `${sec.name} alanında kapasite geliştirme ve kurumsal reform projesi.`,
     sectorId: sec.id, donorId: don.id, ipaPeriod: period,
     beneficiary: "İlgili Bakanlık", locations: ["Ankara"],
-    budget: `€${(Math.floor(Math.random() * 15) + 1)}.${Math.floor(Math.random() * 9)}M`,
+    budget: `€${(Math.floor(i * 1.3) % 15) + 1}.${i % 9}M`,
+    euBudget: ((i * 1300000) % 15000000) + 1000000,
     startDate: "2023-01-01", endDate: "2025-12-31",
     status,
     featured: false,
@@ -693,7 +767,7 @@ const subscribers: Subscriber[] = [
   // ── Firma: Proje yürütür, tüm dijital araçlar ──
   {
     id: "sub-1", name: "Ahmet Yılmaz", email: "ahmet@danismanlik.com", organization: "ABC Danışmanlık",
-    accountType: "sirket", profileType: "firma", plan: "paket1",
+    accountType: "sirket", profileType: "firma", plan: "yonetici",
     tags: ["danismanlik", "tarim", "proje-yonetimi"], createdAt: "2024-12-15T09:00:00Z",
     logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=ABC%20Danismanlik&backgroundColor=003399",
     shortBio: "Tarım ve kırsal kalkınma alanında 15 yıllık tecrübeye sahip danışmanlık firması. AB fonlu projelerde teknik destek ve proje yönetimi hizmetleri sunar.",
@@ -707,7 +781,7 @@ const subscribers: Subscriber[] = [
   // ── Firma 2: Konsorsiyum üyesi ──
   {
     id: "sub-2", name: "Fatma Demir", email: "fatma@firma.com", organization: "XYZ Eğitim Danışmanlık",
-    accountType: "sirket", profileType: "firma", plan: "paket2",
+    accountType: "sirket", profileType: "firma", plan: "yonetici",
     tags: ["egitim", "genclik"], createdAt: "2026-02-01T09:00:00Z",
     logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=XYZ%20Egitim&backgroundColor=0891b2",
     shortBio: "Eğitim ve gençlik politikaları alanında faaliyet gösteren, AB projelerinde uygulayıcı ortak olarak yer alan danışmanlık firması.",
@@ -735,7 +809,7 @@ const subscribers: Subscriber[] = [
   // ── STK: Firma ile aynı panel (farklı etiket), proje yürütür ──
   {
     id: "sub-4", name: "Zeynep Aydın", email: "zeynep@tarimstk.org", organization: "Tarım Geliştirme Vakfı",
-    accountType: "stk", profileType: "stk", plan: "paket1",
+    accountType: "stk", profileType: "stk", plan: "yonetici",
     tags: ["stk", "tarim", "kirsal-kalkinma"], createdAt: "2026-02-20T09:00:00Z",
     logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Tarim%20Vakfi&backgroundColor=16a34a",
     shortBio: "Kırsal kalkınma ve sürdürülebilir tarım alanında saha uygulamaları yürüten, 200'den fazla köyde aktif olan sivil toplum kuruluşu.",
@@ -750,7 +824,7 @@ const subscribers: Subscriber[] = [
   // ── AB Delegasyonu: İhale açar, bülten/paydaş araçları ──
   {
     id: "sub-6", name: "Sarah Johnson", email: "sjohnson@eu-delegation.tr", organization: "AB Türkiye Delegasyonu",
-    accountType: "sirket", profileType: "delegasyon", plan: "paket2",
+    accountType: "sirket", profileType: "delegasyon", plan: "yonetici",
     tags: ["delegasyon", "ihale"], createdAt: "2024-01-01T09:00:00Z",
     logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=AB%20Delegasyonu&backgroundColor=003399",
     shortBio: "Avrupa Birliği'nin Türkiye'deki resmi temsilciliği. IPA fonları kapsamındaki projelerin ihale süreçlerini yürütür ve izler.",
@@ -761,7 +835,7 @@ const subscribers: Subscriber[] = [
   // ── Program Otoritesi: İhale açar, bülten/paydaş araçları ──
   {
     id: "sub-7", name: "Deniz Korkmaz", email: "dkorkmaz@mfib.gov.tr", organization: "Merkezi Finans ve İhale Birimi",
-    accountType: "sirket", profileType: "program_otoritesi", plan: "paket2",
+    accountType: "sirket", profileType: "program_otoritesi", plan: "yonetici",
     tags: ["program-otoritesi", "mfib", "ihale"], createdAt: "2024-01-01T09:00:00Z",
     logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=MFIB&backgroundColor=dc2626",
     shortBio: "IPA fonlarının Türkiye'deki merkezi uygulama birimi. İhale süreçlerini yönetir, sözleşme imzalar ve ödemeleri gerçekleştirir.",
@@ -772,7 +846,7 @@ const subscribers: Subscriber[] = [
   // ── Admin2: Platform içerik yöneticisi ──
   {
     id: "sub-8", name: "Platform Editörü", email: "editor@euinturkiye.com", organization: "EUinTürkiye Admin2",
-    accountType: "sirket", profileType: "admin2", plan: "paket2",
+    accountType: "sirket", profileType: "admin2", plan: "yonetici",
     tags: ["admin2"], createdAt: "2024-01-01T09:00:00Z",
     logoUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Admin2&backgroundColor=374151",
     shortBio: "Platform içerik yöneticisi. Tüm projelere, ilanlara ve uzmanlara erişebilir, metin düzenleyebilir.",
@@ -948,6 +1022,205 @@ const savedListings: SavedListing[] = [
 
 const editLogs: EditLog[] = [];
 
+// ── Anketler ──────────────────────────────────────────────
+const surveys: Survey[] = [
+  {
+    id: "survey-1",
+    ownerSubscriberId: "sub-1",
+    ownerName: "ABC Danışmanlık",
+    title: "Proje Paydaş Memnuniyet Anketi",
+    description: "Tarım modernizasyon projesindeki paydaş memnuniyetini ölçmek için hazırlanmıştır.",
+    status: "aktif",
+    createdAt: "2026-06-01T09:00:00Z",
+    projectId: "tarim-modern",
+    allowAnonymous: false,
+    questions: [
+      {
+        id: "q1", type: "multiple_choice", required: true,
+        text: "Proje sürecindeki iletişimden ne kadar memnunsunuz?",
+        options: ["Çok memnunum", "Memnunum", "Kararsızım", "Memnun değilim", "Hiç memnun değilim"],
+      },
+      {
+        id: "q2", type: "rating", required: true,
+        text: "Proje çıktılarını 1-5 arasında nasıl değerlendirirsiniz?",
+        options: ["1", "2", "3", "4", "5"],
+      },
+      {
+        id: "q3", type: "yes_no", required: true,
+        text: "Projenin hedeflerine ulaşıldığını düşünüyor musunuz?",
+        options: ["Evet", "Hayır"],
+      },
+      {
+        id: "q4", type: "open_ended", required: false,
+        text: "Projeyle ilgili öneri veya görüşlerinizi paylaşabilir misiniz?",
+      },
+    ],
+  },
+  {
+    id: "survey-2",
+    ownerSubscriberId: "sub-2",
+    ownerName: "XYZ Eğitim ve Danışmanlık",
+    title: "Eğitim İhtiyaç Analizi",
+    description: "Ekip üyeleri için kapasite geliştirme ihtiyaçlarını belirlemek.",
+    status: "taslak",
+    createdAt: "2026-07-10T10:00:00Z",
+    allowAnonymous: true,
+    questions: [
+      {
+        id: "q1", type: "multiple_choice", required: true,
+        text: "Hangi alanda eğitime en çok ihtiyaç duyuyorsunuz?",
+        options: ["Proje yönetimi", "Finansal raporlama", "AB müktesebatı", "İletişim ve görünürlük", "Teknik uzmanlık"],
+      },
+      {
+        id: "q2", type: "multiple_choice", required: true,
+        text: "Tercih ettiğiniz eğitim formatı nedir?",
+        options: ["Yüz yüze", "Online (canlı)", "Online (kayıtlı)", "Karma"],
+      },
+      {
+        id: "q3", type: "open_ended", required: false,
+        text: "Öncelikli öğrenmek istediğiniz konuyu kısaca açıklayın.",
+      },
+    ],
+  },
+];
+
+const surveyResponses: SurveyResponse[] = [
+  {
+    id: "sr-1", surveyId: "survey-1", respondentSubscriberId: "sub-4", respondentName: "Tarım Geliştirme Vakfı",
+    answers: [
+      { questionId: "q1", value: "Memnunum" },
+      { questionId: "q2", value: "4" },
+      { questionId: "q3", value: "Evet" },
+      { questionId: "q4", value: "Saha çalışmalarında daha fazla destek sağlanabilir." },
+    ],
+    submittedAt: "2026-06-15T14:00:00Z",
+  },
+  {
+    id: "sr-2", surveyId: "survey-1", respondentSubscriberId: "sub-3", respondentName: "MK İnşaat",
+    answers: [
+      { questionId: "q1", value: "Çok memnunum" },
+      { questionId: "q2", value: "5" },
+      { questionId: "q3", value: "Evet" },
+    ],
+    submittedAt: "2026-06-18T10:30:00Z",
+  },
+];
+
+// ── Kurum Profilleri (admin2 tarafından tanımlanan) ────────
+const institutionProfiles: InstitutionProfile[] = [
+  {
+    id: "inst-1",
+    createdBySubscriberId: "sub-8",
+    subscriberId: "sub-6",
+    name: "AB Türkiye Delegasyonu",
+    shortName: "AB Delegasyonu",
+    institutionType: "uluslararasi",
+    description: "Türkiye'deki Avrupa Birliği Delegasyonu. AB-Türkiye ilişkilerini ve IPA fonlarının yönetimini koordine eder.",
+    sectorIds: ["yargi", "temel-haklar", "cevre", "enerji", "ulasim"],
+    website: "https://www.eeas.europa.eu/turkey",
+    contactName: "Delegasyon Ofisi",
+    contactEmail: "delegation-turkey@eeas.europa.eu",
+    address: "Uğur Mumcu Cad. No:88, 06700 Gaziosmanpaşa, Ankara",
+    createdAt: "2026-01-10T09:00:00Z",
+    updatedAt: "2026-01-10T09:00:00Z",
+  },
+  {
+    id: "inst-2",
+    createdBySubscriberId: "sub-8",
+    subscriberId: "sub-7",
+    name: "Merkezi Finans ve İhale Birimi (MFİB)",
+    shortName: "MFİB",
+    institutionType: "kamu",
+    description: "Hazine ve Maliye Bakanlığı bünyesindeki MFİB, AB fonlarının Türkiye'deki ihale ve sözleşme süreçlerini yönetir.",
+    sectorIds: ["yargi", "cevre", "ulasim", "enerji", "rekabet"],
+    website: "https://www.mfib.gov.tr",
+    contactName: "MFİB Genel Müdürlüğü",
+    contactEmail: "info@mfib.gov.tr",
+    address: "İnönü Bulvarı No:36, 06510 Emek, Ankara",
+    createdAt: "2026-01-10T09:00:00Z",
+    updatedAt: "2026-01-10T09:00:00Z",
+  },
+  {
+    id: "inst-3",
+    createdBySubscriberId: "sub-8",
+    name: "Adalet Bakanlığı",
+    shortName: "Adalet Bakanlığı",
+    institutionType: "kamu",
+    description: "Türkiye Cumhuriyeti Adalet Bakanlığı. Yargı ve temel haklar sektöründe çok sayıda IPA projesinin faydalanıcısı.",
+    sectorIds: ["yargi", "temel-haklar"],
+    website: "https://www.adalet.gov.tr",
+    contactName: "AB Koordinasyon Daire Başkanlığı",
+    contactEmail: "abkoordinasyon@adalet.gov.tr",
+    address: "Adalet Bakanlığı, Ankara",
+    createdAt: "2026-01-12T09:00:00Z",
+    updatedAt: "2026-01-12T09:00:00Z",
+  },
+  {
+    id: "inst-4",
+    createdBySubscriberId: "sub-8",
+    name: "TCDD Genel Müdürlüğü",
+    shortName: "TCDD",
+    institutionType: "kamu",
+    description: "Türkiye Cumhuriyeti Devlet Demiryolları. Halkalı-Kapıkule hattı başta olmak üzere ulaştırma sektörünün ana faydalanıcısı.",
+    sectorIds: ["ulasim"],
+    website: "https://www.tcdd.gov.tr",
+    contactName: "Uluslararası İlişkiler Dairesi",
+    contactPhone: "+90 312 309 05 15",
+    address: "Talatpaşa Bulvarı No:3, Gar, Ankara",
+    createdAt: "2026-01-15T09:00:00Z",
+    updatedAt: "2026-01-15T09:00:00Z",
+  },
+  {
+    id: "inst-5",
+    createdBySubscriberId: "sub-8",
+    name: "MK İnşaat Mühendislik",
+    shortName: "MK İnşaat",
+    institutionType: "ozel",
+    description: "Türkiye genelinde altyapı ve inşaat hizmetleri sunan tedarikçi firma. AB projelerinde mal ve hizmet sağlayıcı.",
+    sectorIds: ["ulasim", "cevre"],
+    website: "https://www.mkinsaat.com.tr",
+    contactName: "Mehmet Kaya",
+    contactTitle: "Genel Müdür",
+    contactPhone: "+90 312 555 00 33",
+    contactEmail: "info@mkinsaat.com.tr",
+    address: "Ostim Sanayi Bölgesi, Ankara",
+    createdAt: "2026-02-01T09:00:00Z",
+    updatedAt: "2026-02-01T09:00:00Z",
+  },
+];
+
+// ── Proje Web Siteleri ────────────────────────────────────
+const projectWebsites: ProjectWebsite[] = [
+  {
+    id: "pw-1",
+    projectId: "halkali-kapikule",
+    ownerSubscriberId: "sub-1",
+    slug: "halkali-kapikule-demiryolu",
+    templateId: "impact",
+    headerVersion: 1,
+    headerTr: {
+      title: "Halkalı-Kapıkule Demiryolu Projesi",
+      subtitle: "Türkiye'yi Avrupa'ya bağlayan amiral gemisi altyapı projesi",
+      tagline: "AB-Türkiye Ulaştırma İşbirliği",
+    },
+    headerEn: {
+      title: "Halkalı-Kapıkule Railway Project",
+      subtitle: "The flagship infrastructure project connecting Turkey to Europe",
+      tagline: "EU-Turkey Transport Cooperation",
+    },
+    footerLogos: [
+      { id: "fl-1", source: "library", libraryKey: "eu", label: "Avrupa Birliği", order: 1 },
+      { id: "fl-2", source: "library", libraryKey: "tcdd", label: "TCDD", order: 2 },
+      { id: "fl-3", source: "library", libraryKey: "tr-cumhurbaskanligi", label: "T.C.", order: 3 },
+    ],
+    published: true,
+    createdAt: "2026-03-01T09:00:00Z",
+    updatedAt: "2026-03-01T09:00:00Z",
+    showObjective: true, showOutputs: true, showLocations: true,
+    showBudget: true, showConsortium: false,
+  },
+];
+
 // ── DemoDataProvider ──────────────────────────────────────
 export class DemoDataProvider implements DataProvider {
   getSectors = () => delay([...sectors]);
@@ -1116,4 +1389,27 @@ export class DemoDataProvider implements DataProvider {
 
   getEditLogs = (entityId?: string) => delay(entityId ? editLogs.filter((l) => l.entityId === entityId) : [...editLogs]);
   saveEditLog = (log: EditLog) => { editLogs.unshift(log); return delay(undefined); };
+
+  // ── Anket metodları ───────────────────────────────────────
+  getSurveys = (ownerSubscriberId?: string) =>
+    delay(ownerSubscriberId ? surveys.filter((s) => s.ownerSubscriberId === ownerSubscriberId) : [...surveys]);
+  getSurvey = (id: string) => delay(surveys.find((s) => s.id === id) ?? null);
+  saveSurvey = (s: Survey) => { const i = surveys.findIndex((x) => x.id === s.id); if (i !== -1) surveys[i] = s; else surveys.unshift(s); return delay(undefined); };
+  removeSurvey = (id: string) => { const i = surveys.findIndex((x) => x.id === id); if (i !== -1) surveys.splice(i, 1); return delay(undefined); };
+
+  getSurveyResponses = (surveyId: string) => delay(surveyResponses.filter((r) => r.surveyId === surveyId));
+  saveSurveyResponse = (r: SurveyResponse) => { const i = surveyResponses.findIndex((x) => x.id === r.id); if (i !== -1) surveyResponses[i] = r; else surveyResponses.push(r); return delay(undefined); };
+
+  // ── Kurum profili metodları ────────────────────────────────
+  getInstitutionProfiles = () => delay([...institutionProfiles]);
+  getInstitutionProfile = (id: string) => delay(institutionProfiles.find((p) => p.id === id) ?? null);
+  saveInstitutionProfile = (p: InstitutionProfile) => { const i = institutionProfiles.findIndex((x) => x.id === p.id); if (i !== -1) institutionProfiles[i] = p; else institutionProfiles.unshift(p); return delay(undefined); };
+  removeInstitutionProfile = (id: string) => { const i = institutionProfiles.findIndex((x) => x.id === id); if (i !== -1) institutionProfiles.splice(i, 1); return delay(undefined); };
+
+  // ── Proje website metodları ────────────────────────────────
+  getProjectWebsite = (projectId: string) => delay(projectWebsites.find((w) => w.projectId === projectId) ?? null);
+  getProjectWebsiteBySlug = (slug: string) => delay(projectWebsites.find((w) => w.slug === slug) ?? null);
+  saveProjectWebsite = (w: ProjectWebsite) => { const i = projectWebsites.findIndex((x) => x.id === w.id); if (i !== -1) projectWebsites[i] = w; else projectWebsites.unshift(w); return delay(undefined); };
+  isSlugAvailable = (slug: string, excludeProjectId?: string) =>
+    delay(!projectWebsites.some((w) => w.slug === slug && w.projectId !== (excludeProjectId ?? "")));
 }

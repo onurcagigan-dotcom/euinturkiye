@@ -5,14 +5,14 @@ import { PLAN_PRICING, getSubscriptionYear, getCurrentYearPrice, formatEuro, typ
 import type { Subscriber } from "@/lib/types";
 
 const PLAN_LABELS: Record<PlanId, string> = {
-  ucretsiz: "Ücretsiz", paket1: "Paket 1", paket2: "Paket 2", tedarikci: "Tedarikçi",
+  uzman: "Uzman (Ücretsiz)", yonetici: "Yönetici Paketi", tedarikci: "Tedarikçi Paketi",
 };
 const PROFILE_TYPE_LABELS: Record<Subscriber["profileType"], string> = {
   firma: "Firma", stk: "STK", tedarikci: "Tedarikçi", delegasyon: "AB Delegasyonu", program_otoritesi: "Program Otoritesi", admin2: "Admin2",
 };
 
 const emptySubscriber = (): Subscriber => ({
-  id: `sub-${Date.now()}`, name: "", email: "", accountType: "sirket", profileType: "firma", plan: "ucretsiz",
+  id: `sub-${Date.now()}`, name: "", email: "", accountType: "sirket", profileType: "firma", plan: "uzman",
   tags: [], createdAt: new Date().toISOString(),
 });
 
@@ -106,7 +106,34 @@ export default function AdminUyeliklerPage() {
                 className="w-full px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu" />
             </div>
           </div>
-          {editing.plan !== "ucretsiz" && (
+          {/* Admin2 yetkisi */}
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <p className="text-xs font-bold text-amber-800 uppercase tracking-wide mb-2">🛡️ Admin2 Yetkisi</p>
+            <p className="text-xs text-amber-700 mb-3">
+              Admin2 yetkisi: Platform içerik yönetimi, kurum profili oluşturma, proje ve ilan düzenleme, ihale oluşturma yetkisi verir. Platformun genel ayarlarına erişimi yoktur.
+            </p>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div
+                onClick={() => setEditing(p => p && ({
+                  ...p,
+                  isAdmin2: !p.isAdmin2,
+                  admin2GrantedAt: !p.isAdmin2 ? new Date().toISOString() : undefined,
+                  admin2GrantedBy: !p.isAdmin2 ? "admin" : undefined,
+                }))}
+                className={`w-10 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0 ${editing.isAdmin2 ? "bg-eu" : "bg-line"}`}>
+                <div className={`w-4 h-4 bg-white rounded-full mt-1 transition-transform ${editing.isAdmin2 ? "translate-x-5" : "translate-x-1"}`} />
+              </div>
+              <span className={`text-sm font-semibold ${editing.isAdmin2 ? "text-eu" : "text-slate"}`}>
+                {editing.isAdmin2 ? "Admin2 yetkisi verildi" : "Admin2 yetkisi yok"}
+              </span>
+            </label>
+            {editing.isAdmin2 && editing.admin2GrantedAt && (
+              <p className="text-xs text-amber-700 mt-1.5">
+                Verildi: {new Date(editing.admin2GrantedAt).toLocaleDateString("tr")}
+              </p>
+            )}
+          </div>
+          {editing.plan !== "uzman" && (
             <div className="mt-3 bg-eu-pale rounded-lg p-3 text-sm">
               <span className="text-eu font-semibold">
                 {getSubscriptionYear(editing.createdAt) <= 1 ? "İlk yıl ücreti" : `${getSubscriptionYear(editing.createdAt)}. yıl yenileme ücreti`}:
@@ -164,7 +191,7 @@ export default function AdminUyeliklerPage() {
                   </td>
                   <td className="px-4 py-3 text-slate text-xs">{new Date(s.createdAt).toLocaleDateString("tr")}</td>
                   <td className="px-4 py-3 text-slate text-xs">{year}. yıl{year > 1 ? " (yenileme)" : " (ilk yıl)"}</td>
-                  <td className="px-4 py-3 font-semibold text-ink text-xs">{s.plan === "ucretsiz" ? "—" : formatEuro(price)}</td>
+                  <td className="px-4 py-3 font-semibold text-ink text-xs">{s.plan === "uzman" ? "—" : formatEuro(price)}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-3">
                       <button onClick={() => setEditing({ ...s })} className="text-eu text-xs font-semibold hover:underline">Düzenle</button>

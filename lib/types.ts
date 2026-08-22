@@ -27,7 +27,10 @@ export interface Project {
   ipaPeriod: IpaPeriod;
   beneficiary: string;
   locations: string[];
-  budget?: string;
+  budget?: string;          // gösterim için (ör. "€ 2.5M")
+  euBudget?: number;        // AB katkısı (€, sayısal)
+  totalBudget?: number;     // toplam bütçe (€, sayısal)
+  priorityArea?: string;    // öncelik alanı
   startDate?: string;
   endDate?: string;
   status: "devam" | "tamamlandi";
@@ -35,6 +38,7 @@ export interface Project {
   coverImage?: string;
   // İçerik alanları (detay sayfası)
   objective?: string;
+  specificObjectives?: string;
   expectedOutputs?: string;
   activities?: string;
   // Yürütücü / konsorsiyum lideri (boşsa proje "yürütücüsüz" sayılır)
@@ -205,7 +209,7 @@ export interface Subscriber {
   accountType: "sirket" | "stk";
   /** Profilin platformdaki rolü */
   profileType: SubscriberProfileType;
-  plan: "ucretsiz" | "paket1" | "paket2" | "tedarikci";
+  plan: "uzman" | "yonetici" | "tedarikci";
   tags: string[];
   createdAt: string;
 
@@ -224,6 +228,26 @@ export interface Subscriber {
   services?: string[];             // Sunulan hizmetler
   sectorIds?: string[];            // Faaliyet sektörleri
   mission?: string;                // STK için misyon/vizyon
+
+  // --- Tedarikçi profili ---
+  supplierGoods?: string[];        // Sağlanan mallar (detaylı)
+  supplierServices?: string[];     // Verilen hizmetler (detaylı)
+  supplierCertifications?: string[]; // Sahip olunan sertifikalar
+  supplierCapacity?: string;       // Kapasite/yıllık ciro bilgisi
+  supplierRegions?: string[];      // Hizmet verilen bölgeler
+
+  // --- Kurum / Admin2 tanımlı profil ---
+  institutionType?: "kamu" | "ozel" | "stk" | "uluslararasi"; // Kurum türü
+  institutionWebsite?: string;
+  primaryContactName?: string;
+  primaryContactTitle?: string;
+  primaryContactPhone?: string;
+  primaryContactEmail?: string;
+
+  // --- Admin2 yetki bilgisi ---
+  isAdmin2?: boolean;              // Bu hesap admin2 yetkisine sahip mi
+  admin2GrantedAt?: string;        // Admin2 yetkisi ne zaman verildi
+  admin2GrantedBy?: string;        // Kim verdi (admin sub ID)
 }
 
 /** Adres defteri grubu — firma kendi gruplarını oluşturur */
@@ -381,4 +405,120 @@ export interface ReportDefinition {
   name: string;
   description: string;
   type: "portfolio" | "listing" | "event" | "subscriber";
+}
+
+// ─── Anket (Survey) ──────────────────────────────────────────
+export type SurveyQuestionType = "multiple_choice" | "open_ended" | "rating" | "yes_no";
+
+export interface SurveyQuestion {
+  id: string;
+  type: SurveyQuestionType;
+  text: string;
+  options?: string[];     // multiple_choice için seçenekler
+  required: boolean;
+}
+
+export interface Survey {
+  id: string;
+  ownerSubscriberId: string;
+  ownerName: string;
+  title: string;
+  description?: string;
+  questions: SurveyQuestion[];
+  status: "taslak" | "aktif" | "kapali";
+  createdAt: string;
+  closedAt?: string;
+  projectId?: string;     // isteğe bağlı proje bağlantısı
+  allowAnonymous: boolean;
+}
+
+export interface SurveyResponse {
+  id: string;
+  surveyId: string;
+  respondentSubscriberId?: string;
+  respondentName?: string;
+  answers: { questionId: string; value: string | string[] }[];
+  submittedAt: string;
+}
+
+// ─── Program/Proje İhalesi (Tender) ─────────────────────────
+// "ihale" tipi ilan zaten ListingType içinde var ("ihale").
+// Burada ihale görünürlük kontrolü için yardımcı fonksiyon:
+export function canViewTenderDetails(plan: "uzman" | "yonetici" | "tedarikci"): boolean {
+  return plan === "yonetici" || plan === "tedarikci";
+}
+
+// ─── Kurum Profili (admin2 tarafından oluşturulan) ───────────
+export interface InstitutionProfile {
+  id: string;
+  createdBySubscriberId: string; // admin2 olan kişi
+  subscriberId?: string;         // eğer platformda kayıtlı subscriber ile eşleşiyorsa
+  name: string;
+  shortName?: string;
+  institutionType: "kamu" | "ozel" | "stk" | "uluslararasi";
+  description?: string;
+  sectorIds?: string[];
+  website?: string;
+  contactName?: string;
+  contactTitle?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  address?: string;
+  logoUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  editLog?: EditLog[];
+}
+
+// ─── Proje Web Sitesi ────────────────────────────────────────
+export type WebsiteTemplateId = "minimal" | "bold" | "academic" | "impact";
+export type WebsiteHeaderVersion = 1 | 2 | 3;
+
+export interface WebsiteFooterLogo {
+  id: string;
+  /** "library" = hazır kütüphaneden, "custom" = kullanıcı yükledi */
+  source: "library" | "custom";
+  /** Kütüphane logosu için tanımlayıcı (ör. "eu", "mfib", "tcdd") */
+  libraryKey?: string;
+  /** Custom yükleme için base64 veya URL */
+  imageUrl?: string;
+  label?: string;   // isteğe bağlı alt yazı
+  order: number;
+}
+
+export interface ProjectWebsite {
+  id: string;
+  projectId: string;
+  ownerSubscriberId: string;
+  /** URL kısa adı — euinturkiye.com/p/[slug] */
+  slug: string;
+  templateId: WebsiteTemplateId;
+  headerVersion: WebsiteHeaderVersion;
+  /** TR için header içeriği */
+  headerTr: {
+    logoUrl?: string;     // proje logosu (opsiyonel)
+    title: string;        // proje başlığı
+    subtitle?: string;    // kısa açıklama
+    tagline?: string;     // sağda/altında slogan
+  };
+  /** EN için header içeriği */
+  headerEn: {
+    logoUrl?: string;
+    title: string;
+    subtitle?: string;
+    tagline?: string;
+  };
+  footerLogos: WebsiteFooterLogo[];
+  /** Yayın durumu */
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+  /** Özel renk tercihleri (template override) */
+  accentColor?: string;
+  /** Ek içerik blokları — şimdilik opsiyonel */
+  showObjective?: boolean;
+  showOutputs?: boolean;
+  showLocations?: boolean;
+  showBudget?: boolean;
+  showConsortium?: boolean;
 }
