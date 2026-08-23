@@ -91,6 +91,7 @@ function FirmaPanelInner() {
     }
     return "projeler";
   });
+  const [profileEditOpen, setProfileEditOpen] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
 
   // Veriler
@@ -182,7 +183,7 @@ function FirmaPanelInner() {
             </div>
             {/* Sağ: Düzenle + Çıkış */}
             <div className="flex flex-col gap-1.5 flex-shrink-0">
-              <button onClick={() => setActiveTab("profil")}
+              <button onClick={() => { setActiveTab("profil"); setProfileEditOpen(true); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
@@ -260,9 +261,7 @@ function FirmaPanelInner() {
               groups={addressGroups} setGroups={setAddressGroups}
             />
           )}
-          {activeTab === "profil" && (
-            <ProfileTab current={current} locale={locale} myExpertProfile={myExpertProfile} setMyExpertProfile={setMyExpertProfile} />
-          )}
+          {activeTab === "profil" && <ProfileTab current={current} locale={locale} myExpertProfile={myExpertProfile} setMyExpertProfile={setMyExpertProfile} forceEdit={profileEditOpen} onEditOpened={() => setProfileEditOpen(false)} />}
         </div>
       </div>
     </PageShell>
@@ -516,9 +515,22 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
                       />
                     )}
 
-                    {/* Web Sitesi sekmesi */}
+                    {/* Web Sitesi sekmesi — tam ekran builder'a yönlendir */}
                     {projectTab === "website" && (
-                      <ProjectWebsiteTab projectId={p.id} locale={locale} />
+                      <div className="p-6 text-center">
+                        <div className="text-4xl mb-3">🌐</div>
+                        <h3 className="font-bold text-ink mb-2">Proje Web Sitesi</h3>
+                        <p className="text-sm text-slate mb-5 max-w-sm mx-auto">
+                          Projeniz için özelleştirilebilir bir landing page oluşturun. 4 şablon, hero banner, navigasyon menüsü ve footer logo yönetimi.
+                        </p>
+                        <Link href={`/projeler/${p.id}/website`}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-eu text-white rounded-xl font-semibold text-sm hover:bg-blue-800 transition-colors">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                          </svg>
+                          Web Sitesi Oluşturucuyu Aç
+                        </Link>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1847,10 +1859,12 @@ function AddressTab({ current, locale, allSubscribers, groups, setGroups }: {
 }
 
 // ── Profil & Hesap ─────────────────────────────────────────────
-function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
+function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile, forceEdit, onEditOpened }: {
   current: Subscriber; locale: string;
   myExpertProfile: ExpertProfile | null;
   setMyExpertProfile: (p: ExpertProfile | null) => void;
+  forceEdit?: boolean;
+  onEditOpened?: () => void;
 }) {
   const isEn = locale === "en";
   const isSupplier = IS_SUPPLIER.includes(current.profileType);
@@ -1872,7 +1886,7 @@ function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
     <div className="space-y-6">
       {/* Profil düzenleme */}
       {(canOwnProjects || isSupplier || current.profileType === "admin2") && (
-        <ProfileEditSection current={current} locale={locale} />
+        <ProfileEditSection current={current} locale={locale} forceOpen={forceEdit} onOpened={onEditOpened} />
       )}
 
       {/* Uzman profil — tedarikçi */}
@@ -1940,9 +1954,21 @@ function ProfileTab({ current, locale, myExpertProfile, setMyExpertProfile }: {
 
 // ─── YARDIMCI BİLEŞENLER ──────────────────────────────────────
 
-function ProfileEditSection({ current, locale }: { current: Subscriber; locale: string }) {
+function ProfileEditSection({ current, locale, forceOpen, onOpened }: {
+  current: Subscriber; locale: string;
+  forceOpen?: boolean;
+  onOpened?: () => void;
+}) {
   const isEn = locale === "en";
   const [open, setOpen] = useState(false);
+
+  // Düzenle butonundan tetiklenince accordion'u aç
+  useEffect(() => {
+    if (forceOpen && !open) {
+      setOpen(true);
+      onOpened?.();
+    }
+  }, [forceOpen, open, onOpened]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({

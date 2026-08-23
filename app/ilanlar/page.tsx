@@ -25,10 +25,8 @@ function IlanlarPageInner() {
 
   const hasPaidAccess = firma ? canViewTenders(firma.plan) : false;
   const isListingLocked = (l: Listing) =>
-    // Satınalma: sadece tedarikçi veya yönetici
-    (l.type === "satinalma" && !hasPaidAccess) ||
-    // İhale: ücretli plan gerekli
-    (l.type === "ihale" && !hasPaidAccess);
+    // Sadece ihale içerikleri ücretli plan gerektirir
+    l.type === "ihale" && !hasPaidAccess;
 
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
 

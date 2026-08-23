@@ -62,7 +62,7 @@ function AddToAddressBook({
         title="Adres defterine ekle"
       >
         {alreadyInGroups.length > 0 ? (
-          <><span>✓</span> Defterде var</>
+          <><span>✓</span> Defterde var</>
         ) : (
           <><span>+</span> Deftere ekle</>
         )}

@@ -468,7 +468,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold text-ink mb-2">{t("home_tools")}</h2>
           <p className="text-slate mb-8">{t("home_tools_sub")}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {TOOLS.map((tool) => (
+            {TOOLS.filter((tool) => !tool.roles.every((r) => r === "admin2")).map((tool) => (
               <Link key={tool.id} href={tool.href}
                 className="border border-line rounded-xl overflow-hidden hover:shadow-md hover:border-eu/40 transition-all group bg-white">
                 <div className="h-14 flex items-center justify-center"

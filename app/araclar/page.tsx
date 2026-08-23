@@ -25,7 +25,7 @@ export default function AraclarPage() {
             : "AB proje yönetiminizi kolaylaştıran entegre araç seti."}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {TOOLS.map((tool) => (
+          {TOOLS.filter((tool) => !tool.roles.every((r) => r === "admin2")).map((tool) => (
             <Link key={tool.id} href={tool.href}
               className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-md hover:border-eu/40 transition-all group">
               <div className="h-14 flex items-center justify-center gap-2"
