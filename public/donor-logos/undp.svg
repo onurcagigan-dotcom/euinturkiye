@@ -1,0 +1,6 @@
+<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="120" fill="#f8f8f8" rx="8"/>
+  <rect x="20" y="30" width="160" height="60" rx="6" fill="#009EDB"/>
+  <text x="100" y="67" text-anchor="middle" font-size="26" font-weight="900" fill="white" font-family="Arial" letter-spacing="2">UNDP</text>
+  <text x="100" y="110" text-anchor="middle" font-size="10" fill="#aaa" font-family="Arial">placeholder — logo eklenecek</text>
+</svg>

@@ -158,73 +158,40 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {/* Avrupa Birliği */}
-            <Link href="/projeler?donor=eu"
-              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
-              {/* EU yıldız çemberi — SVG inline */}
-              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="Avrupa Birliği">
-                <rect width="120" height="80" fill="#003399" rx="6" />
-                {Array.from({length:12},(_,i)=>{
-                  const a=(i*30-90)*Math.PI/180;
-                  const cx=60+22*Math.cos(a), cy=40+22*Math.sin(a);
-                  return (
-                    <g key={i} transform={`translate(${cx},${cy})`}>
-                      <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.9 2.6,4 0,2 -2.6,4 -1.7,0.9 -4.3,-1.4 -1.1,-1.4" fill="#FFCC00" />
-                    </g>
-                  );
-                })}
-              </svg>
-              <div className="text-center">
-                <div className="text-lg font-extrabold text-eu">{donorCounts["eu"] ?? 0}</div>
-                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
-              </div>
-            </Link>
-
-            {/* GIZ */}
-            <Link href="/projeler?donor=giz"
-              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
-              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="GIZ">
-                <rect width="120" height="80" fill="#fff" rx="6" />
-                {/* GIZ logosu — tipografik */}
-                <rect x="8" y="20" width="104" height="40" rx="4" fill="#007A3D" />
-                <text x="60" y="48" textAnchor="middle" fontSize="22" fontWeight="900" fill="white" fontFamily="Arial, sans-serif" letterSpacing="3">GIZ</text>
-              </svg>
-              <div className="text-center">
-                <div className="text-lg font-extrabold text-eu">{donorCounts["giz"] ?? 0}</div>
-                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
-              </div>
-            </Link>
-
-            {/* Dünya Bankası */}
-            <Link href="/projeler?donor=wb"
-              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
-              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="Dünya Bankası">
-                <rect width="120" height="80" fill="#fff" rx="6" />
-                <circle cx="60" cy="40" r="28" fill="none" stroke="#009FDA" strokeWidth="3" />
-                <ellipse cx="60" cy="40" rx="14" ry="28" fill="none" stroke="#009FDA" strokeWidth="2" />
-                <line x1="32" y1="40" x2="88" y2="40" stroke="#009FDA" strokeWidth="2" />
-                <line x1="35" y1="28" x2="85" y2="28" stroke="#009FDA" strokeWidth="1.5" />
-                <line x1="35" y1="52" x2="85" y2="52" stroke="#009FDA" strokeWidth="1.5" />
-              </svg>
-              <div className="text-center">
-                <div className="text-lg font-extrabold text-eu">{donorCounts["wb"] ?? 0}</div>
-                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
-              </div>
-            </Link>
-
-            {/* UNDP */}
-            <Link href="/projeler?donor=undp"
-              className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
-              <svg viewBox="0 0 120 80" className="w-28 h-auto" role="img" aria-label="UNDP">
-                <rect width="120" height="80" fill="#fff" rx="6" />
-                <rect x="8" y="20" width="104" height="40" rx="4" fill="#009EDB" />
-                <text x="60" y="47" textAnchor="middle" fontSize="19" fontWeight="900" fill="white" fontFamily="Arial, sans-serif" letterSpacing="2">UNDP</text>
-              </svg>
-              <div className="text-center">
-                <div className="text-lg font-extrabold text-eu">{donorCounts["undp"] ?? 0}</div>
-                <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
-              </div>
-            </Link>
+            {[
+              { id: "eu",   name: "Avrupa Birliği",  nameEn: "European Union",  img: "/donor-logos/eu.svg",   alt: "EU" },
+              { id: "giz",  name: "GIZ",              nameEn: "GIZ",             img: "/donor-logos/giz.svg",  alt: "GIZ" },
+              { id: "wb",   name: "Dünya Bankası",    nameEn: "World Bank",      img: "/donor-logos/wb.svg",   alt: "World Bank" },
+              { id: "undp", name: "UNDP",             nameEn: "UNDP",            img: "/donor-logos/undp.svg", alt: "UNDP" },
+            ].filter((d) => (donorCounts[d.id] ?? 0) > 0).map((d) => (
+              <Link key={d.id} href={`/projeler?donor=${d.id}`}
+                className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
+                {/* Logo placeholder — Onur gerçek logolar verecek */}
+                <div className="w-28 h-16 flex items-center justify-center relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={d.img}
+                    alt={d.alt}
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => {
+                      // Görsel yoksa yer tutucu göster
+                      const t = e.currentTarget;
+                      t.style.display = "none";
+                      const next = t.nextElementSibling as HTMLElement | null;
+                      if (next) next.style.display = "flex";
+                    }}
+                  />
+                  {/* Fallback — logo dosyası gelene kadar */}
+                  <div className="hidden items-center justify-center w-full h-full rounded-lg bg-eu-pale border-2 border-dashed border-eu/20">
+                    <span className="text-xs font-bold text-eu/50">{d.alt}</span>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-extrabold text-eu">{donorCounts[d.id] ?? 0}</div>
+                  <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -348,121 +315,122 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Proje Haritası & İnfografik — Öne Çıkan Projelerden Sonra */}
+      {/* Proje Haritası & İnfografik — tek sütun, tam genişlik */}
       <section className="py-10 px-6 bg-surface">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="max-w-7xl mx-auto space-y-5">
 
-            {/* Harita kartı */}
-            <div className="bg-white border border-line rounded-2xl overflow-hidden hover:shadow-md transition-all group">
-              {/* Mini harita görseli */}
-              <div className="relative h-40 overflow-hidden bg-gradient-to-br from-blue-50 to-eu-pale">
-                <svg viewBox="0 0 800 400" className="w-full h-full opacity-60" style={{ position: "absolute", inset: 0 }}>
-                  {/* Türkiye ikonlaştırılmış şekli */}
-                  <ellipse cx="400" cy="200" rx="340" ry="130" fill="#2563eb" fillOpacity="0.08" stroke="#2563eb" strokeOpacity="0.2" strokeWidth="1" />
-                  {/* Proje lokasyon noktaları - gerçek iller */}
+          {/* Harita kartı */}
+          <div className="bg-white border border-line rounded-2xl overflow-hidden hover:shadow-md transition-all">
+            <div className="grid grid-cols-1 md:grid-cols-5">
+              {/* Sol: Harita görsel alanı — gerçek harita /araclar/harita sayfasında */}
+              <div className="md:col-span-3 relative h-56 md:h-64 bg-eu-pale overflow-hidden flex items-center justify-center">
+                {/* Türkiye haritası placeholder — Onur gerçek görseli verecek */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl mb-2 opacity-20">🗺️</div>
+                    <p className="text-xs text-eu/40 font-semibold uppercase tracking-widest">Harita görseli eklenecek</p>
+                  </div>
+                </div>
+                {/* Overlay istatistikler */}
+                <div className="absolute bottom-4 left-4 flex gap-3 z-10">
                   {[
-                    [200,160,"Edirne"],[310,185,"İstanbul"],[380,165,"Ankara"],[290,230,"İzmir"],
-                    [460,230,"Konya"],[530,190,"Kayseri"],[590,175,"Sivas"],[650,185,"Erzurum"],
-                    [480,280,"Adana"],[540,290,"Gaziantep"],[610,250,"Diyarbakır"],[700,200,"Van"],
-                    [420,150,"Bursa"],[350,240,"Denizli"],[580,210,"Malatya"],[670,165,"Trabzon"],
-                  ].map(([x,y,il],i) => (
-                    <g key={i}>
-                      <circle cx={x} cy={y} r="5" fill="#2563eb" fillOpacity="0.7">
-                        <animate attributeName="r" values="5;7;5" dur={`${1.5+i*0.1}s`} repeatCount="indefinite" />
-                      </circle>
-                      <circle cx={x} cy={y} r="9" fill="none" stroke="#2563eb" strokeWidth="1" strokeOpacity="0.3" />
-                    </g>
-                  ))}
-                  <text x="400" y="360" textAnchor="middle" fontSize="13" fill="#2563eb" fillOpacity="0.5" fontWeight="600">
-                    {locale === "tr" ? "81 İl Kapsamında IPA Projeleri" : "IPA Projects Across 81 Provinces"}
-                  </text>
-                </svg>
-                <div className="absolute inset-0 bg-gradient-to-t from-white/60 to-transparent" />
-                <div className="absolute bottom-3 left-4 flex gap-3">
-                  {[
-                    { label: locale === "tr" ? "İl" : "Province", val: "81" },
-                    { label: locale === "tr" ? "Proje" : "Project", val: "499+" },
+                    { val: "165", label: locale === "tr" ? "IPA Projesi" : "IPA Projects" },
+                    { val: "10", label: locale === "tr" ? "Sektör" : "Sectors" },
+                    { val: "81", label: locale === "tr" ? "İl" : "Provinces" },
                   ].map((s) => (
-                    <div key={s.label} className="bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 text-center shadow-sm">
-                      <div className="text-xs font-bold text-eu">{s.val}</div>
-                      <div className="text-xs text-slate">{s.label}</div>
+                    <div key={s.label} className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm text-center border border-white">
+                      <div className="text-sm font-extrabold text-eu leading-none">{s.val}</div>
+                      <div className="text-[10px] text-slate mt-0.5">{s.label}</div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="p-5 flex items-start justify-between gap-4">
+              {/* Sağ: Metin */}
+              <div className="md:col-span-2 p-6 flex flex-col justify-between">
                 <div>
-                  <h3 className="font-bold text-ink text-base mb-1">{locale === "tr" ? "Proje Haritası" : "Project Map"}</h3>
+                  <div className="text-xs font-bold text-eu uppercase tracking-widest mb-2">
+                    {locale === "tr" ? "Coğrafi Dağılım" : "Geographic Distribution"}
+                  </div>
+                  <h3 className="font-bold text-ink text-xl mb-3">
+                    {locale === "tr" ? "Proje Haritası" : "Project Map"}
+                  </h3>
                   <p className="text-slate text-sm leading-relaxed">
                     {locale === "tr"
-                      ? "Türkiye'nin 81 ilinde yürütülen AB destekli IPA projelerinin coğrafi dağılımını keşfedin. Doğu sınırından Trakya'ya kadar geniş bir coğrafyada 14 sektörde aktif proje."
-                      : "Explore the geographical distribution of EU-funded IPA projects across all 81 provinces of Turkey."}
+                      ? "Yargıdan çevreye, enerjiden ulaştırmaya — Türkiye'nin tüm bölgelerinde yürütülen AB destekli IPA projelerinin coğrafi dağılımını etkileşimli haritada keşfedin."
+                      : "From judiciary to environment, energy to transport — explore the geographic spread of EU-funded IPA projects across all regions of Turkey."}
                   </p>
                 </div>
                 <Link href="/araclar/harita"
-                  className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-eu hover:underline whitespace-nowrap mt-1">
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white bg-eu px-4 py-2.5 rounded-xl hover:bg-blue-800 transition-colors w-fit">
                   {locale === "tr" ? "Haritayı Aç" : "Open Map"}
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
                 </Link>
               </div>
             </div>
+          </div>
 
-            {/* İnfografik kartı */}
-            <div className="bg-white border border-line rounded-2xl overflow-hidden hover:shadow-md transition-all group">
-              {/* Mini bar chart */}
-              <div className="relative h-40 overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50 p-4">
-                <div className="flex items-end gap-1.5 h-full pb-6">
-                  {[
-                    { label:"Ulaşım", val:275, color:"#1d4ed8" },
-                    { label:"İçişleri", val:160, color:"#0e7490" },
-                    { label:"Çevre", val:140, color:"#15803d" },
-                    { label:"Enerji", val:40, color:"#ca8a04" },
-                    { label:"Rekabet", val:50, color:"#7c3aed" },
-                    { label:"Yargı", val:30, color:"#b45309" },
-                    { label:"Haklar", val:28, color:"#be185d" },
-                  ].map((s,i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1">
-                      <div
-                        className="w-full rounded-t-sm transition-all"
-                        style={{
-                          background: s.color,
-                          height: `${Math.round((s.val/275)*80)}%`,
-                          opacity: 0.85,
-                          minHeight: "8px",
-                        }}
-                      />
-                      <span className="text-[9px] text-slate truncate w-full text-center">{s.label}</span>
-                    </div>
-                  ))}
+          {/* İnfografik kartı */}
+          <div className="bg-white border border-line rounded-2xl overflow-hidden hover:shadow-md transition-all">
+            <div className="grid grid-cols-1 md:grid-cols-5">
+              {/* Sol: İnfografik görsel — stok placeholder */}
+              <div className="md:col-span-3 relative h-56 md:h-64 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden flex items-center justify-center">
+                {/* Sektör bazlı bütçe bar chart — gerçek verilerle */}
+                <div className="w-full h-full p-6 flex flex-col justify-end">
+                  <div className="flex items-end gap-2 h-36">
+                    {[
+                      { label:"Ulaşım", pct:100, color:"#1d4ed8" },
+                      { label:"İçişleri", pct:58, color:"#0e7490" },
+                      { label:"Çevre", pct:51, color:"#15803d" },
+                      { label:"Rekabet", pct:19, color:"#7c3aed" },
+                      { label:"Enerji", pct:16, color:"#ca8a04" },
+                      { label:"İstihdam", pct:13, color:"#ea580c" },
+                      { label:"Yargı", pct:11, color:"#b45309" },
+                      { label:"Temel H.", pct:10, color:"#be185d" },
+                      { label:"Sivil T.", pct:6, color:"#4338ca" },
+                      { label:"Tarım", pct:5, color:"#166534" },
+                    ].map((s, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1">
+                        <div className="w-full rounded-t" style={{ height: `${Math.max(s.pct, 8)}%`, background: s.color, opacity: 0.8 }} />
+                        <span className="text-[8px] text-slate truncate w-full text-center leading-tight">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-[9px] text-mist mt-2 text-center">AB Katkısı — sektör bazlı nispi dağılım</div>
                 </div>
-                <div className="absolute top-3 right-4 bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 shadow-sm text-center">
-                  <div className="text-xs font-bold text-eu">€1.2 Milyar+</div>
-                  <div className="text-xs text-slate">IPA II Toplam</div>
+                {/* Rozet */}
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-white text-center">
+                  <div className="text-sm font-extrabold text-eu leading-none">€1.2B+</div>
+                  <div className="text-[10px] text-slate mt-0.5">IPA II Toplam</div>
                 </div>
               </div>
-              <div className="p-5 flex items-start justify-between gap-4">
+              {/* Sağ: Metin */}
+              <div className="md:col-span-2 p-6 flex flex-col justify-between">
                 <div>
-                  <h3 className="font-bold text-ink text-base mb-1">{locale === "tr" ? "Portföy İnfografikleri" : "Portfolio Infographics"}</h3>
+                  <div className="text-xs font-bold text-eu uppercase tracking-widest mb-2">
+                    {locale === "tr" ? "Portföy Analizi" : "Portfolio Analysis"}
+                  </div>
+                  <h3 className="font-bold text-ink text-xl mb-3">
+                    {locale === "tr" ? "Portföy İnfografikleri" : "Portfolio Infographics"}
+                  </h3>
                   <p className="text-slate text-sm leading-relaxed">
                     {locale === "tr"
-                      ? "IPA II döneminde €1,2 milyar+ AB katkısı. Halkalı-Kapıkule demiryolu tek başına €275 milyon. Sektör, donör ve dönem bazlı detaylı portföy analizi."
-                      : "Over €1.2 billion EU contribution in IPA II. Detailed portfolio analysis by sector, donor, and period."}
+                      ? "IPA II döneminde 165 proje, 10 sektör, €1,2 milyar+ AB katkısı. Halkalı-Kapıkule demiryolu tek başına €275 milyon. Sektör ve bütçe dağılımını görselleştirin."
+                      : "165 projects, 10 sectors, €1.2B+ EU contribution in IPA II. Halkalı-Kapıkule railway alone: €275M. Visualise sector and budget distribution."}
                   </p>
                 </div>
                 <Link href="/araclar/infografik"
-                  className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-eu hover:underline whitespace-nowrap mt-1">
-                  {locale === "tr" ? "Tümünü Gör" : "See All"}
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white bg-eu px-4 py-2.5 rounded-xl hover:bg-blue-800 transition-colors w-fit">
+                  {locale === "tr" ? "İnfografikleri Gör" : "View Infographics"}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
                 </Link>
               </div>
             </div>
-
           </div>
+
         </div>
       </section>
       {/* Dijital Araçlar */}
@@ -470,23 +438,29 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-ink mb-2">{t("home_tools")}</h2>
           <p className="text-slate mb-8">{t("home_tools_sub")}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { href: "/araclar/etkinlik", title: locale === "tr" ? "Etkinlik Yönetimi" : "Event Management", desc: locale === "tr" ? "RSVP takibi, gündem ve müsaitlik anketi." : "RSVP tracking, agenda, and availability polls.", color: "#0E7490" },
-              { href: "/araclar/dokuman", title: locale === "tr" ? "E-Doküman Yönetimi" : "E-Document Management", desc: locale === "tr" ? "Doküman kütüphanesi, erişim kontrolü, indirme sayacı." : "Document library, access control, download tracking.", color: "#1D7A5F" },
-              { href: "/araclar/bulten", title: locale === "tr" ? "Bülten Gönderimi" : "Newsletter Campaigns", desc: locale === "tr" ? "Hedefli e-posta kampanyaları ve istatistikler." : "Targeted email campaigns and statistics.", color: "#7C5710" },
-              { href: "/araclar/paydas", title: locale === "tr" ? "Paydaş İletişimi" : "Stakeholder Communication", desc: locale === "tr" ? "Ekip, uzman ve tedarikçi yönetimi." : "Team, expert, and supplier management.", color: "#3730A3" },
-              { href: "/araclar/egitim", title: locale === "tr" ? "Eğitim Materyalleri" : "Training Materials", desc: locale === "tr" ? "Firmaların eklediği video ve doküman eğitim materyalleri kütüphanesi." : "Library of training videos and documents added by companies.", color: "#7C3AED" },
-              { href: "/uzmanlar", title: locale === "tr" ? "Uzman CV Havuzu" : "Expert CV Pool", desc: locale === "tr" ? "Uzman profillerini yönetin ve proje ekibi kurun." : "Manage expert profiles and build project teams.", color: "#0369A1" },
+              { href: "/araclar/etkinlik", icon: "📅", title: locale === "tr" ? "Etkinlik Yönetimi" : "Event Management", desc: locale === "tr" ? "RSVP, gündem, müsaitlik anketi, PDF davetiye." : "RSVP, agenda, availability polls, PDF invite.", color: "#0E7490" },
+              { href: "/araclar/dokuman", icon: "📁", title: locale === "tr" ? "E-Doküman" : "E-Document", desc: locale === "tr" ? "Doküman kütüphanesi, erişim kontrolü, indirme sayacı." : "Document library, access control, download tracking.", color: "#1D7A5F" },
+              { href: "/araclar/bulten", icon: "📧", title: locale === "tr" ? "Bülten Gönderimi" : "Newsletter", desc: locale === "tr" ? "Hedefli e-posta kampanyaları ve istatistikler." : "Targeted email campaigns and statistics.", color: "#7C5710" },
+              { href: "/araclar/paydas", icon: "🤝", title: locale === "tr" ? "Paydaş İletişimi" : "Stakeholder Comm.", desc: locale === "tr" ? "Adres defteri, toplu mesaj, WhatsApp." : "Address book, bulk messaging, WhatsApp.", color: "#3730A3" },
+              { href: "/araclar/egitim", icon: "🎓", title: locale === "tr" ? "Eğitim Materyalleri" : "Training Materials", desc: locale === "tr" ? "Video ve doküman eğitim kütüphanesi." : "Video and document training library.", color: "#7C3AED" },
+              { href: "/uzmanlar", icon: "👤", title: locale === "tr" ? "Uzman CV Havuzu" : "Expert CV Pool", desc: locale === "tr" ? "Uzman profilleri, proje ekibi kurma." : "Expert profiles, build project teams.", color: "#0369A1" },
+              { href: "/araclar/anket", icon: "📋", title: locale === "tr" ? "Anket Oluşturucu" : "Survey Builder", desc: locale === "tr" ? "Çoktan seçmeli, açık uçlu anket ve sonuç dashboard'u." : "Multiple choice, open-ended surveys + results.", color: "#0891B2" },
+              { href: "/araclar/harita", icon: "🗺️", title: locale === "tr" ? "Proje Haritası" : "Project Map", desc: locale === "tr" ? "İl bazlı proje dağılımı görselleştirme." : "Visualise project distribution by province.", color: "#B45309" },
+              { href: "/araclar/infografik", icon: "📈", title: locale === "tr" ? "Portföy İnfografikleri" : "Infographics", desc: locale === "tr" ? "Sektör, donör ve bütçe bazlı görsel analiz." : "Visual analysis by sector, donor and budget.", color: "#C2410C" },
+              { href: "/kurumlar", icon: "📖", title: locale === "tr" ? "Rehber" : "Directory", desc: locale === "tr" ? "Firma, STK, tedarikçi ve kurum profilleri." : "Firms, NGOs, suppliers and institution profiles.", color: "#4338CA" },
+              { href: "/firma?tab=projeler", icon: "🌐", title: locale === "tr" ? "Proje Web Sitesi" : "Project Website", desc: locale === "tr" ? "4 şablon, 3 header, footer logo yönetimi." : "4 templates, 3 headers, footer logo library.", color: "#1E3A8A" },
+              { href: "/ilanlar?tur=ihale", icon: "📌", title: locale === "tr" ? "Program İhaleleri" : "Programme Tenders", desc: locale === "tr" ? "Admin2 onaylı ihale ilanları (ücretli üyeler)." : "Admin2-approved tenders (paid members only).", color: "#9D174D" },
             ].map((tool) => (
               <Link key={tool.href} href={tool.href}
-                className="border border-line rounded-xl overflow-hidden hover:shadow-md transition-all group">
-                <div className="h-20 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${tool.color}, ${tool.color}cc)` }}>
-                  <span className="text-white text-2xl font-extrabold opacity-30 group-hover:opacity-50 transition-opacity">✦</span>
+                className="border border-line rounded-xl overflow-hidden hover:shadow-md transition-all group bg-white">
+                <div className="h-14 flex items-center justify-center gap-2" style={{ background: `linear-gradient(135deg, ${tool.color}15, ${tool.color}08)`, borderBottom: `2px solid ${tool.color}30` }}>
+                  <span className="text-xl">{tool.icon}</span>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-ink text-sm mb-1">{tool.title}</h3>
-                  <p className="text-xs text-slate leading-relaxed">{tool.desc}</p>
+                <div className="p-3">
+                  <h3 className="font-bold text-ink text-xs mb-1 leading-tight">{tool.title}</h3>
+                  <p className="text-[11px] text-slate leading-relaxed line-clamp-2">{tool.desc}</p>
                 </div>
               </Link>
             ))}

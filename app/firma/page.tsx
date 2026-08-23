@@ -52,6 +52,12 @@ function Icon({ id, className = "w-5 h-5" }: { id: string; className?: string })
     doc:      "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z",
     graduate: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5",
     megaphone:"M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 0 1-1.44-4.282m3.102.069a18.03 18.03 0 0 1-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 0 1 8.835 2.535M10.34 6.66a23.847 23.847 0 0 0 8.835-2.535m0 0A23.74 23.74 0 0 0 18.795 3m.38 1.125a23.91 23.91 0 0 1 1.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 0 0 1.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 0 1 0 3.46",
+    survey:   "M9 12h3.75M9 15h3.75M9 18h3.75M16.5 3.75A2.25 2.25 0 0 1 18.75 6v12A2.25 2.25 0 0 1 16.5 20.25h-9A2.25 2.25 0 0 1 5.25 18V6A2.25 2.25 0 0 1 7.5 3.75m2.25 0h4.5m-4.5 0a.75.75 0 0 0-.75.75v.75h6V4.5a.75.75 0 0 0-.75-.75m-4.5 0h4.5",
+    map:      "M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0Z",
+    chart:    "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z",
+    directory:"M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25",
+    website:  "M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418",
+    tender:   "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z",
   };
   return (
     <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -74,15 +80,19 @@ const TABS: TabDef[] = [
 ];
 
 // Dijital araçlar — role göre
-const TOOL_CARDS: { href: string; icon: string; label: string; roles: SubscriberProfileType[] }[] = [
-  { href: "/araclar/etkinlik", icon: "event",     label: "Etkinlik Yönetimi",    roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { href: "/araclar/dokuman",  icon: "doc",       label: "E-Doküman Yönetimi",   roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { href: "/araclar/bulten",   icon: "mail",      label: "Bülten Gönderimi",     roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { href: "/araclar/paydas",   icon: "megaphone", label: "Paydaş İletişimi",     roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { href: "/araclar/egitim",   icon: "graduate",  label: "Eğitim Materyalleri",  roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  { href: "/uzmanlar",         icon: "address",   label: "Uzman CV Havuzu",      roles: ["firma", "stk", "delegasyon", "program_otoritesi"] },
-  // Tedarikçi: sadece eğitim materyali görüntüler
-  { href: "/araclar/egitim",   icon: "graduate",  label: "Eğitim Materyalleri",  roles: ["tedarikci"] },
+const TOOL_CARDS: { href: string; icon: string; label: string; roles: SubscriberProfileType[]; desc?: string }[] = [
+  { href: "/araclar/etkinlik",   icon: "event",     label: "Etkinlik Yönetimi",    desc: "RSVP, gündem, müsaitlik anketi, PDF davetiye",     roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/araclar/dokuman",    icon: "doc",       label: "E-Doküman Yönetimi",   desc: "Doküman kütüphanesi, erişim kontrolü, indirme",     roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/araclar/bulten",     icon: "mail",      label: "Bülten Gönderimi",     desc: "Hedefli e-posta kampanyaları ve istatistikler",     roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/araclar/paydas",     icon: "megaphone", label: "Paydaş İletişimi",     desc: "Adres defteri, toplu mesaj, WhatsApp",             roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/araclar/egitim",     icon: "graduate",  label: "Eğitim Materyalleri",  desc: "Video ve doküman eğitim kütüphanesi",              roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
+  { href: "/uzmanlar",           icon: "address",   label: "Uzman CV Havuzu",      desc: "Uzman profilleri, proje ekibi kurma",              roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/araclar/anket",      icon: "survey",    label: "Anket Oluşturucu",     desc: "Çoktan seçmeli / açık uçlu anket ve dashboard",   roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/araclar/harita",     icon: "map",       label: "Proje Haritası",       desc: "İl bazlı proje dağılımı görselleştirme",           roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
+  { href: "/araclar/infografik", icon: "chart",     label: "Portföy İnfografikleri", desc: "Sektör, donör ve bütçe bazlı görsel analiz",   roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
+  { href: "/kurumlar",           icon: "directory", label: "Rehber",               desc: "Firma, STK, tedarikçi ve kurum profilleri",       roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
+  { href: "/firma?tab=projeler", icon: "website",   label: "Proje Web Sitesi",     desc: "4 şablon, 3 header versiyonu, footer logoları",    roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
+  { href: "/ilanlar?tur=ihale",  icon: "tender",    label: "Program İhaleleri",    desc: "Admin2 onaylı ihale ilanları",                    roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
 ];
 
 // ─── Ana component ─────────────────────────────────────────────
@@ -164,48 +174,60 @@ function FirmaPanelInner() {
       <div className="max-w-5xl mx-auto px-6 py-8">
         <Breadcrumb items={[{ label: "Ana Sayfa", href: "/" }, { label: "Panelim" }]} />
 
-        {/* Profil özet başlığı */}
+        {/* Profil başlığı — adı tıklanınca açılır menü */}
         <div className="bg-white border border-line rounded-2xl p-5 mb-5">
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-eu flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
               {(current.organization ?? current.name).charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
                 <h1 className="text-lg font-bold text-ink truncate">{current.organization ?? current.name}</h1>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${ROLE_COLOR[role]}`}>
                   {ROLE_LABEL[role]}
                 </span>
               </div>
-              <p className="text-sm text-slate mt-0.5">{current.name} · {current.email}</p>
+              <p className="text-sm text-slate">{current.name} · {current.email}</p>
               {current.contactAddress && <p className="text-xs text-mist mt-0.5">📍 {current.contactAddress}</p>}
+              {current.shortBio && <p className="text-xs text-slate mt-1.5 leading-relaxed line-clamp-2">{current.shortBio}</p>}
               {current.services && current.services.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {current.services.slice(0, 3).map((s) => (
+                  {current.services.slice(0, 4).map((s) => (
                     <span key={s} className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full">{s}</span>
                   ))}
-                  {current.services.length > 3 && <span className="text-xs text-mist">+{current.services.length - 3}</span>}
+                  {current.services.length > 4 && <span className="text-xs text-mist">+{current.services.length - 4}</span>}
                 </div>
               )}
+              {current.institutionWebsite && (
+                <a href={current.institutionWebsite} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-eu hover:underline mt-1 inline-block">
+                  🔗 {current.institutionWebsite.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                </a>
+              )}
             </div>
-            <div className="flex flex-col gap-2 flex-shrink-0">
-              <button
-                onClick={() => setActiveTab("profil")}
-                title="Profili Düzenle"
-                className="flex items-center gap-1.5 px-3 py-2 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
+            {/* Sağ: Düzenle + Profilim + açılır menü çıkış */}
+            <div className="flex flex-col gap-1.5 flex-shrink-0">
+              <button onClick={() => setActiveTab("profil")}
+                className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
                 </svg>
                 Düzenle
               </button>
               <Link href={`/firma/${current.id}`}
-                className="flex items-center gap-1.5 px-3 py-2 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
+                className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
                 Profilim
               </Link>
+              <button onClick={() => { logout(); router.push("/"); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors font-semibold">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                </svg>
+                Çıkış
+              </button>
             </div>
           </div>
         </div>
@@ -227,9 +249,7 @@ function FirmaPanelInner() {
             <button key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
-                activeTab === tab.id
-                  ? "bg-white text-ink shadow-sm"
-                  : "text-slate hover:text-ink"
+                activeTab === tab.id ? "bg-white text-ink shadow-sm" : "text-slate hover:text-ink"
               }`}>
               <Icon id={tab.icon} className="w-4 h-4" />
               {tab.label}
@@ -240,14 +260,6 @@ function FirmaPanelInner() {
               )}
             </button>
           ))}
-          <div className="flex-1" />
-          <button onClick={() => { logout(); router.push("/"); }}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs text-mist hover:text-red-500 transition-colors flex-shrink-0 rounded-lg hover:bg-red-50">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-            </svg>
-            Çıkış
-          </button>
         </div>
 
         {/* Tab içerikleri */}
@@ -305,7 +317,7 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [locText, setLocText] = useState("");
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [projectTab, setProjectTab] = useState<"bilgiler" | "ekip" | "dosyalar" | "ilanlar">("bilgiler");
+  const [projectTab, setProjectTab] = useState<"bilgiler" | "ekip" | "dosyalar" | "ilanlar" | "website">("bilgiler");
   const [incomingRequests, setIncomingRequests] = useState<import("@/lib/types").OwnershipRequest[]>([]);
   const [projectDocs, setProjectDocs] = useState<import("@/lib/types").ProjectDocument[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
@@ -486,12 +498,12 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
                 <div className="border-t border-line">
                   {/* Sekme navigasyonu */}
                   <div className="flex gap-1 px-4 pt-3 pb-0 overflow-x-auto">
-                    {(["bilgiler", "ekip", "dosyalar", "ilanlar"] as const).map((tab) => (
+                    {(["bilgiler", "ekip", "dosyalar", "ilanlar", "website"] as const).map((tab) => (
                       <button key={tab} onClick={() => setProjectTab(tab)}
                         className={`px-3 py-1.5 text-xs font-semibold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${
                           projectTab === tab ? "border-eu text-eu bg-eu-pale" : "border-transparent text-slate hover:text-ink"
                         }`}>
-                        {tab === "bilgiler" ? "📋 Bilgiler" : tab === "ekip" ? "👥 Ekip" : tab === "dosyalar" ? "📁 Dosyalar" : "📢 İlanlar"}
+                        {tab === "bilgiler" ? "📋 Bilgiler" : tab === "ekip" ? "👥 Ekip" : tab === "dosyalar" ? "📁 Dosyalar" : tab === "ilanlar" ? "📢 İlanlar" : "🌐 Web Sitesi"}
                       </button>
                     ))}
                   </div>
@@ -534,6 +546,11 @@ function ProjectsTab({ current, locale, ownedProjects, setOwnedProjects, memberP
                         setMyListings={setMyListings}
                         current={current} locale={locale}
                       />
+                    )}
+
+                    {/* Web Sitesi sekmesi */}
+                    {projectTab === "website" && (
+                      <ProjectWebsiteTab projectId={p.id} locale={locale} />
                     )}
                   </div>
                 </div>
@@ -699,6 +716,374 @@ function ProjectDocsTab({ docs, loading, onUpload, onRemove, locale }: {
               <button onClick={() => onRemove(d.id)} className="text-xs text-mist hover:text-tr">Sil</button>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Proje Web Sitesi Sekmesi ─────────────────────────────────
+function ProjectWebsiteTab({ projectId, locale }: { projectId: string; locale: string }) {
+  const db = getDataProvider();
+  const isEn = locale === "en";
+
+  const [website, setWebsite] = useState<import("@/lib/types").ProjectWebsite | null | undefined>(undefined);
+  const [project, setProject] = useState<Project | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [slugError, setSlugError] = useState("");
+  const [slugOk, setSlugOk] = useState(false);
+  const [showLogoLib, setShowLogoLib] = useState(false);
+  const [logoCategory, setLogoCategory] = useState("ab");
+  const [previewLocale, setPreviewLocale] = useState<"tr" | "en">("tr");
+  const [activeTab, setActiveTab] = useState<"template" | "header" | "footer" | "settings">("template");
+
+  // Lazy import — website kütüphanesi sadece bu sekme açıkken yüklenir
+  const { TEMPLATE_META, renderTemplate, WebsiteFooter } = require("@/lib/website/templates") as typeof import("@/lib/website/templates");
+  const { LOGO_LIBRARY, LOGO_CATEGORIES, getLibraryLogo } = require("@/lib/website/logo-library") as typeof import("@/lib/website/logo-library");
+
+  useEffect(() => {
+    (async () => {
+      const [w, p] = await Promise.all([db.getProjectWebsite(projectId), db.getProject(projectId)]);
+      setProject(p);
+      if (w) {
+        setWebsite(w);
+      } else if (p) {
+        // Yeni site şablonu
+        const slug = p.title.toLowerCase()
+          .replace(/[ğüşıöçĞÜŞİÖÇ]/g, (c: string) => ({ğ:"g",ü:"u",ş:"s",ı:"i",ö:"o",ç:"c",Ğ:"g",Ü:"u",Ş:"s",İ:"i",Ö:"o",Ç:"c"}[c] ?? c))
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+        setWebsite({
+          id: `pw-${Date.now()}`,
+          projectId,
+          ownerSubscriberId: "",
+          slug,
+          templateId: "minimal",
+          headerVersion: 1,
+          headerTr: { title: p.title, subtitle: p.summary?.slice(0, 100), tagline: "AB Destekli Proje" },
+          headerEn: { title: p.title, subtitle: p.summary?.slice(0, 100), tagline: "EU-Funded Project" },
+          footerLogos: [{ id: "fl-eu", source: "library", libraryKey: "eu", label: "Avrupa Birliği", order: 1 }],
+          published: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          showObjective: true, showOutputs: true, showLocations: true, showBudget: true, showConsortium: false,
+        });
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
+  const set = (patch: Partial<import("@/lib/types").ProjectWebsite>) =>
+    setWebsite((w) => w ? { ...w, ...patch } : w);
+
+  const handleSave = async () => {
+    if (!website) return;
+    setSaving(true);
+    await db.saveProjectWebsite({ ...website, updatedAt: new Date().toISOString() });
+    setSaving(false); setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const checkSlug = async (slug: string) => {
+    if (!slug || slug.length < 3) { setSlugError("En az 3 karakter"); setSlugOk(false); return; }
+    if (!/^[a-z0-9-]+$/.test(slug)) { setSlugError("Sadece küçük harf, rakam ve tire"); setSlugOk(false); return; }
+    const ok = await db.isSlugAvailable(slug, projectId);
+    if (ok) { setSlugError(""); setSlugOk(true); }
+    else { setSlugError("Bu kısa ad kullanımda"); setSlugOk(false); }
+  };
+
+  if (website === undefined) return <div className="p-6 text-sm text-mist">Yükleniyor…</div>;
+  if (!website || !project) return <div className="p-6 text-sm text-slate">Proje verisi alınamadı.</div>;
+
+  const resolvedLogos = website.footerLogos.map((fl: import("@/lib/types").WebsiteFooterLogo) => ({
+    id: fl.id,
+    imageUrl: fl.source === "custom" ? fl.imageUrl : getLibraryLogo(fl.libraryKey ?? "")?.svgOrUrl,
+    label: fl.label,
+    libraryLogo: fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined,
+  }));
+
+  const ACCENT_COLORS = ["#003399","#1D7A5F","#B45309","#7C3AED","#111827","#C2410C"];
+  const accent = website.accentColor ?? "#003399";
+
+  return (
+    <div className="space-y-0">
+      {/* Üst bar */}
+      <div className="flex items-center gap-3 pb-3 mb-4 border-b border-line">
+        <div className="text-xs text-mist flex-1">
+          <span className="font-semibold text-ink">URL:</span>{" "}
+          <span className="font-mono bg-surface px-1.5 py-0.5 rounded">euinturkiye.com/p/{website.slug}</span>
+        </div>
+        <button onClick={() => set({ published: !website.published })}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${website.published ? "bg-green-100 text-green-700" : "bg-surface text-slate border border-line"}`}>
+          {website.published ? "✓ Yayında" : "Taslak"}
+        </button>
+        {website.published && (
+          <a href={`/p/${website.slug}`} target="_blank" rel="noopener noreferrer"
+            className="text-xs text-eu font-semibold hover:underline">↗ Görüntüle</a>
+        )}
+        <button onClick={handleSave} disabled={saving}
+          className="px-4 py-1.5 bg-eu text-white rounded-lg text-xs font-semibold hover:bg-blue-800 disabled:opacity-60">
+          {saving ? "…" : saved ? "✓ Kaydedildi" : "Kaydet"}
+        </button>
+      </div>
+
+      {/* Ana içerik — iki kolon */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+        {/* Sol: Editor paneli */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Editör sekme nav */}
+          <div className="flex gap-1 bg-surface rounded-xl p-1">
+            {(["template", "header", "footer", "settings"] as const).map((t) => {
+              const labels = { template: "Şablon", header: "Başlık", footer: "Footer", settings: "Ayarlar" };
+              return (
+                <button key={t} onClick={() => setActiveTab(t)}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === t ? "bg-white text-eu shadow-sm" : "text-slate hover:text-ink"}`}>
+                  {labels[t]}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── ŞABLON ── */}
+          {activeTab === "template" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                {TEMPLATE_META.map((tm: { id: import("@/lib/types").WebsiteTemplateId; label: string; desc: string; icon: string }) => (
+                  <button key={tm.id} onClick={() => set({ templateId: tm.id })}
+                    className={`border-2 rounded-xl p-3 text-left transition-all ${website.templateId === tm.id ? "border-eu bg-eu-pale" : "border-line hover:border-eu/40"}`}>
+                    <div className="text-lg mb-1">{tm.icon}</div>
+                    <div className="text-xs font-bold text-ink">{tm.label}</div>
+                    <div className="text-[10px] text-mist mt-0.5 leading-tight">{tm.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-mist mb-1.5">Vurgu Rengi</label>
+                <div className="flex items-center gap-2 mb-2">
+                  <input type="color" value={accent} onChange={(e) => set({ accentColor: e.target.value })}
+                    className="w-9 h-8 rounded cursor-pointer border border-line" />
+                  <input value={accent} onChange={(e) => set({ accentColor: e.target.value })}
+                    className="flex-1 px-2.5 py-1.5 border border-line rounded-lg text-xs font-mono focus:outline-none focus:border-eu" />
+                </div>
+                <div className="flex gap-1.5">
+                  {ACCENT_COLORS.map((c) => (
+                    <button key={c} onClick={() => set({ accentColor: c })}
+                      className={`w-5 h-5 rounded-full border-2 ${website.accentColor === c ? "border-ink" : "border-transparent"}`}
+                      style={{ background: c }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── BAŞLIK ── */}
+          {activeTab === "header" && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs font-semibold text-mist mb-2">Header Versiyonu</p>
+                <div className="flex gap-2">
+                  {([1,2,3] as const).map((v) => (
+                    <button key={v} onClick={() => set({ headerVersion: v })}
+                      className={`flex-1 py-2 text-xs font-semibold rounded-xl border-2 transition-all ${website.headerVersion === v ? "border-eu text-eu bg-eu-pale" : "border-line text-slate"}`}>
+                      V{v}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-mist mt-1.5">
+                  {website.headerVersion === 1 ? "Logo sol, metin orta, yıldız sağ" :
+                   website.headerVersion === 2 ? "İki kolon — metin sol, logo sağ dikey" :
+                   "Üst renk şerit + yatay içerik"}
+                </p>
+              </div>
+              {(["tr","en"] as const).map((lang) => {
+                const key = lang === "tr" ? "headerTr" : "headerEn";
+                const val = website[key];
+                return (
+                  <div key={lang} className="border border-line rounded-xl p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white bg-eu px-2 py-0.5 rounded-full">{lang.toUpperCase()}</span>
+                      <span className="text-xs text-mist">{lang === "tr" ? "Türkçe" : "İngilizce"}</span>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-mist mb-0.5">Başlık *</label>
+                      <input value={val.title} onChange={(e) => set({ [key]: { ...val, title: e.target.value } })}
+                        className="w-full px-2 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-mist mb-0.5">Alt Başlık</label>
+                      <textarea value={val.subtitle ?? ""} onChange={(e) => set({ [key]: { ...val, subtitle: e.target.value } })}
+                        rows={2} className="w-full px-2 py-1.5 border border-line rounded-lg text-xs resize-none focus:outline-none focus:border-eu" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-mist mb-0.5">Tagline</label>
+                      <input value={val.tagline ?? ""} onChange={(e) => set({ [key]: { ...val, tagline: e.target.value } })}
+                        className="w-full px-2 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ── FOOTER ── */}
+          {activeTab === "footer" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-mist">Footer Logoları</p>
+                <button onClick={() => setShowLogoLib(true)} className="text-xs text-eu font-semibold">+ Kütüphane</button>
+              </div>
+              {website.footerLogos.length === 0 ? (
+                <div className="bg-surface rounded-lg p-4 text-center text-xs text-mist">Logo yok — kütüphaneden ekleyin veya yükleyin.</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {[...website.footerLogos].sort((a,b)=>a.order-b.order).map((fl, idx) => {
+                    const lib = fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined;
+                    const src = fl.source === "custom" ? fl.imageUrl : lib?.svgOrUrl;
+                    return (
+                      <div key={fl.id} className="flex items-center gap-2 bg-surface rounded-lg p-2">
+                        <div className="w-10 h-7 flex items-center justify-center bg-white rounded border border-line flex-shrink-0">
+                          {src ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={src} alt="" className="max-w-full max-h-full object-contain" />
+                          ) : <span className="text-[9px] text-mist">?</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-ink truncate">{fl.label ?? lib?.label ?? "Logo"}</p>
+                        </div>
+                        <div className="flex gap-1">
+                          <button disabled={idx === 0}
+                            onClick={() => {
+                              const logs = [...website.footerLogos].sort((a,b)=>a.order-b.order);
+                              [logs[idx-1].order, logs[idx].order] = [logs[idx].order, logs[idx-1].order];
+                              set({ footerLogos: [...logs] });
+                            }}
+                            className="w-5 h-5 text-[10px] text-slate border border-line rounded disabled:opacity-30">←</button>
+                          <button disabled={idx === website.footerLogos.length-1}
+                            onClick={() => {
+                              const logs = [...website.footerLogos].sort((a,b)=>a.order-b.order);
+                              [logs[idx+1].order, logs[idx].order] = [logs[idx].order, logs[idx+1].order];
+                              set({ footerLogos: [...logs] });
+                            }}
+                            className="w-5 h-5 text-[10px] text-slate border border-line rounded disabled:opacity-30">→</button>
+                          <button onClick={() => set({ footerLogos: website.footerLogos.filter((x) => x.id !== fl.id) })}
+                            className="w-5 h-5 text-[10px] text-red-500 border border-red-200 rounded hover:bg-red-50">✕</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Kendi logosu */}
+              <label className="block border-2 border-dashed border-line rounded-lg p-3 text-center cursor-pointer hover:border-eu">
+                <span className="text-xs text-eu font-semibold">+ Kendi logonu yükle (PNG/SVG)</span>
+                <input type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                      const url = ev.target?.result as string;
+                      set({ footerLogos: [...website.footerLogos, { id: `fl-c-${Date.now()}`, source: "custom", imageUrl: url, label: file.name.replace(/\.[^.]+$/, ""), order: website.footerLogos.length + 1 }] });
+                    };
+                    reader.readAsDataURL(file);
+                  }} />
+              </label>
+            </div>
+          )}
+
+          {/* ── AYARLAR ── */}
+          {activeTab === "settings" && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-mist mb-1">Kısa URL</label>
+                <p className="text-[10px] text-mist mb-1">euinturkiye.com/p/<span className="font-mono font-bold text-ink">{website.slug}</span></p>
+                <div className="flex gap-2">
+                  <input value={website.slug} onChange={(e) => { set({ slug: e.target.value }); setSlugOk(false); setSlugError(""); }}
+                    className={`flex-1 px-2.5 py-1.5 border rounded-lg text-xs font-mono focus:outline-none ${slugError ? "border-red-400" : slugOk ? "border-green-500" : "border-line focus:border-eu"}`} />
+                  <button onClick={() => checkSlug(website.slug)} className="px-2.5 py-1.5 text-xs border border-line rounded-lg hover:bg-surface">✓</button>
+                </div>
+                {slugError && <p className="text-[10px] text-red-500 mt-1">{slugError}</p>}
+                {slugOk && <p className="text-[10px] text-green-600 mt-1">✓ Uygun</p>}
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-mist mb-2">Gösterilecek Bölümler</p>
+                {[
+                  { key: "showObjective", label: "Proje Amacı" },
+                  { key: "showOutputs", label: "Çıktılar" },
+                  { key: "showLocations", label: "Uygulama Yerleri" },
+                  { key: "showBudget", label: "Bütçe" },
+                  { key: "showConsortium", label: "Konsorsiyum" },
+                ].map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-2 py-1.5 cursor-pointer border-b border-line/60 last:border-0">
+                    <div onClick={() => set({ [key]: !website[key as keyof typeof website] })}
+                      className={`w-8 h-4 rounded-full transition-colors cursor-pointer flex-shrink-0 ${website[key as keyof typeof website] ? "bg-eu" : "bg-line"}`}>
+                      <div className={`w-3 h-3 bg-white rounded-full mt-0.5 transition-transform shadow-sm ${website[key as keyof typeof website] ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </div>
+                    <span className="text-xs text-slate">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sağ: Canlı önizleme */}
+        <div className="lg:col-span-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-mist">Önizleme:</span>
+            <button onClick={() => setPreviewLocale("tr")}
+              className={`text-xs px-2 py-0.5 rounded font-semibold ${previewLocale === "tr" ? "bg-eu text-white" : "text-slate border border-line"}`}>TR</button>
+            <button onClick={() => setPreviewLocale("en")}
+              className={`text-xs px-2 py-0.5 rounded font-semibold ${previewLocale === "en" ? "bg-eu text-white" : "text-slate border border-line"}`}>EN</button>
+          </div>
+          <div className="border border-line rounded-xl overflow-hidden bg-white" style={{ maxHeight: 520, overflowY: "auto" }}>
+            <div style={{ transform: "scale(0.7)", transformOrigin: "top left", width: "143%", pointerEvents: "none" }}>
+              {renderTemplate({ website, project, sector: null, donor: null, resolvedLogos, locale: previewLocale, preview: true })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Logo kütüphanesi modal */}
+      {showLogoLib && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowLogoLib(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[65vh] flex flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+              <h3 className="font-bold text-ink text-sm">Logo Kütüphanesi</h3>
+              <button onClick={() => setShowLogoLib(false)} className="text-mist hover:text-ink text-xl leading-none">×</button>
+            </div>
+            <div className="px-4 py-2 border-b border-line flex gap-1.5 overflow-x-auto">
+              {LOGO_CATEGORIES.map((cat: { id: string; label: string }) => (
+                <button key={cat.id} onClick={() => setLogoCategory(cat.id)}
+                  className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${logoCategory === cat.id ? "bg-eu text-white" : "bg-surface text-slate"}`}>
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 grid grid-cols-3 gap-2">
+              {LOGO_LIBRARY.filter((l: { category: string }) => l.category === logoCategory).map((lib: { key: string; svgOrUrl: string; label: string }) => {
+                const already = website.footerLogos.some((fl) => fl.libraryKey === lib.key);
+                return (
+                  <button key={lib.key} disabled={already}
+                    onClick={() => {
+                      set({ footerLogos: [...website.footerLogos, { id: `fl-${lib.key}-${Date.now()}`, source: "library", libraryKey: lib.key, label: lib.label, order: website.footerLogos.length + 1 }] });
+                      setShowLogoLib(false);
+                    }}
+                    className={`border-2 rounded-xl p-2 flex flex-col items-center gap-1.5 text-center transition-all ${already ? "border-line opacity-40 cursor-not-allowed" : "border-line hover:border-eu"}`}>
+                    <div className="w-14 h-8 flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={lib.svgOrUrl} alt={lib.label} className="max-w-full max-h-full object-contain"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    </div>
+                    <span className="text-[9px] text-slate leading-tight">{lib.label}</span>
+                    {already && <span className="text-[9px] text-green-600">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -1054,44 +1439,24 @@ function EventCard({ event: e, locale }: { event: import("@/lib/types").EventIte
 // ── Dijital Araçlar ───────────────────────────────────────────
 function ToolsTab({ role }: { role: SubscriberProfileType }) {
   const myTools = TOOL_CARDS.filter((t) => t.roles.includes(role));
-  // Tedarikçi için özel mesaj
-  const isSupplier = role === "tedarikci";
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-ink mb-2">Dijital Araçlar</h2>
-      {isSupplier && (
-        <p className="text-sm text-mist mb-5 bg-white border border-line rounded-xl px-4 py-3">
-          Tedarikçi hesabı olarak eğitim materyallerini görüntüleyebilir, uzman profilinizi oluşturabilirsiniz.
-          Etkinlik yönetimi, doküman yönetimi ve bülten gönderimi firma/STK hesaplarına özeldir.
-        </p>
-      )}
+      <h2 className="text-lg font-bold text-ink mb-4">Dijital Araçlar</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {myTools.map((tool) => (
           <Link key={`${tool.href}-${tool.label}`} href={tool.href}
-            className="bg-white border border-line rounded-xl p-4 flex flex-col items-center gap-2 hover:border-eu hover:shadow-sm transition-all group text-center">
-            <span className="w-10 h-10 rounded-full bg-eu-pale text-eu flex items-center justify-center group-hover:bg-eu group-hover:text-white transition-colors">
-              <Icon id={tool.icon} className="w-5 h-5" />
+            className="bg-white border border-line rounded-xl p-4 flex flex-col gap-2 hover:border-eu hover:shadow-sm transition-all group">
+            <span className="w-9 h-9 rounded-lg bg-eu-pale text-eu flex items-center justify-center group-hover:bg-eu group-hover:text-white transition-colors flex-shrink-0">
+              <Icon id={tool.icon} className="w-4 h-4" />
             </span>
-            <span className="text-xs font-semibold text-ink leading-tight">{tool.label}</span>
+            <div>
+              <p className="text-xs font-semibold text-ink leading-tight mb-0.5">{tool.label}</p>
+              {tool.desc && <p className="text-[10px] text-mist leading-tight">{tool.desc}</p>}
+            </div>
           </Link>
         ))}
       </div>
-      {/* Tedarikçi için uzman profil kısayolu */}
-      {isSupplier && (
-        <div className="mt-6">
-          <h3 className="text-sm font-bold text-ink mb-3">Uzman Profilim</h3>
-          <Link href="/uzmanlar" className="bg-white border border-line rounded-xl p-4 flex items-center gap-3 hover:border-eu transition-colors">
-            <span className="w-10 h-10 rounded-full bg-eu-pale text-eu flex items-center justify-center">
-              <Icon id="profile" className="w-5 h-5" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-ink">Uzman Dizinine Git</p>
-              <p className="text-xs text-mist">Profilinizi oluşturun ve görünür olun</p>
-            </div>
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="120" fill="#003399" rx="8"/>
+  <g transform="translate(100,60)">
+    <circle r="32" fill="none" stroke="#FFCC00" stroke-width="1" stroke-dasharray="2,8" stroke-dashoffset="1"/>
+    <polygon transform="translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(30) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(60) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(90) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(120) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(150) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(180) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(210) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(240) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(270) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(300) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+    <polygon transform="rotate(330) translate(0,-32)" points="0,-5.5 1.3,-1.7 5.2,-1.7 2,-1 3.2,5 0,3 -3.2,5 -2,-1 -5.2,-1.7 -1.3,-1.7" fill="#FFCC00"/>
+  </g>
+  <text x="100" y="112" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.5)" font-family="Arial">placeholder — logo eklenecek</text>
+</svg>
