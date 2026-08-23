@@ -12,7 +12,8 @@ import type { Project, Sector, Donor, BlogPost, ExpertProfile, OwnershipRequest,
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const isEn = locale === "en";
   const { current: firma } = useFirma();
   const [project, setProject] = useState<Project | null | undefined>(undefined);
   const [sector, setSector] = useState<Sector | null>(null);
@@ -119,7 +120,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           <span className="text-xs text-mist">{project.ipaPeriod}</span>
           {sector && (
             <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${sector.color}20`, color: sector.color }}>
-              {sector.name}
+              {isEn ? (sector.nameEn ?? sector.name) : sector.name}
             </span>
           )}
         </div>
@@ -128,14 +129,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <p className="text-slate text-lg leading-relaxed mb-8">{project.summary}</p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface rounded-2xl p-6 mb-6">
-          <Info label={t("info_donor")} value={donor?.name ?? project.donorId} />
+          <Info label={t("info_donor")} value={isEn ? (donor?.nameEn ?? donor?.name ?? project.donorId) : (donor?.name ?? project.donorId)} />
           <Info label={t("info_beneficiary")} value={project.beneficiary} />
-          {project.priorityArea && <Info label="Öncelik Alanı" value={project.priorityArea} />}
+          {project.priorityArea && <Info label={isEn ? "Priority Area" : "Öncelik Alanı"} value={project.priorityArea} />}
           {project.euBudget && (
-            <Info label="AB Katkısı" value={"€" + project.euBudget.toLocaleString("tr-TR")} />
+            <Info label={isEn ? "EU Contribution" : "AB Katkısı"} value={"€" + project.euBudget.toLocaleString("tr-TR")} />
           )}
           {project.totalBudget && (
-            <Info label="Toplam Bütçe" value={"€" + project.totalBudget.toLocaleString("tr-TR")} />
+            <Info label={isEn ? "Total Budget" : "Toplam Bütçe"} value={"€" + project.totalBudget.toLocaleString("tr-TR")} />
           )}
           {!project.euBudget && project.budget && <Info label={t("info_budget")} value={project.budget} />}
           {project.startDate && <Info label={t("info_start")} value={project.startDate} />}
@@ -404,6 +405,63 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <p className="text-xs text-mist">
               Son düzenleme: {editLogs[0].editorName} tarafından {new Date(editLogs[0].editedAt).toLocaleDateString("tr-TR")} tarihinde güncellendi.
             </p>
+          </div>
+        )}
+
+        {/* İletişim & Sosyal Medya */}
+        {(project.contactEmail || project.contactPhone || project.projectWebsiteUrl ||
+          project.socialTwitter || project.socialLinkedin || project.socialFacebook ||
+          project.socialInstagram || project.socialYoutube) && (
+          <div className="mb-8 p-5 bg-surface rounded-2xl border border-line">
+            <h2 className="text-sm font-bold text-mist uppercase tracking-wide mb-4">
+              {isEn ? "Contact & Social Media" : "İletişim & Sosyal Medya"}
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {project.contactEmail && (
+                <a href={`mailto:${project.contactEmail}`}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-line rounded-xl text-sm text-slate hover:border-eu hover:text-eu transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                  {project.contactEmail}
+                </a>
+              )}
+              {project.contactPhone && (
+                <a href={`tel:${project.contactPhone}`}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-line rounded-xl text-sm text-slate hover:border-eu hover:text-eu transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                  </svg>
+                  {project.contactPhone}
+                </a>
+              )}
+              {project.projectWebsiteUrl && (
+                <a href={project.projectWebsiteUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-line rounded-xl text-sm text-eu hover:shadow-sm transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                  </svg>
+                  {isEn ? "Project Website" : "Proje Web Sitesi"}
+                </a>
+              )}
+              {[
+                { val: project.socialTwitter, icon: "𝕏", color: "#000", label: "X/Twitter" },
+                { val: project.socialLinkedin, icon: "in", color: "#0A66C2", label: "LinkedIn" },
+                { val: project.socialFacebook, icon: "f", color: "#1877F2", label: "Facebook" },
+                { val: project.socialInstagram, icon: "📷", color: "#E1306C", label: "Instagram" },
+                { val: project.socialYoutube, icon: "▶", color: "#FF0000", label: "YouTube" },
+              ].filter(s => s.val).map((s) => {
+                const href = s.val!.startsWith("http") ? s.val! : `https://${s.val!.replace(/^@/, "")}`;
+                return (
+                  <a key={s.label} href={href} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-white border border-line rounded-xl text-sm font-semibold hover:shadow-sm transition-colors"
+                    style={{ color: s.color }}>
+                    <span className="text-base">{s.icon}</span>
+                    {s.label}
+                  </a>
+                );
+              })}
+            </div>
           </div>
         )}
 

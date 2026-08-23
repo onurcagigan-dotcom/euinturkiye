@@ -10,12 +10,13 @@ import { useLocale } from "@/lib/i18n/context";
 import { getDataProvider } from "@/lib/data";
 import { PLAN_PRICING, getSubscriptionYear, getCurrentYearPrice, formatEuro } from "@/lib/pricing";
 import type { PlanPricing } from "@/lib/pricing";
-import { canPostTender } from "@/lib/types";
+import { TOOLS, ToolIcon } from "@/lib/tools-config";
 import type {
   Project, OwnershipRequest, Listing, ListingType,
   Sector, Donor, IpaPeriod, SubscriberProfileType, ExpertProfile,
   Subscriber, AddressGroup, SavedListing, EditLog,
 } from "@/lib/types";
+import { canPostTender } from "@/lib/types";
 import type { TranslationKey } from "@/lib/i18n/translations";
 
 // ─── Rol sabitleri ────────────────────────────────────────────
@@ -35,11 +36,11 @@ const ROLE_COLOR: Record<SubscriberProfileType, string> = {
 };
 
 // ─── SVG ikonlar ──────────────────────────────────────────────
+// ─── Yardımcı ikon bileşeni (tab nav için) ─────────────────────
 function Icon({ id, className = "w-5 h-5" }: { id: string; className?: string }) {
   const paths: Record<string, string> = {
     project:  "M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z",
     listing:  "M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z",
-    event:    "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5",
     tools:    "M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z",
     address:  "M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z",
     profile:  "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z",
@@ -48,16 +49,6 @@ function Icon({ id, className = "w-5 h-5" }: { id: string; className?: string })
     plus:     "M12 4.5v15m7.5-7.5h-15",
     check:    "m4.5 12.75 6 6 9-13.5",
     chevron:  "M19 9l-7 7-7-7",
-    mail:     "M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75",
-    doc:      "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z",
-    graduate: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5",
-    megaphone:"M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 0 1-1.44-4.282m3.102.069a18.03 18.03 0 0 1-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 0 1 8.835 2.535M10.34 6.66a23.847 23.847 0 0 0 8.835-2.535m0 0A23.74 23.74 0 0 0 18.795 3m.38 1.125a23.91 23.91 0 0 1 1.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 0 0 1.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 0 1 0 3.46",
-    survey:   "M9 12h3.75M9 15h3.75M9 18h3.75M16.5 3.75A2.25 2.25 0 0 1 18.75 6v12A2.25 2.25 0 0 1 16.5 20.25h-9A2.25 2.25 0 0 1 5.25 18V6A2.25 2.25 0 0 1 7.5 3.75m2.25 0h4.5m-4.5 0a.75.75 0 0 0-.75.75v.75h6V4.5a.75.75 0 0 0-.75-.75m-4.5 0h4.5",
-    map:      "M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0Z",
-    chart:    "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z",
-    directory:"M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25",
-    website:  "M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418",
-    tender:   "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z",
   };
   return (
     <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -77,22 +68,6 @@ const TABS: TabDef[] = [
   { id: "araclar",     label: "Dijital Araçlar",  icon: "tools",    roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
   { id: "adres",       label: "Adres Defteri",    icon: "address",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi", "admin2"] },
   { id: "profil",      label: "Profil & Hesap",   icon: "profile",  roles: ["firma", "stk", "tedarikci", "delegasyon", "program_otoritesi", "admin2"] },
-];
-
-// Dijital araçlar — role göre
-const TOOL_CARDS: { href: string; icon: string; label: string; roles: SubscriberProfileType[]; desc?: string }[] = [
-  { href: "/araclar/etkinlik",   icon: "event",     label: "Etkinlik Yönetimi",    desc: "RSVP, gündem, müsaitlik anketi, PDF davetiye",     roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/araclar/dokuman",    icon: "doc",       label: "E-Doküman Yönetimi",   desc: "Doküman kütüphanesi, erişim kontrolü, indirme",     roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/araclar/bulten",     icon: "mail",      label: "Bülten Gönderimi",     desc: "Hedefli e-posta kampanyaları ve istatistikler",     roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/araclar/paydas",     icon: "megaphone", label: "Paydaş İletişimi",     desc: "Adres defteri, toplu mesaj, WhatsApp",             roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/araclar/egitim",     icon: "graduate",  label: "Eğitim Materyalleri",  desc: "Video ve doküman eğitim kütüphanesi",              roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
-  { href: "/uzmanlar",           icon: "address",   label: "Uzman CV Havuzu",      desc: "Uzman profilleri, proje ekibi kurma",              roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/araclar/anket",      icon: "survey",    label: "Anket Oluşturucu",     desc: "Çoktan seçmeli / açık uçlu anket ve dashboard",   roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/araclar/harita",     icon: "map",       label: "Proje Haritası",       desc: "İl bazlı proje dağılımı görselleştirme",           roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
-  { href: "/araclar/infografik", icon: "chart",     label: "Portföy İnfografikleri", desc: "Sektör, donör ve bütçe bazlı görsel analiz",   roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
-  { href: "/kurumlar",           icon: "directory", label: "Rehber",               desc: "Firma, STK, tedarikçi ve kurum profilleri",       roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
-  { href: "/firma?tab=projeler", icon: "website",   label: "Proje Web Sitesi",     desc: "4 şablon, 3 header versiyonu, footer logoları",    roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2"] },
-  { href: "/ilanlar?tur=ihale",  icon: "tender",    label: "Program İhaleleri",    desc: "Admin2 onaylı ihale ilanları",                    roles: ["firma", "stk", "delegasyon", "program_otoritesi", "admin2", "tedarikci"] },
 ];
 
 // ─── Ana component ─────────────────────────────────────────────
@@ -205,7 +180,7 @@ function FirmaPanelInner() {
                 </a>
               )}
             </div>
-            {/* Sağ: Düzenle + Profilim + açılır menü çıkış */}
+            {/* Sağ: Düzenle + Çıkış */}
             <div className="flex flex-col gap-1.5 flex-shrink-0">
               <button onClick={() => setActiveTab("profil")}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
@@ -214,13 +189,6 @@ function FirmaPanelInner() {
                 </svg>
                 Düzenle
               </button>
-              <Link href={`/firma/${current.id}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-slate rounded-lg text-xs font-semibold hover:border-eu hover:text-eu transition-colors">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-                Profilim
-              </Link>
               <button onClick={() => { logout(); router.push("/"); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors font-semibold">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -283,7 +251,7 @@ function FirmaPanelInner() {
             />
           )}
           {activeTab === "araclar" && (
-            <ToolsTab role={role} />
+            <ToolsTab role={role} locale={locale} plan={current.plan} />
           )}
           {activeTab === "adres" && (
             <AddressTab
@@ -736,7 +704,7 @@ function ProjectWebsiteTab({ projectId, locale }: { projectId: string; locale: s
   const [showLogoLib, setShowLogoLib] = useState(false);
   const [logoCategory, setLogoCategory] = useState("ab");
   const [previewLocale, setPreviewLocale] = useState<"tr" | "en">("tr");
-  const [activeTab, setActiveTab] = useState<"template" | "header" | "footer" | "settings">("template");
+  const [activeTab, setActiveTab] = useState<"template" | "header" | "hero" | "menu" | "footer" | "settings">("template");
 
   // Lazy import — website kütüphanesi sadece bu sekme açıkken yüklenir
   const { TEMPLATE_META, renderTemplate, WebsiteFooter } = require("@/lib/website/templates") as typeof import("@/lib/website/templates");
@@ -833,11 +801,11 @@ function ProjectWebsiteTab({ projectId, locale }: { projectId: string; locale: s
         {/* Sol: Editor paneli */}
         <div className="lg:col-span-2 space-y-4">
           {/* Editör sekme nav */}
-          <div className="flex gap-1 bg-surface rounded-xl p-1">
-            {(["template", "header", "footer", "settings"] as const).map((t) => {
-              const labels = { template: "Şablon", header: "Başlık", footer: "Footer", settings: "Ayarlar" };
+          <div className="flex gap-0.5 bg-surface rounded-xl p-1 flex-wrap">
+            {(["template", "header", "hero", "menu", "footer", "settings"] as const).map((t) => {
+              const labels: Record<string, string> = { template: "Şablon", header: "Başlık", hero: "Banner", menu: "Menü", footer: "Footer", settings: "Ayarlar" };
               return (
-                <button key={t} onClick={() => setActiveTab(t)}
+                <button key={t} onClick={() => setActiveTab(t as typeof activeTab)}
                   className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === t ? "bg-white text-eu shadow-sm" : "text-slate hover:text-ink"}`}>
                   {labels[t]}
                 </button>
@@ -849,14 +817,57 @@ function ProjectWebsiteTab({ projectId, locale }: { projectId: string; locale: s
           {activeTab === "template" && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2">
-                {TEMPLATE_META.map((tm: { id: import("@/lib/types").WebsiteTemplateId; label: string; desc: string; icon: string }) => (
-                  <button key={tm.id} onClick={() => set({ templateId: tm.id })}
-                    className={`border-2 rounded-xl p-3 text-left transition-all ${website.templateId === tm.id ? "border-eu bg-eu-pale" : "border-line hover:border-eu/40"}`}>
-                    <div className="text-lg mb-1">{tm.icon}</div>
-                    <div className="text-xs font-bold text-ink">{tm.label}</div>
-                    <div className="text-[10px] text-mist mt-0.5 leading-tight">{tm.desc}</div>
-                  </button>
-                ))}
+                {TEMPLATE_META.map((tm) => {
+                  const selected = website.templateId === tm.id;
+                  return (
+                    <button key={tm.id} onClick={() => set({ templateId: tm.id })}
+                      className={`border-2 rounded-xl overflow-hidden text-left transition-all ${selected ? "border-eu shadow-md" : "border-line hover:border-eu/40"}`}>
+                      {/* Mini önizleme */}
+                      <div style={{ height: 60, background: tm.preview.bg, position: "relative", borderBottom: `2px solid ${website.accentColor ?? tm.preview.accent}30` }}>
+                        {tm.preview.style === "dark" ? (
+                          <>
+                            <div style={{ position: "absolute", inset: 0, background: "#111827" }} />
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 16, background: website.accentColor ?? tm.preview.accent }} />
+                            <div style={{ position: "absolute", top: 10, left: 10, right: 10 }}>
+                              <div style={{ height: 4, background: "rgba(255,255,255,0.3)", borderRadius: 2, width: "70%", marginBottom: 4 }} />
+                              <div style={{ height: 3, background: "rgba(255,255,255,0.15)", borderRadius: 2, width: "45%" }} />
+                            </div>
+                          </>
+                        ) : tm.preview.style === "sidebar" ? (
+                          <div style={{ position: "absolute", inset: 0, display: "flex" }}>
+                            <div style={{ width: 36, background: "#f8fafc", borderRight: "1px solid #e2e8f0" }} />
+                            <div style={{ flex: 1, padding: 8 }}>
+                              <div style={{ height: 3, background: "#1e293b", borderRadius: 2, width: "80%", marginBottom: 4 }} />
+                              <div style={{ height: 2.5, background: "#94a3b8", borderRadius: 2, width: "60%", marginBottom: 3 }} />
+                              <div style={{ height: 2.5, background: "#94a3b8", borderRadius: 2, width: "50%" }} />
+                            </div>
+                          </div>
+                        ) : tm.preview.style === "stats" ? (
+                          <>
+                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 22, background: website.accentColor ?? tm.preview.accent, display: "flex", alignItems: "center", justifyContent: "space-around", padding: "0 8px" }}>
+                              {["€275M","23 İl"].map(v => <span key={v} style={{ fontSize: 8, fontWeight: 800, color: "#FFCC00" }}>{v}</span>)}
+                            </div>
+                            <div style={{ position: "absolute", top: 26, left: 10, right: 10 }}>
+                              <div style={{ height: 3, background: "#1e293b", borderRadius: 2, width: "75%", marginBottom: 3 }} />
+                              <div style={{ height: 2.5, background: "#94a3b8", borderRadius: 2, width: "50%" }} />
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ position: "absolute", top: 10, left: 10, right: 10 }}>
+                            <div style={{ height: 4, background: "#1e293b", borderRadius: 2, width: "80%", marginBottom: 5 }} />
+                            <div style={{ height: 2.5, background: "#94a3b8", borderRadius: 2, width: "55%", marginBottom: 3 }} />
+                            <div style={{ height: 2, background: "#cbd5e1", borderRadius: 2, width: "40%" }} />
+                          </div>
+                        )}
+                        {selected && <div style={{ position: "absolute", top: 4, right: 4, background: "#003399", borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, color: "#fff" }}>✓</div>}
+                      </div>
+                      <div className="p-2.5">
+                        <div className="text-xs font-bold text-ink">{tm.label}</div>
+                        <div className="text-[9px] text-mist mt-0.5 leading-tight">{tm.desc}</div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-mist mb-1.5">Vurgu Rengi</label>
@@ -923,6 +934,128 @@ function ProjectWebsiteTab({ projectId, locale }: { projectId: string; locale: s
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* ── HERO BANNER ── */}
+          {activeTab === "hero" && (
+            <div className="space-y-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div onClick={() => set({ heroBanner: { ...(website.heroBanner ?? { enabled: false }), enabled: !website.heroBanner?.enabled } })}
+                  className={`w-9 h-5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${website.heroBanner?.enabled ? "bg-eu" : "bg-line"}`}>
+                  <div className={`w-3.5 h-3.5 bg-white rounded-full mt-0.5 transition-transform shadow-sm ${website.heroBanner?.enabled ? "translate-x-4" : "translate-x-0.5"}`} />
+                </div>
+                <span className="text-sm font-semibold text-ink">Hero Banner Aktif</span>
+              </label>
+              {website.heroBanner?.enabled && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-mist mb-1.5">Banner Görseli</label>
+                    <label className="block border-2 border-dashed border-line rounded-xl p-4 text-center cursor-pointer hover:border-eu transition-colors">
+                      <span className="text-xs text-eu font-semibold">
+                        {website.heroBanner.imageUrl ? "✓ Görsel yüklendi — değiştir" : "Görsel Yükle (JPG/PNG)"}
+                      </span>
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => set({ heroBanner: { ...website.heroBanner!, enabled: true, imageUrl: ev.target?.result as string } });
+                          reader.readAsDataURL(file);
+                        }} />
+                    </label>
+                    {website.heroBanner.imageUrl && (
+                      <button onClick={() => set({ heroBanner: { ...website.heroBanner!, imageUrl: undefined } })}
+                        className="mt-1 text-xs text-red-500 hover:underline">Görseli kaldır</button>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-mist mb-1">Banner Yüksekliği</label>
+                    <div className="flex gap-1.5">
+                      {(["sm", "md", "lg"] as const).map((h) => (
+                        <button key={h} onClick={() => set({ heroBanner: { ...website.heroBanner!, height: h } })}
+                          className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border-2 transition-all ${(website.heroBanner?.height ?? "md") === h ? "border-eu text-eu bg-eu-pale" : "border-line text-slate"}`}>
+                          {h === "sm" ? "Dar (300px)" : h === "md" ? "Orta (420px)" : "Geniş (580px)"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-mist mb-1">
+                      Overlay Yoğunluğu ({Math.round((website.heroBanner.overlayOpacity ?? 0.5) * 100)}%)
+                    </label>
+                    <input type="range" min="0" max="90" step="5"
+                      value={Math.round((website.heroBanner.overlayOpacity ?? 0.5) * 100)}
+                      onChange={(e) => set({ heroBanner: { ...website.heroBanner!, overlayOpacity: Number(e.target.value) / 100 } })}
+                      className="w-full" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-mist mb-1">CTA Butonu (TR)</label>
+                    <div className="flex gap-2">
+                      <input value={website.heroBanner.ctaLabel ?? ""} onChange={(e) => set({ heroBanner: { ...website.heroBanner!, ctaLabel: e.target.value } })}
+                        placeholder="Daha Fazla Bilgi"
+                        className="flex-1 px-2.5 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                      <input value={website.heroBanner.ctaLabelEn ?? ""} onChange={(e) => set({ heroBanner: { ...website.heroBanner!, ctaLabelEn: e.target.value } })}
+                        placeholder="Learn More (EN)"
+                        className="flex-1 px-2.5 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-mist mb-1">CTA Linki</label>
+                    <input value={website.heroBanner.ctaUrl ?? ""} onChange={(e) => set({ heroBanner: { ...website.heroBanner!, ctaUrl: e.target.value } })}
+                      placeholder="#proje-amaci veya https://..."
+                      className="w-full px-2.5 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── MENÜ ── */}
+          {activeTab === "menu" && (
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div onClick={() => set({ navMenu: { items: website.navMenu?.items ?? [], enabled: !website.navMenu?.enabled } })}
+                  className={`w-9 h-5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${website.navMenu?.enabled ? "bg-eu" : "bg-line"}`}>
+                  <div className={`w-3.5 h-3.5 bg-white rounded-full mt-0.5 transition-transform shadow-sm ${website.navMenu?.enabled ? "translate-x-4" : "translate-x-0.5"}`} />
+                </div>
+                <span className="text-sm font-semibold text-ink">Navigasyon Menüsü</span>
+              </label>
+              {website.navMenu?.enabled && (
+                <div className="space-y-2">
+                  <p className="text-xs text-mist">Menü öğeleri ekleyin. Bölüm linkleri için # kullanın (ör. #proje-amaci)</p>
+                  {(website.navMenu.items ?? []).map((item, idx) => (
+                    <div key={idx} className="flex gap-1.5 items-center">
+                      <input value={item.label} onChange={(e) => {
+                        const items = [...website.navMenu!.items];
+                        items[idx] = { ...item, label: e.target.value };
+                        set({ navMenu: { ...website.navMenu!, items } });
+                      }} placeholder="TR Etiket" className="flex-1 px-2 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                      <input value={item.labelEn ?? ""} onChange={(e) => {
+                        const items = [...website.navMenu!.items];
+                        items[idx] = { ...item, labelEn: e.target.value };
+                        set({ navMenu: { ...website.navMenu!, items } });
+                      }} placeholder="EN Label" className="flex-1 px-2 py-1.5 border border-line rounded-lg text-xs focus:outline-none focus:border-eu" />
+                      <input value={item.href} onChange={(e) => {
+                        const items = [...website.navMenu!.items];
+                        items[idx] = { ...item, href: e.target.value };
+                        set({ navMenu: { ...website.navMenu!, items } });
+                      }} placeholder="#link" className="flex-1 px-2 py-1.5 border border-line rounded-lg text-xs font-mono focus:outline-none focus:border-eu" />
+                      <button onClick={() => {
+                        const items = website.navMenu!.items.filter((_, i) => i !== idx);
+                        set({ navMenu: { ...website.navMenu!, items } });
+                      }} className="w-6 h-6 text-red-400 border border-red-200 rounded flex-shrink-0 text-xs hover:bg-red-50">✕</button>
+                    </div>
+                  ))}
+                  <button onClick={() => set({ navMenu: { ...website.navMenu!, items: [...(website.navMenu?.items ?? []), { label: "Bölüm", labelEn: "Section", href: "#" }] } })}
+                    className="w-full py-2 border-2 border-dashed border-line rounded-lg text-xs text-slate hover:border-eu hover:text-eu transition-colors">
+                    + Menü Öğesi Ekle
+                  </button>
+                  <div className="bg-eu-pale rounded-lg p-2.5 text-xs text-eu">
+                    <strong>Hazır bölümler:</strong> #proje-amaci · #ciktilar · #uygulama-yerleri · #konsorsiyum · #iletisim
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1014,6 +1147,11 @@ function ProjectWebsiteTab({ projectId, locale }: { projectId: string; locale: s
                   { key: "showLocations", label: "Uygulama Yerleri" },
                   { key: "showBudget", label: "Bütçe" },
                   { key: "showConsortium", label: "Konsorsiyum" },
+                  { key: "showTeam", label: "Ekip" },
+                  { key: "showDocuments", label: "Paylaşılan Dosyalar" },
+                  { key: "showNews", label: "Haberler" },
+                  { key: "showEvents", label: "Etkinlikler" },
+                  { key: "showContact", label: "İletişim & Sosyal Medya" },
                 ].map(({ key, label }) => (
                   <label key={key} className="flex items-center gap-2 py-1.5 cursor-pointer border-b border-line/60 last:border-0">
                     <div onClick={() => set({ [key]: !website[key as keyof typeof website] })}
@@ -1437,22 +1575,53 @@ function EventCard({ event: e, locale }: { event: import("@/lib/types").EventIte
 }
 
 // ── Dijital Araçlar ───────────────────────────────────────────
-function ToolsTab({ role }: { role: SubscriberProfileType }) {
-  const myTools = TOOL_CARDS.filter((t) => t.roles.includes(role));
+function ToolsTab({ role, locale, plan }: { role: SubscriberProfileType; locale: string; plan: string }) {
+  const isEn = locale === "en";
+  const isPaid = plan === "yonetici" || plan === "tedarikci";
+  const myTools = TOOLS.filter((t) => t.roles.includes(role));
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-ink mb-4">Dijital Araçlar</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <h2 className="text-lg font-bold text-ink mb-4">{isEn ? "Digital Tools" : "Dijital Araçlar"}</h2>
+
+      {/* Ücretsiz plan uyarısı */}
+      {!isPaid && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6 flex items-start gap-4">
+          <span className="text-2xl flex-shrink-0">🔒</span>
+          <div className="flex-1">
+            <p className="font-semibold text-amber-800 mb-1">
+              {isEn ? "Digital tools require a paid plan" : "Dijital araçlar ücretli plan gerektirir"}
+            </p>
+            <p className="text-amber-700 text-sm mb-3">
+              {isEn
+                ? "Your free profile gives you access to the project catalog, news and listings. Upgrade to unlock all digital tools."
+                : "Ücretsiz profiliniz ile proje kataloğu, haberler ve ilanları görüntüleyebilirsiniz. Dijital araçların tümünü açmak için yükseltin."}
+            </p>
+            <a href="/kayit" className="inline-flex items-center gap-1.5 px-4 py-2 bg-eu text-white rounded-xl text-sm font-semibold hover:bg-blue-800 transition-colors">
+              {isEn ? "See Pricing Plans" : "Paketleri İncele"}
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      )}
+
+      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${!isPaid ? "opacity-50 pointer-events-none select-none" : ""}`}>
         {myTools.map((tool) => (
-          <Link key={`${tool.href}-${tool.label}`} href={tool.href}
+          <Link key={tool.id} href={isPaid ? tool.href : "#"}
             className="bg-white border border-line rounded-xl p-4 flex flex-col gap-2 hover:border-eu hover:shadow-sm transition-all group">
-            <span className="w-9 h-9 rounded-lg bg-eu-pale text-eu flex items-center justify-center group-hover:bg-eu group-hover:text-white transition-colors flex-shrink-0">
-              <Icon id={tool.icon} className="w-4 h-4" />
+            <span className="w-9 h-9 rounded-lg flex items-center justify-center group-hover:opacity-90 transition-opacity flex-shrink-0"
+              style={{ background: tool.color + "18", color: tool.color }}>
+              <ToolIcon svgPath={tool.svgPath} className="w-4 h-4" />
             </span>
             <div>
-              <p className="text-xs font-semibold text-ink leading-tight mb-0.5">{tool.label}</p>
-              {tool.desc && <p className="text-[10px] text-mist leading-tight">{tool.desc}</p>}
+              <p className="text-xs font-semibold text-ink leading-tight mb-0.5">
+                {isEn ? tool.labelEn : tool.label}
+              </p>
+              <p className="text-[10px] text-mist leading-tight">
+                {isEn ? tool.descEn : tool.desc}
+              </p>
             </div>
           </Link>
         ))}
@@ -2169,6 +2338,45 @@ function ProjectForm({ form, setForm, locText, setLocText, sectors, donors, loca
                 rows={3} placeholder="Proje kapsamında yürütülecek ana faaliyetler…"
                 className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white resize-none focus:outline-none focus:border-eu" />
             </div>
+          </div>
+        </div>
+
+        {/* İletişim & Sosyal Medya */}
+        <div>
+          <p className="text-xs font-bold text-mist uppercase tracking-wide mb-3">İletişim & Sosyal Medya</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-mist mb-1">İletişim E-posta</label>
+              <input type="email" value={form.contactEmail ?? ""} onChange={(e) => set({ contactEmail: e.target.value })}
+                placeholder="iletisim@proje.org"
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-mist mb-1">Telefon</label>
+              <input value={form.contactPhone ?? ""} onChange={(e) => set({ contactPhone: e.target.value })}
+                placeholder="+90 312 000 00 00"
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-mist mb-1">Proje Web Sitesi (harici)</label>
+              <input value={form.projectWebsiteUrl ?? ""} onChange={(e) => set({ projectWebsiteUrl: e.target.value })}
+                placeholder="https://www.projeadi.org"
+                className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+            </div>
+            {[
+              { key: "socialTwitter" as const, label: "X / Twitter", placeholder: "@projeadi" },
+              { key: "socialLinkedin" as const, label: "LinkedIn", placeholder: "linkedin.com/company/..." },
+              { key: "socialFacebook" as const, label: "Facebook", placeholder: "facebook.com/..." },
+              { key: "socialInstagram" as const, label: "Instagram", placeholder: "@projeadi" },
+              { key: "socialYoutube" as const, label: "YouTube", placeholder: "youtube.com/@kanal" },
+            ].map(({ key, label, placeholder }) => (
+              <div key={key}>
+                <label className="block text-xs font-semibold text-mist mb-1">{label}</label>
+                <input value={form[key] ?? ""} onChange={(e) => set({ [key]: e.target.value })}
+                  placeholder={placeholder}
+                  className="w-full px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu" />
+              </div>
+            ))}
           </div>
         </div>
       </div>

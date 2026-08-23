@@ -9,7 +9,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
 import type { Listing, ListingType } from "@/lib/types";
-import { canViewTenderDetails } from "@/lib/types";
+import { canViewTenders } from "@/lib/pricing";
 
 function IlanlarPageInner() {
   const { t } = useLocale();
@@ -23,12 +23,11 @@ function IlanlarPageInner() {
     db.getListings(tur ?? undefined).then(setListings);
   }, [tur]);
 
-  const hasSupplierAccess = firma?.plan === "tedarikci";
-  const hasPaidAccess = firma ? canViewTenderDetails(firma.plan) : false;
+  const hasPaidAccess = firma ? canViewTenders(firma.plan) : false;
   const isListingLocked = (l: Listing) =>
-    // Satınalma: sadece tedarikçi görür
-    (l.type === "satinalma" && !hasSupplierAccess) ||
-    // İhale (program/proje ihalesi): sadece ücretli üyeler (yönetici veya tedarikçi) görür
+    // Satınalma: sadece tedarikçi veya yönetici
+    (l.type === "satinalma" && !hasPaidAccess) ||
+    // İhale: ücretli plan gerekli
     (l.type === "ihale" && !hasPaidAccess);
 
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());

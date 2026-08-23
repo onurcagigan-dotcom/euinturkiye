@@ -410,7 +410,7 @@ export default function AnketPage() {
               </button>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-2 flex-wrap">
               <button onClick={handleSave} className="px-5 py-2.5 bg-eu text-white rounded-xl text-sm font-semibold hover:bg-blue-800">
                 {mode === "create" ? "Oluştur" : "Kaydet"}
               </button>
@@ -420,6 +420,15 @@ export default function AnketPage() {
               }} className="px-5 py-2.5 border border-line text-slate rounded-xl text-sm hover:bg-surface">
                 👁 Önizle
               </button>
+              {mode === "edit" && editing.status === "aktif" && (
+                <button onClick={() => {
+                  const url = `${window.location.origin}/anket/${editing.id}`;
+                  navigator.clipboard.writeText(url).then(() => alert(`Link kopyalandı:\n${url}`));
+                }}
+                  className="px-5 py-2.5 border border-eu/30 text-eu rounded-xl text-sm font-semibold hover:bg-eu-pale">
+                  🔗 Paylaşım Linkini Kopyala
+                </button>
+              )}
               <button onClick={() => { setMode("list"); setEditing(null); }} className="px-5 py-2.5 border border-line text-slate rounded-xl text-sm">İptal</button>
             </div>
           </div>
@@ -465,13 +474,47 @@ export default function AnketPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-ink truncate">{s.title}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${s.status === "aktif" ? "bg-green-100 text-green-700" : s.status === "taslak" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${s.status === "aktif" ? "bg-green-100 text-green-700" : s.status === "taslak" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"}`}>
                       {s.status === "aktif" ? "Aktif" : s.status === "taslak" ? "Taslak" : "Kapalı"}
                     </span>
                   </div>
-                  <p className="text-xs text-mist">{s.questions.length} soru · {s.allowAnonymous ? "Anonim" : "Kayıtlı"}</p>
+                  <p className="text-xs text-mist mb-2">{s.questions.length} soru · {s.allowAnonymous ? "Anonim" : "Kayıtlı"}</p>
+
+                  {/* Paylaşım linki — sadece aktif anketlerde */}
+                  {s.status === "aktif" && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <code className="text-xs font-mono text-mist bg-surface px-2.5 py-1 rounded-lg border border-line">
+                        {typeof window !== "undefined" ? window.location.origin : "https://euinturkiye.com"}/anket/{s.id}
+                      </code>
+                      <button
+                        onClick={() => {
+                          const url = `${window.location.origin}/anket/${s.id}`;
+                          navigator.clipboard.writeText(url).then(() => {
+                            const el = document.getElementById(`copy-btn-${s.id}`);
+                            if (el) {
+                              el.textContent = "✓ Kopyalandı";
+                              el.classList.add("text-green-600", "border-green-300");
+                              setTimeout(() => {
+                                if (el) {
+                                  el.textContent = "🔗 Kopyala";
+                                  el.classList.remove("text-green-600", "border-green-300");
+                                }
+                              }, 2000);
+                            }
+                          });
+                        }}
+                        id={`copy-btn-${s.id}`}
+                        className="text-xs font-semibold text-eu border border-eu/30 px-2.5 py-1 rounded-lg hover:bg-eu-pale transition-colors">
+                        🔗 Kopyala
+                      </button>
+                      <a href={`/anket/${s.id}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs text-slate hover:text-eu border border-line px-2.5 py-1 rounded-lg hover:border-eu transition-colors">
+                        ↗ Aç
+                      </a>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
                   <button onClick={() => { setPreviewSurvey(s); setMode("preview"); }}
                     className="px-3 py-1.5 text-xs border border-line rounded-lg hover:bg-surface text-slate">👁 Önizle</button>
                   <button onClick={() => handleDashboard(s)}
@@ -481,7 +524,7 @@ export default function AnketPage() {
                     {s.status === "aktif" ? "⏸ Kapat" : "▶ Başlat"}
                   </button>
                   <button onClick={() => { setEditing(s); setMode("edit"); }}
-                    className="px-3 py-1.5 text-xs border border-line rounded-lg hover:bg-surface text-slate">✏️ Düzenle</button>
+                    className="px-3 py-1.5 text-xs border border-line rounded-lg hover:bg-surface text-slate">✏️</button>
                   <button onClick={() => handleDelete(s.id)}
                     className="px-3 py-1.5 text-xs border border-red-200 text-red-500 rounded-lg hover:bg-red-50">🗑️</button>
                 </div>

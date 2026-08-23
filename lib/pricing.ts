@@ -1,16 +1,21 @@
-// Üyelik paketleri için merkezi fiyatlandırma mantığı.
-// Onur'un yeni yapısı (Ağustos 2026):
-//   - Uzman Paketi: Ücretsiz
-//   - Yönetici Paketi: 2.500€ + KDV / yıl (yenileme aynı ücret)
-//   - Tedarikçi Paketi: 2.500€ + KDV / yıl (sabit)
+// Üyelik paketleri — merkezi yetki mantığı
+//
+// Freemium akışı (Ağustos 2026):
+//   Ücretsiz (uzman):   Profil oluşturma + listelenmek + katalog/haberler/ilanlar görüntüleme
+//   Yönetici (yonetici): Dijital araçlar + proje yönetimi + konsorsiyum + ihale görüntüleme
+//   Tedarikçi (tedarikci): Tedarikçi profili + ihale içerikleri + tedarikçi dizininde görünürlük
+//
+//   Profil oluşturma ve Rehber'de listelenmek ÜCRETSİZ planla da açık.
+//   Araçlar ve yetkili içerikler ücretli plana geçince açılır.
 
 export type PlanId = "uzman" | "yonetici" | "tedarikci";
 
+// ─── Fiyatlandırma ──────────────────────────────────────────
 export interface PlanPricing {
-  firstYearPrice: number;    // Euro + KDV hariç, ilk yıl
-  renewalPrice: number;      // Euro + KDV hariç, 2. yıl ve sonrası
+  firstYearPrice: number;
+  renewalPrice: number;
   hasRenewalDiscount: boolean;
-  vatRate: number;           // KDV oranı (0.20 = %20)
+  vatRate: number;
 }
 
 export const PLAN_PRICING: Record<PlanId, PlanPricing> = {
@@ -19,7 +24,43 @@ export const PLAN_PRICING: Record<PlanId, PlanPricing> = {
   tedarikci: { firstYearPrice: 2500, renewalPrice: 2500, hasRenewalDiscount: false, vatRate: 0.20 },
 };
 
-/** Üyeliğin başlangıç tarihine göre kaçıncı yılında olduğunu hesaplar (1 = ilk yıl). */
+// ─── Yetki kontrolleri (tek kaynak) ────────────────────────
+/** Dijital araçlara erişim (etkinlik, doküman, bülten, anket, vb.) */
+export function canUseTools(plan: PlanId): boolean {
+  return plan === "yonetici" || plan === "tedarikci";
+}
+
+/** Proje oluşturma ve yönetme */
+export function canManageProjects(plan: PlanId): boolean {
+  return plan === "yonetici";
+}
+
+/** İhale ilanı içeriğini görme */
+export function canViewTenders(plan: PlanId): boolean {
+  return plan === "yonetici" || plan === "tedarikci";
+}
+
+/** Tedarikçi dizininde görünürlük (profil zaten ücretsizde de var) */
+export function canListInDirectory(plan: PlanId): boolean {
+  return true; // Tüm planlar dizinde görünebilir
+}
+
+/** Konsorsiyum katılımı ve sahiplenme */
+export function canJoinConsortium(plan: PlanId): boolean {
+  return plan === "yonetici";
+}
+
+/** Profil oluşturma ve düzenleme — HERKESe açık */
+export function canCreateProfile(_plan: PlanId): boolean {
+  return true;
+}
+
+/** İhale ilanı oluşturma (delegasyon/program_otoritesi/admin2 rol bazlı) */
+export function canPostTenderByPlan(plan: PlanId): boolean {
+  return plan === "yonetici";
+}
+
+// ─── Zaman bazlı yardımcılar ───────────────────────────────
 export function getSubscriptionYear(createdAt: string, now: Date = new Date()): number {
   const start = new Date(createdAt);
   const diffMs = now.getTime() - start.getTime();
@@ -27,7 +68,6 @@ export function getSubscriptionYear(createdAt: string, now: Date = new Date()): 
   return Math.floor(diffYears) + 1;
 }
 
-/** Üyeliğin şu anki yılına göre uygulanması gereken ücreti döndürür. */
 export function getCurrentYearPrice(planId: PlanId, createdAt: string, now: Date = new Date()): number {
   const pricing = PLAN_PRICING[planId];
   const year = getSubscriptionYear(createdAt, now);
@@ -37,3 +77,10 @@ export function getCurrentYearPrice(planId: PlanId, createdAt: string, now: Date
 export function formatEuro(amount: number): string {
   return `€${amount.toLocaleString("tr-TR")}`;
 }
+
+// ─── Plan etiketleri ────────────────────────────────────────
+export const PLAN_LABELS: Record<PlanId, { tr: string; en: string }> = {
+  uzman:     { tr: "Uzman (Ücretsiz)", en: "Expert (Free)" },
+  yonetici:  { tr: "Yönetici Paketi",  en: "Manager Package" },
+  tedarikci: { tr: "Tedarikçi Paketi", en: "Supplier Package" },
+};

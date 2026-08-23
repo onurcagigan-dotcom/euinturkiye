@@ -261,7 +261,7 @@ export default function InfografikPage() {
             sub={`${bySector.length} aktif sektör`} />
           <StatBox label="Toplam AB Katkısı" value={fmtM(totalBudgetM)} color="#16A34A"
             sub={`Ort. ${fmtM(avgBudgetM)}/proje`} />
-          <StatBox label="En Büyük Sektör" value={bySector[0]?.sector.name.split(" ")[0] ?? "—"} color="#7C3AED"
+          <StatBox label="En Büyük Sektör" value={(isEn ? (bySector[0]?.sector.nameEn ?? bySector[0]?.sector.name) : bySector[0]?.sector.name)?.split(" ")[0] ?? "—"} color="#7C3AED"
             sub={bySector[0] ? `${bySector[0].count} proje, ${fmtM(bySector[0].budgetM)}` : undefined} />
           <StatBox label="En Büyük IPA Dönemi"
             value={byPeriod.sort((a,b)=>b.count-a.count)[0]?.period ?? "—"} color="#0891B2"
@@ -275,7 +275,7 @@ export default function InfografikPage() {
             <div className="space-y-2.5">
               {bySector.map(({ sector, count, color }) => (
                 <HBar key={sector.id}
-                  label={sector.name.length > 22 ? sector.name.slice(0, 22) + "…" : sector.name}
+                  label={(isEn ? (sector.nameEn ?? sector.name) : sector.name).length > 22 ? (isEn ? (sector.nameEn ?? sector.name) : sector.name).slice(0, 22) + "…" : (isEn ? (sector.nameEn ?? sector.name) : sector.name)}
                   value={count} max={maxSectorCount} color={color}
                   subLabel={`${count} proje`} />
               ))}
@@ -287,7 +287,7 @@ export default function InfografikPage() {
             <div className="space-y-2.5">
               {bySector.map(({ sector, budgetM, color }) => (
                 <HBar key={sector.id}
-                  label={sector.name.length > 22 ? sector.name.slice(0, 22) + "…" : sector.name}
+                  label={(isEn ? (sector.nameEn ?? sector.name) : sector.name).length > 22 ? (isEn ? (sector.nameEn ?? sector.name) : sector.name).slice(0, 22) + "…" : (isEn ? (sector.nameEn ?? sector.name) : sector.name)}
                   value={budgetM} max={maxSectorBudget} color={color}
                   subLabel={fmtM(budgetM)} />
               ))}
@@ -357,7 +357,7 @@ export default function InfografikPage() {
                 const maxAvg = Math.max(...sectorAvgBudget.map(s => s.count > 0 ? s.budgetM/s.count : 0), 1);
                 return (
                   <HBar key={sector.id}
-                    label={sector.name.length > 22 ? sector.name.slice(0, 22) + "…" : sector.name}
+                    label={(isEn ? (sector.nameEn ?? sector.name) : sector.name).length > 22 ? (isEn ? (sector.nameEn ?? sector.name) : sector.name).slice(0, 22) + "…" : (isEn ? (sector.nameEn ?? sector.name) : sector.name)}
                     value={avg} max={maxAvg} color={color}
                     subLabel={`${fmtM(avg)}/proje`} />
                 );
@@ -404,7 +404,7 @@ export default function InfografikPage() {
                       <td className="py-2 pr-4">
                         <div className="flex items-center gap-1.5">
                           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                          <span className="text-slate truncate" style={{ maxWidth: 160 }}>{sector.name}</span>
+                          <span className="text-slate truncate" style={{ maxWidth: 160 }}>{(isEn ? (sector.nameEn ?? sector.name) : sector.name)}</span>
                         </div>
                       </td>
                       {PERIOD_ORDER.map((period) => {

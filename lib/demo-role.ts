@@ -1,7 +1,7 @@
 // Demo rol seçimi — ziyaretçi hangi perspektiften sistemi deneyimleyeceğini seçer.
 const STORAGE_KEY = "eu_demo_role";
 
-export type DemoRoleId = "guest" | "firma" | "stk" | "tedarikci" | "delegasyon" | "program_otoritesi";
+export type DemoRoleId = "guest" | "uzman-profil" | "firma" | "stk" | "tedarikci" | "delegasyon" | "program_otoritesi";
 
 export interface DemoRole {
   id: DemoRoleId;
@@ -21,6 +21,15 @@ export const DEMO_ROLES: DemoRole[] = [
     desc: "Kamuya açık içerikler: proje kataloğu, gündem, haberler. Panel yok.",
     descEn: "Public content only: project catalog, agenda, news. No panel.",
     icon: "👁️",
+  },
+  {
+    id: "uzman-profil",
+    label: "Ücretsiz Profil (Firma)",
+    labelEn: "Free Profile (Firm)",
+    desc: "Ücretsiz kayıtlı firma. Profil + Rehber listelemesi var, dijital araçlar kilitli.",
+    descEn: "Free registered firm. Profile + Directory listing, digital tools locked.",
+    icon: "🆓",
+    subscriberId: "sub-9",
   },
   {
     id: "firma",

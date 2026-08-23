@@ -7,6 +7,7 @@ export type IpaPeriod = "IPA-I" | "IPA-II" | "IPA-III";
 export interface Sector {
   id: string;
   name: string;
+  nameEn?: string;
   iconUrl?: string;
   color?: string;
 }
@@ -14,8 +15,10 @@ export interface Sector {
 export interface Donor {
   id: string;
   name: string;
+  nameEn?: string;
   logoUrl?: string;
   country?: string;
+  countryEn?: string;
 }
 
 export interface Project {
@@ -46,6 +49,15 @@ export interface Project {
   ownerSubscriberName?: string;
   // Onaylanmış konsorsiyum üyeleri (yürütücü hariç)
   consortiumMembers?: ConsortiumMember[];
+  // İletişim & sosyal medya
+  contactEmail?: string;
+  contactPhone?: string;
+  projectWebsiteUrl?: string;      // proje kendi web sitesi (harici)
+  socialTwitter?: string;          // @handle veya URL
+  socialLinkedin?: string;
+  socialFacebook?: string;
+  socialInstagram?: string;
+  socialYoutube?: string;
 }
 
 export type ListingType = "is" | "satinalma" | "ihale";
@@ -496,10 +508,10 @@ export interface ProjectWebsite {
   headerVersion: WebsiteHeaderVersion;
   /** TR için header içeriği */
   headerTr: {
-    logoUrl?: string;     // proje logosu (opsiyonel)
-    title: string;        // proje başlığı
-    subtitle?: string;    // kısa açıklama
-    tagline?: string;     // sağda/altında slogan
+    logoUrl?: string;
+    title: string;
+    subtitle?: string;
+    tagline?: string;
   };
   /** EN için header içeriği */
   headerEn: {
@@ -508,17 +520,37 @@ export interface ProjectWebsite {
     subtitle?: string;
     tagline?: string;
   };
+  /** Hero banner */
+  heroBanner?: {
+    enabled: boolean;
+    imageUrl?: string;          // base64 veya URL
+    overlayOpacity?: number;    // 0–1 arası, varsayılan 0.45
+    height?: "sm" | "md" | "lg"; // 300 / 450 / 580 px
+    ctaLabel?: string;
+    ctaLabelEn?: string;
+    ctaUrl?: string;
+  };
+  /** Navigasyon menüsü */
+  navMenu?: {
+    enabled: boolean;
+    items: { label: string; labelEn?: string; href: string }[];
+  };
   footerLogos: WebsiteFooterLogo[];
   /** Yayın durumu */
   published: boolean;
   createdAt: string;
   updatedAt: string;
-  /** Özel renk tercihleri (template override) */
+  /** Özel renk tercihleri */
   accentColor?: string;
-  /** Ek içerik blokları — şimdilik opsiyonel */
+  /** İçerik blokları */
   showObjective?: boolean;
   showOutputs?: boolean;
   showLocations?: boolean;
   showBudget?: boolean;
   showConsortium?: boolean;
+  showTeam?: boolean;          // Ekip
+  showDocuments?: boolean;     // Paylaşılan dosyalar
+  showNews?: boolean;          // Haberler
+  showEvents?: boolean;        // Etkinlikler
+  showContact?: boolean;       // İletişim & sosyal medya
 }

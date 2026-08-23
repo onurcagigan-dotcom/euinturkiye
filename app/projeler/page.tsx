@@ -11,7 +11,8 @@ import { useLocale } from "@/lib/i18n/context";
 import type { Project, Sector, Donor, IpaPeriod } from "@/lib/types";
 
 function ProjelerPageInner() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const isEn = locale === "en";
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -89,7 +90,7 @@ function ProjelerPageInner() {
                 {sectors.map((s) => (
                   <Link key={s.id} href={filterHref("sektor", s.id)}
                     className={`block text-sm px-3 py-1.5 rounded-lg ${sektor === s.id ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
-                    {s.name}
+                    {isEn ? (s.nameEn ?? s.name) : s.name}
                   </Link>
                 ))}
               </div>
@@ -104,7 +105,7 @@ function ProjelerPageInner() {
                 {donors.map((d) => (
                   <Link key={d.id} href={filterHref("donor", d.id)}
                     className={`block text-sm px-3 py-1.5 rounded-lg ${donorId === d.id ? "bg-eu text-white font-semibold" : "text-slate hover:bg-surface"}`}>
-                    {d.name}
+                    {isEn ? (d.nameEn ?? d.name) : d.name}
                   </Link>
                 ))}
               </div>
