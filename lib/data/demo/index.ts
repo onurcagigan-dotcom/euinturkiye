@@ -7,6 +7,7 @@ import type {
   AddressGroup, SavedListing, EditLog, Survey, SurveyResponse, InstitutionProfile,
   ProjectWebsite,
 } from "../../types";
+import { getDemoRole } from "../../demo-role";
 
 const delay = <T>(v: T, ms = 60) => new Promise<T>((r) => setTimeout(() => r(v), ms));
 
@@ -3497,6 +3498,27 @@ const projectWebsites: ProjectWebsite[] = [
 ];
 
 // ── DemoDataProvider ──────────────────────────────────────
+//
+// Demo içerik filtresi:
+// - Gerçek IPA projeleri her zaman görünür.
+// - Demo projeler, ilanlar, belgeler, etkinlikler, blog postları
+//   sadece aktif demo rolü varken gösterilir.
+// - Demo rol yoksa (kayıtsız ziyaretçi veya gerçek kullanıcı),
+//   sadece gerçek içerik döner.
+
+/** Demo içerik ID'leri — bu ID'lere sahip kayıtlar demo rolü gerektirir */
+const DEMO_PROJECT_IDS = new Set(["tarim-modern", "kadin-girisimcilik-demo"]);
+const DEMO_LISTING_IDS = new Set(["ilan-1", "ilan-2", "ilan-8", "ilan-9"]);
+const DEMO_DOCUMENT_IDS = new Set(["doc-1", "doc-2", "doc-8", "doc-9"]);
+const DEMO_EVENT_IDS = new Set(["etk-2", "etk-3", "etk-5", "etk-6"]);
+const DEMO_BLOG_IDS = new Set(["blog-1", "blog-3", "blog-4", "blog-8"]);
+const DEMO_SUBSCRIBER_IDS = new Set(["sub-1", "sub-2", "sub-3", "sub-4", "sub-9"]);
+
+/** Demo rolü aktif mi? (herhangi bir demo rol seçilmişse true) */
+function isDemoActive(): boolean {
+  return getDemoRole() !== null;
+}
+
 export class DemoDataProvider implements DataProvider {
   getSectors = () => delay([...sectors]);
   getSector = (id: string) => delay(sectors.find((s) => s.id === id) ?? null);
@@ -3505,7 +3527,8 @@ export class DemoDataProvider implements DataProvider {
   getDonor = (id: string) => delay(donors.find((d) => d.id === id) ?? null);
 
   getProjects = (filters?: ProjectFilters) => {
-    let res = [...projects];
+    const showDemo = isDemoActive();
+    let res = projects.filter((p) => showDemo || !DEMO_PROJECT_IDS.has(p.id));
     if (filters?.sectorId) res = res.filter((p) => p.sectorId === filters.sectorId);
     if (filters?.donorId) res = res.filter((p) => p.donorId === filters.donorId);
     if (filters?.ipaPeriod) res = res.filter((p) => p.ipaPeriod === filters.ipaPeriod);
@@ -3522,37 +3545,85 @@ export class DemoDataProvider implements DataProvider {
     }
     return delay(res);
   };
-  getProject = (id: string) => delay(projects.find((p) => p.id === id) ?? null);
+  getProject = (id: string) => {
+    const p = projects.find((p) => p.id === id);
+    if (!p) return delay(null);
+    if (DEMO_PROJECT_IDS.has(p.id) && !isDemoActive()) return delay(null);
+    return delay(p);
+  };
   saveProject = (p: Project) => { const i = projects.findIndex((x) => x.id === p.id); if (i !== -1) projects[i] = p; else projects.unshift(p); return delay(undefined); };
   removeProject = (id: string) => { const i = projects.findIndex((x) => x.id === id); if (i !== -1) projects.splice(i, 1); return delay(undefined); };
 
-  getListings = (type?: ListingType) => delay(type ? listings.filter((l) => l.type === type) : [...listings]);
-  getListing = (id: string) => delay(listings.find((l) => l.id === id) ?? null);
+  getListings = (type?: ListingType) => {
+    const showDemo = isDemoActive();
+    const res = listings.filter((l) => showDemo || !DEMO_LISTING_IDS.has(l.id));
+    return delay(type ? res.filter((l) => l.type === type) : res);
+  };
+  getListing = (id: string) => {
+    const l = listings.find((l) => l.id === id);
+    if (!l) return delay(null);
+    if (DEMO_LISTING_IDS.has(l.id) && !isDemoActive()) return delay(null);
+    return delay(l);
+  };
   saveListing = (l: Listing) => { const i = listings.findIndex((x) => x.id === l.id); if (i !== -1) listings[i] = l; else listings.unshift(l); return delay(undefined); };
   removeListing = (id: string) => { const i = listings.findIndex((x) => x.id === id); if (i !== -1) listings.splice(i, 1); return delay(undefined); };
 
-  getEvents = () => delay([...events]);
-  getEvent = (id: string) => delay(events.find((e) => e.id === id) ?? null);
+  getEvents = () => {
+    const showDemo = isDemoActive();
+    return delay(events.filter((e) => showDemo || !DEMO_EVENT_IDS.has(e.id)));
+  };
+  getEvent = (id: string) => {
+    const e = events.find((e) => e.id === id);
+    if (!e) return delay(null);
+    if (DEMO_EVENT_IDS.has(e.id) && !isDemoActive()) return delay(null);
+    return delay(e);
+  };
   saveEvent = (e: EventItem) => { const i = events.findIndex((x) => x.id === e.id); if (i !== -1) events[i] = e; else events.unshift(e); return delay(undefined); };
   removeEvent = (id: string) => { const i = events.findIndex((x) => x.id === id); if (i !== -1) events.splice(i, 1); return delay(undefined); };
 
-  getBlogPosts = () => delay([...blogPosts]);
-  getBlogPost = (slug: string) => delay(blogPosts.find((b) => b.slug === slug) ?? null);
+  getBlogPosts = () => {
+    const showDemo = isDemoActive();
+    return delay(blogPosts.filter((b) => showDemo || !DEMO_BLOG_IDS.has(b.id)));
+  };
+  getBlogPost = (slug: string) => {
+    const b = blogPosts.find((b) => b.slug === slug);
+    if (!b) return delay(null);
+    if (DEMO_BLOG_IDS.has(b.id) && !isDemoActive()) return delay(null);
+    return delay(b);
+  };
   saveBlogPost = (p: BlogPost) => { const i = blogPosts.findIndex((x) => x.id === p.id); if (i !== -1) blogPosts[i] = p; else blogPosts.unshift(p); return delay(undefined); };
   removeBlogPost = (id: string) => { const i = blogPosts.findIndex((x) => x.id === id); if (i !== -1) blogPosts.splice(i, 1); return delay(undefined); };
 
-  getHomeStats = () => delay({ projects: projects.length, openListings: listings.length, upcomingEvents: events.filter((e) => new Date(e.date) > new Date()).length });
+  getHomeStats = () => {
+    const showDemo = isDemoActive();
+    const visibleProjects = projects.filter((p) => showDemo || !DEMO_PROJECT_IDS.has(p.id));
+    const visibleListings = listings.filter((l) => showDemo || !DEMO_LISTING_IDS.has(l.id));
+    const visibleEvents = events.filter((e) => showDemo || !DEMO_EVENT_IDS.has(e.id));
+    return delay({
+      projects: visibleProjects.length,
+      openListings: visibleListings.length,
+      upcomingEvents: visibleEvents.filter((e) => new Date(e.date) > new Date()).length,
+    });
+  };
 
   getRsvps = (eventId: string) => delay(rsvps.filter((r) => r.eventId === eventId));
   saveRsvp = (r: EventRsvp) => { const i = rsvps.findIndex((x) => x.id === r.id); if (i !== -1) rsvps[i] = r; else rsvps.push(r); return delay(undefined); };
   removeRsvp = (id: string) => { const i = rsvps.findIndex((x) => x.id === id); if (i !== -1) rsvps.splice(i, 1); return delay(undefined); };
 
-  getDocuments = (projectId?: string) => delay(projectId ? documents.filter((d) => d.projectId === projectId) : [...documents]);
+  getDocuments = (projectId?: string) => {
+    const showDemo = isDemoActive();
+    const docs = documents.filter((d) => showDemo || !DEMO_DOCUMENT_IDS.has(d.id));
+    return delay(projectId ? docs.filter((d) => d.projectId === projectId) : docs);
+  };
   saveDocument = (d: ProjectDocument) => { const i = documents.findIndex((x) => x.id === d.id); if (i !== -1) documents[i] = d; else documents.unshift(d); return delay(undefined); };
   removeDocument = (id: string) => { const i = documents.findIndex((x) => x.id === id); if (i !== -1) documents.splice(i, 1); return delay(undefined); };
   incrementDownload = (docId: string) => { const doc = documents.find((d) => d.id === docId); if (doc) doc.downloadCount++; return delay(undefined); };
 
-  getSubscribers = () => delay([...subscribers]);
+  getSubscribers = () => {
+    const showDemo = isDemoActive();
+    // Demo subscriber'lar sadece demo modunda görünür
+    return delay(subscribers.filter((s) => showDemo || !DEMO_SUBSCRIBER_IDS.has(s.id)));
+  };
   getSubscriber = (id: string) => delay(subscribers.find((x) => x.id === id) ?? null);
   saveSubscriber = (s: Subscriber) => { const i = subscribers.findIndex((x) => x.id === s.id); if (i !== -1) subscribers[i] = s; else subscribers.unshift(s); return delay(undefined); };
   removeSubscriber = (id: string) => { const i = subscribers.findIndex((x) => x.id === id); if (i !== -1) subscribers.splice(i, 1); return delay(undefined); };
@@ -3666,8 +3737,11 @@ export class DemoDataProvider implements DataProvider {
   saveEditLog = (log: EditLog) => { editLogs.unshift(log); return delay(undefined); };
 
   // ── Anket metodları ───────────────────────────────────────
-  getSurveys = (ownerSubscriberId?: string) =>
-    delay(ownerSubscriberId ? surveys.filter((s) => s.ownerSubscriberId === ownerSubscriberId) : [...surveys]);
+  getSurveys = (ownerSubscriberId?: string) => {
+    const showDemo = isDemoActive();
+    const visible = surveys.filter((s) => showDemo || !DEMO_SUBSCRIBER_IDS.has(s.ownerSubscriberId));
+    return delay(ownerSubscriberId ? visible.filter((s) => s.ownerSubscriberId === ownerSubscriberId) : visible);
+  };
   getSurvey = (id: string) => delay(surveys.find((s) => s.id === id) ?? null);
   saveSurvey = (s: Survey) => { const i = surveys.findIndex((x) => x.id === s.id); if (i !== -1) surveys[i] = s; else surveys.unshift(s); return delay(undefined); };
   removeSurvey = (id: string) => { const i = surveys.findIndex((x) => x.id === id); if (i !== -1) surveys.splice(i, 1); return delay(undefined); };
