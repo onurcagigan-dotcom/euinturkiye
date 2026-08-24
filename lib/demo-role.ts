@@ -15,12 +15,13 @@ export interface DemoRole {
 
 export const DEMO_ROLES: DemoRole[] = [
   {
-    id: "guest",
-    label: "Kayıtsız Ziyaretçi",
-    labelEn: "Guest Visitor",
-    desc: "Kamuya açık içerikler: proje kataloğu, gündem, haberler. Panel yok.",
-    descEn: "Public content only: project catalog, agenda, news. No panel.",
-    icon: "👁️",
+    id: "firma",
+    label: "Yönetici Paket (Firma)",
+    labelEn: "Manager Package (Firm)",
+    desc: "ABC Danışmanlık olarak giriş. Tam panel, projeler, ilanlar, dijital araçlar.",
+    descEn: "Login as ABC Consulting. Full panel, projects, listings, digital tools.",
+    icon: "🏢",
+    subscriberId: "sub-1",
   },
   {
     id: "uzman-profil",
@@ -30,15 +31,6 @@ export const DEMO_ROLES: DemoRole[] = [
     descEn: "Free registered firm. Profile + Directory listing, digital tools locked.",
     icon: "🆓",
     subscriberId: "sub-9",
-  },
-  {
-    id: "firma",
-    label: "Yönetici Paket (Firma)",
-    labelEn: "Manager Package (Firm)",
-    desc: "ABC Danışmanlık olarak giriş. Tam panel, projeler, ilanlar, dijital araçlar.",
-    descEn: "Login as ABC Consulting. Full panel, projects, listings, digital tools.",
-    icon: "🏢",
-    subscriberId: "sub-1",
   },
   {
     id: "stk",
@@ -75,6 +67,14 @@ export const DEMO_ROLES: DemoRole[] = [
     descEn: "CFCU perspective. Programme management and project oversight.",
     icon: "🏛️",
     subscriberId: "sub-7",
+  },
+  {
+    id: "guest",
+    label: "Kayıtsız Ziyaretçi",
+    labelEn: "Guest Visitor",
+    desc: "Sadece kamuya açık gerçek IPA içeriği. Demo veriler ve panel görünmez.",
+    descEn: "Only public real IPA content. Demo data and panel are hidden.",
+    icon: "👁️",
   },
 ];
 
