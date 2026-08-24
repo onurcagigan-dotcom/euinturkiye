@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useAdmin } from "@/lib/admin/store";
 import type { BlogPost } from "@/lib/types";
 
+const DEMO_BLOG_IDS = new Set(["blog-1", "blog-3", "blog-4", "blog-8"]);
+
 const CATS = ["AB Politikası", "Fonlar & Finansman", "Proje Haberleri", "Etkinlikler", "Duyurular"];
 
 const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9ğüşıöçğüşöç\s-]/g, "").replace(/[\s]+/g, "-").replace(/[ğ]/g, "g").replace(/[ü]/g, "u").replace(/[ş]/g, "s").replace(/[ı]/g, "i").replace(/[ö]/g, "o").replace(/[ç]/g, "c");
@@ -107,7 +109,14 @@ export default function AdminBlogPage() {
           <tbody>
             {posts.map((p) => (
               <tr key={p.id} className="border-t border-line hover:bg-surface/50">
-                <td className="px-4 py-3 font-medium text-ink max-w-xs truncate">{p.title}</td>
+                <td className="px-4 py-3 font-medium text-ink max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate">{p.title}</span>
+                    {DEMO_BLOG_IDS.has(p.id) && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold flex-shrink-0">DEMO</span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3">
                   <span className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full font-semibold">{p.category}</span>
                 </td>

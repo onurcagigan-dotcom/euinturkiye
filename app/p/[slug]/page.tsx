@@ -2,7 +2,7 @@
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getDataProvider } from "@/lib/data";
-import { getLibraryLogo } from "@/lib/website/logo-library";
+import { getLibraryLogo, getLogoUrlForLocale } from "@/lib/website/logo-library";
 import { renderTemplate } from "@/lib/website/templates";
 import type { Project, Sector, Donor, ProjectWebsite } from "@/lib/types";
 
@@ -53,15 +53,20 @@ export default function ProjectSitePage() {
     );
   }
 
-  const resolvedLogos = data.website.footerLogos.map((fl) => ({
-    id: fl.id,
-    imageUrl: fl.source === "custom" ? fl.imageUrl : getLibraryLogo(fl.libraryKey ?? "")?.svgOrUrl,
-    label: fl.label,
-    libraryLogo: fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined,
-  }));
-
   // Dil: tarayıcı dilinden veya varsayılan TR
   const browserLang = typeof navigator !== "undefined" && navigator.language.startsWith("en") ? "en" : "tr";
+
+  const resolvedLogos = data.website.footerLogos.map((fl) => {
+    const lib = fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined;
+    return {
+      id: fl.id,
+      imageUrl: fl.source === "custom"
+        ? fl.imageUrl
+        : (lib ? getLogoUrlForLocale(lib, browserLang) : undefined),
+      label: fl.label,
+      libraryLogo: lib,
+    };
+  });
 
   return renderTemplate({
     website: data.website,

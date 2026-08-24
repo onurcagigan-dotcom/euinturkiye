@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useAdmin } from "@/lib/admin/store";
 import type { EventItem } from "@/lib/types";
 
+const DEMO_EVENT_IDS = new Set(["etk-2", "etk-3", "etk-5", "etk-6"]);
+
 const emptyEvent = (): EventItem => ({
   id: `etk-${Date.now()}`, title: "", date: "", location: "", isPublic: true,
 });
@@ -98,7 +100,14 @@ export default function AdminEtkinliklerPage() {
           <tbody>
             {events.map((e) => (
               <tr key={e.id} className="border-t border-line hover:bg-surface/50">
-                <td className="px-4 py-3 font-medium text-ink max-w-xs truncate">{e.title}</td>
+                <td className="px-4 py-3 font-medium text-ink max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate">{e.title}</span>
+                    {DEMO_EVENT_IDS.has(e.id) && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold flex-shrink-0">DEMO</span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-slate text-xs">{new Date(e.date).toLocaleDateString("tr")}</td>
                 <td className="px-4 py-3 text-slate text-xs truncate max-w-[160px]">{e.location}</td>
                 <td className="px-4 py-3">

@@ -1,161 +1,105 @@
-// Hazır logo kütüphanesi — inline SVG veya public URL
-// Kullanıcı bu logolardan seçim yapar veya kendi logosunu yükler
+// Hazır logo kütüphanesi — /public/logos altındaki gerçek SVG'ler
+// Kullanıcı bu logolardan seçim yapar veya kendi logosunu yükler.
+//
+// Dil-varyantlı logolar: bir logo seçilince (ör. "finanse"), sitenin
+// diline göre TR veya EN varyantı otomatik gösterilir.
 
 export interface LibraryLogo {
   key: string;
   label: string;
   labelEn: string;
-  /** SVG string veya /public altında URL */
+  /** Varsayılan görsel (TR veya dilden bağımsız) */
   svgOrUrl: string;
-  category: "ab" | "tr-kamu" | "uluslararasi" | "finans" | "sektör";
+  /** Türkçe varyant (dil-duyarlı logolar için) */
+  svgTr?: string;
+  /** İngilizce varyant (dil-duyarlı logolar için) */
+  svgEn?: string;
+  category: "finansman" | "bayrak";
 }
 
-// Inline SVG logoları — tam olarak verildiğinde kullanılır
-// Şimdilik placeholder SVG'ler; gerçek logolar Onur tarafından sağlanacak
-const EU_STAR_SVG = `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="120" height="80" fill="#003399"/>
-  ${Array.from({length:12},(_,i)=>{
-    const a=(i*30-90)*Math.PI/180;
-    const cx=60+22*Math.cos(a), cy=40+22*Math.sin(a);
-    return `<g transform="translate(${cx},${cy})"><polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.9 2.6,4 0,2 -2.6,4 -1.7,0.9 -4.3,-1.4 -1.1,-1.4" fill="#FFCC00"/></g>`;
-  }).join("")}
-</svg>`;
-
 export const LOGO_LIBRARY: LibraryLogo[] = [
-  // ── AB / IPA ───────────────────────────────────────────────
+  // ── AB Finansmanı logo setleri (dil-duyarlı) ──────────────
+  // "Bu proje Avrupa Birliği tarafından finanse edilmektedir" bandrolleri
   {
-    key: "eu",
-    label: "Avrupa Birliği",
-    labelEn: "European Union",
-    svgOrUrl: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(EU_STAR_SVG),
-    category: "ab",
+    key: "finanse",
+    label: "AB Finansmanı (Standart)",
+    labelEn: "EU Funding (Standard)",
+    svgOrUrl: "/logos/finanse-TR.svg",
+    svgTr: "/logos/finanse-TR.svg",
+    svgEn: "/logos/finanse-EN.svg",
+    category: "finansman",
   },
   {
-    key: "eu-ipa",
-    label: "IPA – Katılım Öncesi Yardım",
-    labelEn: "IPA – Instrument for Pre-Accession Assistance",
-    svgOrUrl: "/logo-library/eu-ipa.svg",
-    category: "ab",
+    key: "es-finanse",
+    label: "AB Eş-Finansmanı",
+    labelEn: "EU Co-Financing",
+    svgOrUrl: "/logos/es_-finanse-TR.svg",
+    svgTr: "/logos/es_-finanse-TR.svg",
+    svgEn: "/logos/es_-finanse-EN.svg",
+    category: "finansman",
   },
   {
-    key: "eu-delegation-turkey",
-    label: "AB Türkiye Delegasyonu",
-    labelEn: "EU Delegation to Turkey",
-    svgOrUrl: "/logo-library/eu-delegation-turkey.svg",
-    category: "ab",
+    key: "p-es-finanse",
+    label: "AB Eş-Finansmanı (Dikey)",
+    labelEn: "EU Co-Financing (Portrait)",
+    svgOrUrl: "/logos/p-es_-finanse-TR.svg",
+    svgTr: "/logos/p-es_-finanse-TR.svg",
+    svgEn: "/logos/p-es_-finanse-EN.svg",
+    category: "finansman",
   },
-
-  // ── TR Kamu ────────────────────────────────────────────────
+  // Çift dilli (TR_EN) varyantlar — dilden bağımsız
   {
-    key: "tr-cumhurbaskanligi",
-    label: "T.C. Cumhurbaşkanlığı",
-    labelEn: "Republic of Türkiye – Presidency",
-    svgOrUrl: "/logo-library/tr-cumhurbaskanligi.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "mfib",
-    label: "Merkezi Finans ve İhale Birimi (MFİB)",
-    labelEn: "Central Finance and Contracts Unit (CFCU)",
-    svgOrUrl: "/logo-library/mfib.svg",
-    category: "tr-kamu",
+    key: "finanse-bilingual",
+    label: "AB Finansmanı (Çift Dilli)",
+    labelEn: "EU Funding (Bilingual)",
+    svgOrUrl: "/logos/finanse-TR_EN.svg",
+    category: "finansman",
   },
   {
-    key: "tcdd",
-    label: "TCDD",
-    labelEn: "Turkish State Railways (TCDD)",
-    svgOrUrl: "/logo-library/tcdd.svg",
-    category: "tr-kamu",
+    key: "es-finanse-bilingual",
+    label: "AB Eş-Finansmanı (Çift Dilli)",
+    labelEn: "EU Co-Financing (Bilingual)",
+    svgOrUrl: "/logos/es_-finanse-TR_EN.svg",
+    category: "finansman",
   },
   {
-    key: "adalet-bakanligi",
-    label: "Adalet Bakanlığı",
-    labelEn: "Ministry of Justice",
-    svgOrUrl: "/logo-library/adalet-bakanligi.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "enerji-bakanligi",
-    label: "Enerji ve Tabii Kaynaklar Bakanlığı",
-    labelEn: "Ministry of Energy and Natural Resources",
-    svgOrUrl: "/logo-library/enerji-bakanligi.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "cevre-bakanligi",
-    label: "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı",
-    labelEn: "Ministry of Environment, Urbanisation and Climate Change",
-    svgOrUrl: "/logo-library/cevre-bakanligi.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "icisleri-bakanligi",
-    label: "İçişleri Bakanlığı",
-    labelEn: "Ministry of Interior",
-    svgOrUrl: "/logo-library/icisleri-bakanligi.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "ulasim-bakanligi",
-    label: "Ulaştırma ve Altyapı Bakanlığı",
-    labelEn: "Ministry of Transport and Infrastructure",
-    svgOrUrl: "/logo-library/ulasim-bakanligi.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "meb",
-    label: "Milli Eğitim Bakanlığı",
-    labelEn: "Ministry of National Education",
-    svgOrUrl: "/logo-library/meb.svg",
-    category: "tr-kamu",
-  },
-  {
-    key: "tubitak",
-    label: "TÜBİTAK",
-    labelEn: "Scientific and Technological Research Council of Türkiye",
-    svgOrUrl: "/logo-library/tubitak.svg",
-    category: "tr-kamu",
+    key: "p-es-finanse-bilingual",
+    label: "AB Eş-Finansmanı (Dikey, Çift Dilli)",
+    labelEn: "EU Co-Financing (Portrait, Bilingual)",
+    svgOrUrl: "/logos/p-es_-finanse-TR_EN.svg",
+    category: "finansman",
   },
 
-  // ── Uluslararası ──────────────────────────────────────────
+  // ── Bayraklar ─────────────────────────────────────────────
   {
-    key: "giz",
-    label: "GIZ",
-    labelEn: "Deutsche Gesellschaft für Internationale Zusammenarbeit",
-    svgOrUrl: "/logo-library/giz.svg",
-    category: "uluslararasi",
+    key: "flag-eu",
+    label: "Avrupa Birliği Bayrağı",
+    labelEn: "European Union Flag",
+    svgOrUrl: "/logos/flag-EU.svg",
+    category: "bayrak",
   },
   {
-    key: "undp",
-    label: "UNDP",
-    labelEn: "United Nations Development Programme",
-    svgOrUrl: "/logo-library/undp.svg",
-    category: "uluslararasi",
-  },
-  {
-    key: "world-bank",
-    label: "Dünya Bankası",
-    labelEn: "World Bank",
-    svgOrUrl: "/logo-library/world-bank.svg",
-    category: "uluslararasi",
-  },
-  {
-    key: "council-of-europe",
-    label: "Avrupa Konseyi",
-    labelEn: "Council of Europe",
-    svgOrUrl: "/logo-library/council-of-europe.svg",
-    category: "uluslararasi",
+    key: "flag-tr",
+    label: "Türkiye Bayrağı",
+    labelEn: "Turkey Flag",
+    svgOrUrl: "/logos/flag-TR.svg",
+    category: "bayrak",
   },
 ];
 
+/** Anahtardan logo bul */
 export function getLibraryLogo(key: string): LibraryLogo | undefined {
   return LOGO_LIBRARY.find((l) => l.key === key);
 }
 
+/** Dile göre doğru varyantı döndür (finanse-TR vs finanse-EN) */
+export function getLogoUrlForLocale(logo: LibraryLogo, locale: "tr" | "en"): string {
+  if (locale === "en" && logo.svgEn) return logo.svgEn;
+  if (locale === "tr" && logo.svgTr) return logo.svgTr;
+  return logo.svgOrUrl;
+}
+
 export const LOGO_CATEGORIES = [
-  { id: "ab", label: "AB / IPA" },
-  { id: "tr-kamu", label: "Türkiye Kamu" },
-  { id: "uluslararasi", label: "Uluslararası" },
-  { id: "finans", label: "Finans" },
-  { id: "sektör", label: "Sektör" },
+  { id: "finansman", label: "AB Finansman Logoları" },
+  { id: "bayrak", label: "Bayraklar" },
 ] as const;

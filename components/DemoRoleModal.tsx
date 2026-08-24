@@ -44,15 +44,17 @@ export function DemoRoleModal() {
         <div className="bg-gradient-to-r from-eu to-blue-700 px-8 py-7 text-white">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-2xl">🇪🇺</span>
-            <span className="text-sm font-semibold text-blue-200 uppercase tracking-widest">Demo Ortamı</span>
+            <span className="text-sm font-semibold text-blue-200 uppercase tracking-widest">
+              {isEn ? "Demo — No Login Required" : "Demo — Giriş Gerekmez"}
+            </span>
           </div>
           <h2 className="text-2xl font-extrabold leading-tight mb-1">
-            {isEn ? "Who are you exploring as?" : "Hangi perspektiften keşfediyorsunuz?"}
+            {isEn ? "Choose a profile to explore" : "Keşfetmek için bir profil seçin"}
           </h2>
           <p className="text-blue-100 text-sm">
             {isEn
-              ? "Select a role to experience the platform from that perspective. You can change this at any time."
-              : "Bir rol seçin ve platformu o perspektiften deneyimleyin. İstediğiniz zaman değiştirebilirsiniz."}
+              ? "This is a live demo tour. Pick a profile below to instantly explore the platform — no registration or verification needed."
+              : "Bu bir canlı demo turudur. Aşağıdan bir profil seçin, platformu anında keşfedin — kayıt veya doğrulama gerekmez."}
           </p>
         </div>
 

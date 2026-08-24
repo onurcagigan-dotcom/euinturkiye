@@ -4,6 +4,7 @@ import { useAdmin } from "@/lib/admin/store";
 import type { Listing, ListingType } from "@/lib/types";
 
 const TYPE_LABEL: Record<ListingType, string> = { is: "İş İlanı", satinalma: "Satınalma", ihale: "İhale" };
+const DEMO_LISTING_IDS = new Set(["ilan-1", "ilan-2", "ilan-8", "ilan-9"]);
 
 const emptyListing = (): Listing => ({
   id: `ilan-${Date.now()}`, type: "is", title: "", organization: "", location: "",
@@ -108,7 +109,14 @@ export default function AdminIlanlarPage() {
           <tbody>
             {listings.map((l) => (
               <tr key={l.id} className="border-t border-line hover:bg-surface/50">
-                <td className="px-4 py-3 font-medium text-ink max-w-xs truncate">{l.title}</td>
+                <td className="px-4 py-3 font-medium text-ink max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate">{l.title}</span>
+                    {DEMO_LISTING_IDS.has(l.id) && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold flex-shrink-0">DEMO</span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${l.type === "is" ? "bg-blue-100 text-blue-700" : l.type === "satinalma" ? "bg-orange-100 text-orange-700" : "bg-purple-100 text-purple-700"}`}>
                     {TYPE_LABEL[l.type]}

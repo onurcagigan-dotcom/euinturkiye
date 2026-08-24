@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
 import { getDataProvider } from "@/lib/data";
-import { LOGO_LIBRARY, LOGO_CATEGORIES, getLibraryLogo } from "@/lib/website/logo-library";
+import { LOGO_LIBRARY, LOGO_CATEGORIES, getLibraryLogo, getLogoUrlForLocale } from "@/lib/website/logo-library";
 import { renderTemplate, TEMPLATE_META } from "@/lib/website/templates";
 import type {
   Project, Sector, Donor, ProjectWebsite,
@@ -152,7 +152,10 @@ export default function WebsiteBuilderPage() {
         slug, templateId: "minimal", headerVersion: 1,
         headerTr: { title: proj.title, subtitle: proj.summary?.slice(0,100), tagline: "AB Destekli Proje" },
         headerEn: { title: proj.title, subtitle: proj.summary?.slice(0,100), tagline: "EU-Funded Project" },
-        footerLogos: [{ id: "fl-eu", source: "library", libraryKey: "eu", label: "Avrupa Birliği", order: 1 }],
+        footerLogos: [
+          { id: "fl-eu", source: "library", libraryKey: "flag-eu", label: "Avrupa Birliği", order: 1 },
+          { id: "fl-finanse", source: "library", libraryKey: "finanse", label: "AB Finansmanı", order: 2 },
+        ],
         published: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
         showObjective: true, showOutputs: true, showLocations: true, showBudget: false,
         showConsortium: false, showTeam: false, showDocuments: false, showNews: false, showEvents: false, showContact: true,
@@ -189,12 +192,17 @@ export default function WebsiteBuilderPage() {
     if (ok) { setSlugError(""); setSlugOk(true); } else { setSlugError("Bu kısa ad kullanımda"); setSlugOk(false); }
   };
 
-  const resolvedLogos = (website?.footerLogos ?? []).map(fl => ({
-    id: fl.id,
-    imageUrl: fl.source === "custom" ? fl.imageUrl : getLibraryLogo(fl.libraryKey ?? "")?.svgOrUrl,
-    label: fl.label,
-    libraryLogo: fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined,
-  }));
+  const resolvedLogos = (website?.footerLogos ?? []).map(fl => {
+    const lib = fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined;
+    return {
+      id: fl.id,
+      imageUrl: fl.source === "custom"
+        ? fl.imageUrl
+        : (lib ? getLogoUrlForLocale(lib, previewLocale) : undefined),
+      label: fl.label,
+      libraryLogo: lib,
+    };
+  });
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-surface">
