@@ -125,12 +125,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           )}
         </div>
 
-        <h1 className="text-3xl font-extrabold text-ink leading-tight mb-4">{project.title}</h1>
-        <p className="text-slate text-lg leading-relaxed mb-8">{project.objective ?? project.summary}</p>
+        <h1 className="text-3xl font-extrabold text-ink leading-tight mb-4">{isEn ? (project.titleEn ?? project.title) : project.title}</h1>
+        <p className="text-slate text-lg leading-relaxed mb-8">{isEn ? (project.objectiveEn ?? project.objective ?? project.summary) : (project.objective ?? project.summary)}</p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface rounded-2xl p-6 mb-6">
           <Info label={t("info_donor")} value={isEn ? (donor?.nameEn ?? donor?.name ?? project.donorId) : (donor?.name ?? project.donorId)} />
-          <Info label={t("info_beneficiary")} value={project.beneficiary} />
+          <Info label={t("info_beneficiary")} value={isEn ? (project.beneficiaryEn ?? project.beneficiary) : project.beneficiary} />
           {project.priorityArea && <Info label={isEn ? "Priority Area" : "Öncelik Alanı"} value={project.priorityArea} />}
           {project.euBudget && (
             <Info label={isEn ? "EU Contribution" : "AB Katkısı"} value={"€" + project.euBudget.toLocaleString("tr-TR")} />
@@ -206,8 +206,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        {project.objective && <Section title={t("project_objective")} content={project.objective} />}
-        {project.expectedOutputs && <Section title={t("project_outputs")} content={project.expectedOutputs} />}
+        {(isEn ? (project.objectiveEn ?? project.objective) : project.objective) && <Section title={t("project_objective")} content={(isEn ? (project.objectiveEn ?? project.objective) : project.objective)!} />}
+        {(isEn ? (project.expectedOutputsEn ?? project.expectedOutputs) : project.expectedOutputs) && <Section title={t("project_outputs")} content={(isEn ? (project.expectedOutputsEn ?? project.expectedOutputs) : project.expectedOutputs)!} />}
         {project.activities && <Section title={t("project_activities")} content={project.activities} />}
 
         {(stakeholders.length > 0 || experts.length > 0) && (

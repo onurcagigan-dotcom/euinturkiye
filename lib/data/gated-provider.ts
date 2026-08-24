@@ -37,6 +37,13 @@ export class GatedDataProvider implements DataProvider {
   saveProject(p: Project): Promise<void> { return this.inner.saveProject(p); }
   removeProject(id: string): Promise<void> { return this.inner.removeProject(id); }
 
+  // Admin — gating'den muaf, her zaman tam veri
+  getAllProjectsForAdmin(): Promise<Project[]> { return this.inner.getAllProjectsForAdmin(); }
+  getAllListingsForAdmin(): Promise<Listing[]> { return this.inner.getAllListingsForAdmin(); }
+  getAllEventsForAdmin(): Promise<EventItem[]> { return this.inner.getAllEventsForAdmin(); }
+  getAllBlogPostsForAdmin(): Promise<BlogPost[]> { return this.inner.getAllBlogPostsForAdmin(); }
+  getAllSubscribersForAdmin(): Promise<Subscriber[]> { return this.inner.getAllSubscribersForAdmin(); }
+
   getListings(type?: ListingType): Promise<Listing[]> { return this.allowed ? this.inner.getListings(type) : Promise.resolve([]); }
   getListing(id: string): Promise<Listing | null> { return this.allowed ? this.inner.getListing(id) : Promise.resolve(null); }
   saveListing(l: Listing): Promise<void> { return this.inner.saveListing(l); }

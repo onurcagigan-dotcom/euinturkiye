@@ -192,8 +192,8 @@ function ProjelerPageInner() {
                               {statusLabel(p.status)}
                             </span>
                           </div>
-                          <h2 className="font-bold text-ink text-sm leading-tight mb-1">{p.title}</h2>
-                          <p className="text-xs text-slate line-clamp-2">{p.summary}</p>
+                          <h2 className="font-bold text-ink text-sm leading-tight mb-1">{isEn ? (p.titleEn ?? p.title) : p.title}</h2>
+                          <p className="text-xs text-slate line-clamp-2">{isEn ? (p.objectiveEn ?? p.summary) : p.summary}</p>
                           {p.startDate && p.endDate && (
                             <ProjectProgressBar
                               project={p}

@@ -24,12 +24,18 @@ const emptyProject = (): Project => ({
 });
 
 export default function AdminProjelerPage() {
-  const { projects, saveProject, removeProject } = useAdmin();
+  const { projects, saveProject, removeProject, loading } = useAdmin();
   const [editing, setEditing] = useState<Project | null>(null);
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   const save = () => { if (!editing || !editing.title) return; saveProject(editing); setEditing(null); };
   const del = (id: string) => { removeProject(id); setConfirmDel(null); };
+
+  const DEMO_IDS = new Set(["tarim-modern", "kadin-girisimcilik-demo"]);
+  const filtered = search
+    ? projects.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.beneficiary?.toLowerCase().includes(search.toLowerCase()))
+    : projects;
 
   return (
     <div className="p-8">
@@ -40,6 +46,14 @@ export default function AdminProjelerPage() {
         </button>
       </div>
 
+      {/* Arama */}
+      <input value={search} onChange={(e) => setSearch(e.target.value)}
+        placeholder="Proje ara (başlık veya faydalanıcı)…"
+        className="w-full px-4 py-2.5 border border-line rounded-lg text-sm mb-6 focus:outline-none focus:border-eu" />
+
+      {loading && (
+        <div className="text-center py-12 text-mist animate-pulse">Projeler yükleniyor…</div>
+      )}
       {/* Form */}
       {editing && (
         <div className="bg-white border border-eu/30 rounded-xl p-6 mb-6 shadow-sm">
@@ -163,9 +177,16 @@ export default function AdminProjelerPage() {
             </tr>
           </thead>
           <tbody>
-            {projects.map((p) => (
+            {filtered.map((p) => (
               <tr key={p.id} className="border-t border-line hover:bg-surface/50">
-                <td className="px-4 py-3 font-medium text-ink max-w-xs truncate">{p.title}</td>
+                <td className="px-4 py-3 font-medium text-ink max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate">{p.title}</span>
+                    {DEMO_IDS.has(p.id) && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold flex-shrink-0">DEMO</span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-slate text-xs">{SECTORS.find(s => s.id === p.sectorId)?.name ?? p.sectorId}</td>
                 <td className="px-4 py-3 text-slate">{p.ipaPeriod}</td>
                 <td className="px-4 py-3">
@@ -182,6 +203,9 @@ export default function AdminProjelerPage() {
                 </td>
               </tr>
             ))}
+            {!loading && filtered.length === 0 && (
+              <tr><td colSpan={6} className="text-center py-8 text-mist">Sonuç bulunamadı.</td></tr>
+            )}
           </tbody>
         </table>
       </div>

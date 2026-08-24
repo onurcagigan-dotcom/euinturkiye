@@ -30,6 +30,13 @@ export interface DataProvider {
   saveProject(p: Project): Promise<void>;
   removeProject(id: string): Promise<void>;
 
+  // Admin — filtresiz tam erişim (IPA + demo hepsi, demo rol gerekmez)
+  getAllProjectsForAdmin(): Promise<Project[]>;
+  getAllListingsForAdmin(): Promise<Listing[]>;
+  getAllEventsForAdmin(): Promise<EventItem[]>;
+  getAllBlogPostsForAdmin(): Promise<BlogPost[]>;
+  getAllSubscribersForAdmin(): Promise<Subscriber[]>;
+
   // İlanlar
   getListings(type?: ListingType): Promise<Listing[]>;
   getListing(id: string): Promise<Listing | null>;

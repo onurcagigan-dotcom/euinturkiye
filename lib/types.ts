@@ -24,16 +24,19 @@ export interface Donor {
 export interface Project {
   id: string;
   title: string;
+  titleEn?: string;
   summary: string;
   sectorId: string;
   donorId: string;
   ipaPeriod: IpaPeriod;
   beneficiary: string;
+  beneficiaryEn?: string;
   locations: string[];
   budget?: string;          // gösterim için (ör. "€ 2.5M")
   euBudget?: number;        // AB katkısı (€, sayısal)
   totalBudget?: number;     // toplam bütçe (€, sayısal)
   priorityArea?: string;    // öncelik alanı
+  priorityAreaEn?: string;
   startDate?: string;
   endDate?: string;
   status: "devam" | "tamamlandi";
@@ -41,8 +44,11 @@ export interface Project {
   coverImage?: string;
   // İçerik alanları (detay sayfası)
   objective?: string;
+  objectiveEn?: string;
   specificObjectives?: string;
+  specificObjectivesEn?: string;
   expectedOutputs?: string;
+  expectedOutputsEn?: string;
   activities?: string;
   // Yürütücü / konsorsiyum lideri (boşsa proje "yürütücüsüz" sayılır)
   ownerSubscriberId?: string;
