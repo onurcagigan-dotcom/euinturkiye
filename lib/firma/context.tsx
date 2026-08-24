@@ -8,6 +8,7 @@ interface FirmaCtx {
   loading: boolean;
   login: (subscriberId: string) => void;
   logout: () => void;
+  updateCurrent: (updated: Subscriber) => void;
 }
 
 const Ctx = createContext<FirmaCtx | null>(null);
@@ -52,7 +53,11 @@ export function FirmaProvider({ children }: { children: React.ReactNode }) {
     setCurrent(null);
   }, []);
 
-  return <Ctx.Provider value={{ current, loading, login, logout }}>{children}</Ctx.Provider>;
+  const updateCurrent = useCallback((updated: Subscriber) => {
+    setCurrent(updated);
+  }, []);
+
+  return <Ctx.Provider value={{ current, loading, login, logout, updateCurrent }}>{children}</Ctx.Provider>;
 }
 
 export function useFirma(): FirmaCtx {

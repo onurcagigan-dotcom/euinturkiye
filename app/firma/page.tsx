@@ -164,20 +164,47 @@ function FirmaPanelInner() {
                 </span>
               </div>
               <p className="text-sm text-slate">{current.name} · {current.email}</p>
-              {current.contactAddress && <p className="text-xs text-mist mt-0.5">📍 {current.contactAddress}</p>}
-              {current.shortBio && <p className="text-xs text-slate mt-1.5 leading-relaxed line-clamp-2">{current.shortBio}</p>}
-              {current.services && current.services.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {current.services.slice(0, 4).map((s) => (
-                    <span key={s} className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full">{s}</span>
-                  ))}
-                  {current.services.length > 4 && <span className="text-xs text-mist">+{current.services.length - 4}</span>}
+
+              {/* Hakkında */}
+              {current.shortBio && <p className="text-sm text-slate mt-2 leading-relaxed">{current.shortBio}</p>}
+              {current.mission && <p className="text-xs text-mist mt-1 italic">"{current.mission}"</p>}
+
+              {/* Meta bilgiler: kuruluş yılı, çalışan, adres */}
+              {(current.foundedYear || current.employeeCount || current.contactAddress || current.contactPhone || current.contactEmail) && (
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2.5 text-xs text-slate">
+                  {current.foundedYear && (
+                    <span>🗓️ <strong>{current.foundedYear}</strong> yılında kuruldu</span>
+                  )}
+                  {current.employeeCount && (
+                    <span>👥 <strong>{current.employeeCount}</strong> çalışan</span>
+                  )}
+                  {current.contactAddress && (
+                    <span>📍 {current.contactAddress}</span>
+                  )}
+                  {current.contactPhone && (
+                    <span>📞 {current.contactPhone}</span>
+                  )}
+                  {current.contactEmail && (
+                    <a href={`mailto:${current.contactEmail}`} className="text-eu hover:underline">✉️ {current.contactEmail}</a>
+                  )}
                 </div>
               )}
-              {current.institutionWebsite && (
-                <a href={current.institutionWebsite} target="_blank" rel="noopener noreferrer"
-                  className="text-xs text-eu hover:underline mt-1 inline-block">
-                  🔗 {current.institutionWebsite.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+
+              {/* Hizmetler / uzmanlık */}
+              {current.services && current.services.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                  {current.services.slice(0, 5).map((s) => (
+                    <span key={s} className="text-xs bg-eu-pale text-eu px-2 py-0.5 rounded-full">{s}</span>
+                  ))}
+                  {current.services.length > 5 && <span className="text-xs text-mist">+{current.services.length - 5}</span>}
+                </div>
+              )}
+
+              {/* Web sitesi & sosyal medya */}
+              {(current.socialLinks?.website || current.institutionWebsite) && (
+                <a href={current.socialLinks?.website ?? current.institutionWebsite} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-eu hover:underline mt-1.5 inline-block">
+                  🔗 {(current.socialLinks?.website ?? current.institutionWebsite ?? "").replace(/^https?:\/\//, "").replace(/\/$/, "")}
                 </a>
               )}
             </div>
@@ -1961,6 +1988,28 @@ function ProfileEditSection({ current, locale, forceOpen, onOpened }: {
 }) {
   const isEn = locale === "en";
   const [open, setOpen] = useState(false);
+  const { updateCurrent } = useFirma();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const makeForm = (s: Subscriber) => ({
+    organization: s.organization ?? "",
+    shortBio: s.shortBio ?? "",
+    mission: s.mission ?? "",
+    foundedYear: s.foundedYear?.toString() ?? "",
+    employeeCount: s.employeeCount ?? "",
+    servicesText: (s.services ?? []).join(", "),
+    contactAddress: s.contactAddress ?? "",
+    contactPhone: s.contactPhone ?? "",
+    contactEmail: s.contactEmail ?? "",
+    website: s.socialLinks?.website ?? s.institutionWebsite ?? "",
+    linkedin: s.socialLinks?.linkedin ?? "",
+    twitter: s.socialLinks?.twitter ?? "",
+    instagram: s.socialLinks?.instagram ?? "",
+    facebook: s.socialLinks?.facebook ?? "",
+  });
+
+  const [form, setForm] = useState(() => makeForm(current));
 
   // Düzenle butonundan tetiklenince accordion'u aç
   useEffect(() => {
@@ -1969,24 +2018,6 @@ function ProfileEditSection({ current, locale, forceOpen, onOpened }: {
       onOpened?.();
     }
   }, [forceOpen, open, onOpened]);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [form, setForm] = useState({
-    organization: current.organization ?? "",
-    shortBio: current.shortBio ?? "",
-    mission: current.mission ?? "",
-    foundedYear: current.foundedYear?.toString() ?? "",
-    employeeCount: current.employeeCount ?? "",
-    servicesText: (current.services ?? []).join(", "),
-    contactAddress: current.contactAddress ?? "",
-    contactPhone: current.contactPhone ?? "",
-    contactEmail: current.contactEmail ?? "",
-    website: current.socialLinks?.website ?? "",
-    linkedin: current.socialLinks?.linkedin ?? "",
-    twitter: current.socialLinks?.twitter ?? "",
-    instagram: current.socialLinks?.instagram ?? "",
-    facebook: current.socialLinks?.facebook ?? "",
-  });
 
   const save = async () => {
     setSaving(true);
@@ -1994,6 +2025,7 @@ function ProfileEditSection({ current, locale, forceOpen, onOpened }: {
       ...current,
       organization: form.organization || undefined,
       shortBio: form.shortBio || undefined,
+      mission: form.mission || undefined,
       foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
       employeeCount: form.employeeCount || undefined,
       services: form.servicesText ? form.servicesText.split(",").map((s) => s.trim()).filter(Boolean) : [],
@@ -2001,12 +2033,16 @@ function ProfileEditSection({ current, locale, forceOpen, onOpened }: {
       contactPhone: form.contactPhone || undefined,
       contactEmail: form.contactEmail || undefined,
       socialLinks: {
-        website: form.website || undefined, linkedin: form.linkedin || undefined,
-        twitter: form.twitter || undefined, instagram: form.instagram || undefined,
+        website: form.website || undefined,
+        linkedin: form.linkedin || undefined,
+        twitter: form.twitter || undefined,
+        instagram: form.instagram || undefined,
         facebook: form.facebook || undefined,
       },
     };
     await getDataProvider().saveSubscriber(updated);
+    updateCurrent(updated);  // ← Paneli anında güncelle
+    setForm(makeForm(updated));
     setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };

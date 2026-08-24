@@ -131,16 +131,16 @@ export default function HaritaPage() {
                     const regionColor = cityInfo ? (REGION_COLORS[cityInfo.region] ?? "#003399") : "#94A3B8";
 
                     const intensity = count > 0 ? 0.3 + (count / max) * 0.6 : 0.12;
-                    const fillColor = inRegionFilter ? regionColor : "#CBD5E1";
-                    const fillOpacity = isSelected || isHovered ? 0.95 : (inRegionFilter ? intensity : 0.2);
+                    const fillColor = isSelected ? regionColor : (inRegionFilter ? regionColor : "#CBD5E1");
+                    const fillOpacity = isSelected ? 1 : isHovered ? 0.88 : (inRegionFilter ? intensity : 0.2);
 
                     return (
                       <g key={city.slug}
                         fill={fillColor}
                         fillOpacity={fillOpacity}
-                        stroke={isSelected ? "#1E3A8A" : "#fff"}
-                        strokeWidth={isSelected ? 2.5 : 1}
-                        style={{ transition: "fill-opacity 0.15s, stroke 0.15s", cursor: "pointer" }}
+                        stroke="#fff"
+                        strokeWidth={isSelected ? 1.5 : 0.8}
+                        style={{ transition: "fill-opacity 0.15s", cursor: "pointer" }}
                         onClick={() => setSelected(prev => prev === city.slug ? null : city.slug)}
                         onMouseEnter={() => setHovered(city.slug)}
                         onMouseLeave={() => setHovered(null)}
@@ -154,16 +154,18 @@ export default function HaritaPage() {
                     const cityInfo = cityBySlug[city.slug];
                     const count = PROJECT_COUNTS[city.slug] ?? 0;
                     if (count < showLabelThreshold) return null;
-                    const isActive = selected === city.slug || hovered === city.slug;
+                    const isSelected = selected === city.slug;
+                    const isHovered = hovered === city.slug;
+                    const isActive = isSelected || isHovered;
                     return (
                       <text key={city.slug}
                         x={city.labelX} y={city.labelY}
                         textAnchor="middle" dominantBaseline="middle"
-                        fontSize={isActive ? 12.5 : 9}
-                        fontWeight={isActive ? 800 : 500}
-                        fill={isActive ? "#ffffff" : "#475569"}
-                        stroke={isActive ? "#1E3A8A" : "none"}
-                        strokeWidth={isActive ? 3 : 0}
+                        fontSize={isActive ? 11 : 8.5}
+                        fontWeight={isActive ? 700 : 500}
+                        fill={isActive ? "#fff" : "#1e293b"}
+                        stroke={isActive ? "none" : "rgba(255,255,255,0.7)"}
+                        strokeWidth={isActive ? 0 : 2}
                         paintOrder="stroke fill"
                         style={{ pointerEvents: "none" }}
                       >

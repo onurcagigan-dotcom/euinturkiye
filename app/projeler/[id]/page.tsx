@@ -126,7 +126,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         <h1 className="text-3xl font-extrabold text-ink leading-tight mb-4">{project.title}</h1>
-        <p className="text-slate text-lg leading-relaxed mb-8">{project.summary}</p>
+        <p className="text-slate text-lg leading-relaxed mb-8">{project.objective ?? project.summary}</p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface rounded-2xl p-6 mb-6">
           <Info label={t("info_donor")} value={isEn ? (donor?.nameEn ?? donor?.name ?? project.donorId) : (donor?.name ?? project.donorId)} />
