@@ -161,14 +161,14 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { id: "eu",   name: "Avrupa Birliği",  nameEn: "European Union",  img: "/donor-logos/eu.svg",   alt: "EU" },
+              { id: "eu",   name: "Avrupa Birliği",  nameEn: "European Union",  img: "/logos/flag-EU.svg",   alt: "EU" },
               { id: "giz",  name: "GIZ",              nameEn: "GIZ",             img: "/donor-logos/giz.svg",  alt: "GIZ" },
               { id: "wb",   name: "Dünya Bankası",    nameEn: "World Bank",      img: "/donor-logos/wb.svg",   alt: "World Bank" },
               { id: "undp", name: "UNDP",             nameEn: "UNDP",            img: "/donor-logos/undp.svg", alt: "UNDP" },
             ].filter((d) => (donorCounts[d.id] ?? 0) > 0).map((d) => (
               <Link key={d.id} href={`/projeler?donor=${d.id}`}
                 className="bg-white rounded-2xl border border-line p-6 flex flex-col items-center gap-3 hover:border-eu hover:shadow-md transition-all group">
-                {/* Logo placeholder — Onur gerçek logolar verecek */}
+                {/* Logo */}
                 <div className="w-28 h-16 flex items-center justify-center relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -176,18 +176,18 @@ export default function HomePage() {
                     alt={d.alt}
                     className="max-w-full max-h-full object-contain"
                     onError={(e) => {
-                      // Görsel yoksa yer tutucu göster
                       const t = e.currentTarget;
                       t.style.display = "none";
                       const next = t.nextElementSibling as HTMLElement | null;
                       if (next) next.style.display = "flex";
                     }}
                   />
-                  {/* Fallback — logo dosyası gelene kadar */}
                   <div className="hidden items-center justify-center w-full h-full rounded-lg bg-eu-pale border-2 border-dashed border-eu/20">
                     <span className="text-xs font-bold text-eu/50">{d.alt}</span>
                   </div>
                 </div>
+                {/* Donör adı */}
+                <div className="text-sm font-bold text-ink text-center">{locale === "tr" ? d.name : d.nameEn}</div>
                 <div className="text-center">
                   <div className="text-lg font-extrabold text-eu">{donorCounts[d.id] ?? 0}</div>
                   <div className="text-xs text-mist">{locale === "tr" ? "proje" : "projects"}</div>
