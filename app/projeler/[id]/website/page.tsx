@@ -152,10 +152,7 @@ export default function WebsiteBuilderPage() {
         slug, templateId: "minimal", headerVersion: 1,
         headerTr: { title: proj.title, subtitle: proj.summary?.slice(0,100), tagline: "AB Destekli Proje" },
         headerEn: { title: proj.title, subtitle: proj.summary?.slice(0,100), tagline: "EU-Funded Project" },
-        footerLogos: [
-          { id: "fl-eu", source: "library", libraryKey: "flag-eu", label: "Avrupa Birliği", order: 1 },
-          { id: "fl-finanse", source: "library", libraryKey: "finanse", label: "AB Finansmanı", order: 2 },
-        ],
+        footerLogos: [],
         published: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
         showObjective: true, showOutputs: true, showLocations: true, showBudget: false,
         showConsortium: false, showTeam: false, showDocuments: false, showNews: false, showEvents: false, showContact: true,
@@ -341,20 +338,62 @@ export default function WebsiteBuilderPage() {
           {/* ── BAŞLIK ── */}
           {activeSection === "header" && (
             <div className="space-y-4">
-              <SectionTitle>Header Versiyonu</SectionTitle>
-              <div className="flex gap-2">
-                {([1,2,3] as WebsiteHeaderVersion[]).map(v => (
-                  <button key={v} onClick={() => set({ headerVersion: v })}
-                    className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition-all ${website.headerVersion === v ? "border-eu text-eu bg-eu-pale" : "border-line text-slate"}`}>
-                    V{v}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-mist">
-                {website.headerVersion === 1 ? "Logo sol · metin ortada · yıldız sağda" :
-                 website.headerVersion === 2 ? "Büyük metin solda · logo sağda dikey" :
-                 "Üst renk şerit + yatay düzen"}
+              {/* Header Logosu — ortada, 150px */}
+              <SectionTitle>Header Logosu</SectionTitle>
+              <p className="text-xs text-mist bg-surface rounded-lg px-3 py-2">
+                Header'ın ortasında 150px yükseklikte gösterilir. AB finansman logolarından seçin veya kendi logonuzu yükleyin. Seçilen logo sitenin diline göre TR/EN varyantıyla görünür.
               </p>
+              {/* Kütüphane logoları */}
+              <div className="grid grid-cols-2 gap-2">
+                {LOGO_LIBRARY.filter(l => l.category === "finansman").map(lib => {
+                  const selected = website.headerLogoKey === lib.key && !website.headerLogoCustom;
+                  return (
+                    <button key={lib.key}
+                      onClick={() => set({ headerLogoKey: lib.key, headerLogoCustom: undefined })}
+                      className={`border-2 rounded-xl p-2 flex flex-col items-center gap-1.5 transition-all ${selected ? "border-eu bg-eu-pale" : "border-line hover:border-eu/40"}`}>
+                      <div className="h-12 flex items-center justify-center w-full">
+                        <img src={lib.svgOrUrl} alt={lib.label} className="max-h-full max-w-full object-contain"
+                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      </div>
+                      <span className="text-[9px] text-slate text-center leading-tight">{lib.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Özel logo yükleme */}
+              <label className="block border-2 border-dashed border-line rounded-xl p-3 text-center cursor-pointer hover:border-eu transition-colors">
+                <span className="text-xs text-eu font-semibold">
+                  {website.headerLogoCustom ? "✓ Özel logo yüklendi — değiştir" : "+ Kendi logonu yükle (PNG/SVG)"}
+                </span>
+                <input type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = ev => set({ headerLogoCustom: ev.target?.result as string, headerLogoKey: undefined });
+                  reader.readAsDataURL(file);
+                }} />
+              </label>
+              {(website.headerLogoKey || website.headerLogoCustom) && (
+                <button onClick={() => set({ headerLogoKey: undefined, headerLogoCustom: undefined })}
+                  className="text-xs text-red-500 hover:underline">Logoyu kaldır</button>
+              )}
+
+              <div className="border-t border-line pt-4">
+                <SectionTitle>Header Düzeni</SectionTitle>
+                <div className="flex gap-2">
+                  {([1,2,3] as WebsiteHeaderVersion[]).map(v => (
+                    <button key={v} onClick={() => set({ headerVersion: v })}
+                      className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition-all ${website.headerVersion === v ? "border-eu text-eu bg-eu-pale" : "border-line text-slate"}`}>
+                      V{v}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-mist mt-2">
+                  {website.headerVersion === 1 ? "Logo üstte ortada · alt kenarlık vurgusu" :
+                   website.headerVersion === 2 ? "Logo ortada · sol renk şeridi · büyük başlık" :
+                   "Üst renk şeridi · logo ortada"}
+                </p>
+              </div>
               {(["tr","en"] as const).map(lang => {
                 const key = lang === "tr" ? "headerTr" : "headerEn";
                 const val = website[key];

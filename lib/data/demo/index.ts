@@ -4215,10 +4215,28 @@ export class DemoDataProvider implements DataProvider {
   getExpertProfile = (id: string) => delay(expertProfiles.find((p) => p.id === id) ?? null);
   saveExpertProfile = (p: ExpertProfile) => { const i = expertProfiles.findIndex((x) => x.id === p.id); if (i !== -1) expertProfiles[i] = p; else expertProfiles.unshift(p); return delay(undefined); };
   removeExpertProfile = (id: string) => { const i = expertProfiles.findIndex((x) => x.id === id); if (i !== -1) expertProfiles.splice(i, 1); return delay(undefined); };
-  getProjectExperts = (projectId: string) => delay(
-    expertProfiles
-      .flatMap((ep) => ep.projectHistory.filter((ph) => ph.projectId === projectId).map((ph) => ({ profile: ep, expertise: ep.expertise[0] ?? "", role: ph.role })))
-  );
+  getProjectExperts = (projectId: string) => {
+    // 1) projectHistory'den gelen uzmanlar
+    const fromHistory = expertProfiles
+      .flatMap((ep) => ep.projectHistory.filter((ph) => ph.projectId === projectId).map((ph) => ({ profile: ep, expertise: ep.expertise[0] ?? "", role: ph.role })));
+    // 2) Projeye ekibe atanmış uzmanlar (teamExperts)
+    const proj = projects.find((p) => p.id === projectId);
+    const fromTeam = (proj?.teamExperts ?? [])
+      .map((te) => {
+        const profile = expertProfiles.find((ep) => ep.id === te.expertProfileId);
+        if (!profile) return null;
+        return { profile, expertise: profile.expertise[0] ?? "", role: te.title ?? profile.title };
+      })
+      .filter((x): x is { profile: ExpertProfile; expertise: string; role: string } => x !== null);
+    // Tekilleştir (aynı uzman iki kez gelmesin)
+    const seen = new Set<string>();
+    const combined = [...fromTeam, ...fromHistory].filter((e) => {
+      if (seen.has(e.profile.id)) return false;
+      seen.add(e.profile.id);
+      return true;
+    });
+    return delay(combined);
+  };
 
   getNetworkConnections = (ownerSubscriberId: string) => delay(networkConnections.filter((c) => c.ownerSubscriberId === ownerSubscriberId));
   addNetworkConnection = (c: Omit<NetworkConnection, "id" | "addedAt">) => {

@@ -710,37 +710,109 @@ function ProjectTeamTab({ project, members, allSubscribers, currentId, onAdd, on
   const [newRole, setNewRole] = useState("");
   const available = allSubscribers.filter((s) => s.id !== currentId && !members.some((m) => m.subscriberId === s.id));
 
+  // Ekip uzmanları
+  const db = getDataProvider();
+  const [experts, setExperts] = useState<import("@/lib/types").ExpertProfile[]>([]);
+  const [teamExperts, setTeamExperts] = useState<import("@/lib/types").ProjectTeamExpert[]>(project.teamExperts ?? []);
+  const [newExpertId, setNewExpertId] = useState("");
+  const [newExpertRole, setNewExpertRole] = useState("");
+
+  useEffect(() => {
+    db.getExpertProfiles().then((list) => setExperts(list.filter((e) => e.visible)));
+  }, [db]);
+
+  const availableExperts = experts.filter((e) => !teamExperts.some((t) => t.expertProfileId === e.id));
+
+  const addExpert = async () => {
+    const exp = experts.find((e) => e.id === newExpertId);
+    if (!exp) return;
+    const entry: import("@/lib/types").ProjectTeamExpert = {
+      expertProfileId: exp.id, subscriberId: exp.subscriberId, name: exp.name,
+      title: newExpertRole || exp.title, addedAt: new Date().toISOString(),
+    };
+    const updated = [...teamExperts, entry];
+    setTeamExperts(updated);
+    await db.saveProject({ ...project, teamExperts: updated });
+    setNewExpertId(""); setNewExpertRole("");
+  };
+
+  const removeExpert = async (expId: string) => {
+    const updated = teamExperts.filter((t) => t.expertProfileId !== expId);
+    setTeamExperts(updated);
+    await db.saveProject({ ...project, teamExperts: updated });
+  };
+
   return (
-    <div>
-      <p className="text-xs text-mist mb-3">Konsorsiyum üyeleri ve proje ekibi. Yürütücü: <strong className="text-ink">{project.ownerSubscriberName}</strong></p>
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center gap-2 p-2.5 bg-eu-pale rounded-lg">
-          <span className="text-xs font-bold text-eu">🏆 Yürütücü</span>
-          <span className="text-sm font-medium text-ink">{project.ownerSubscriberName}</span>
-        </div>
-        {members.map((m) => (
-          <div key={m.subscriberId} className="flex items-center gap-3 p-2.5 bg-white border border-line rounded-lg">
-            <div className="flex-1">
-              <span className="text-sm font-medium text-ink">{m.subscriberName}</span>
-              {m.role && <span className="text-xs text-mist ml-2">— {m.role}</span>}
-            </div>
-            <button onClick={() => onRemove(m.subscriberId)} className="text-xs text-mist hover:text-tr">Çıkar</button>
+    <div className="space-y-6">
+      {/* ── Konsorsiyum / Kurumlar ── */}
+      <div>
+        <p className="text-xs text-mist mb-3">Konsorsiyum üyeleri (kurumlar). Yürütücü: <strong className="text-ink">{project.ownerSubscriberName}</strong></p>
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center gap-2 p-2.5 bg-eu-pale rounded-lg">
+            <span className="text-xs font-bold text-eu">🏆 Yürütücü</span>
+            <span className="text-sm font-medium text-ink">{project.ownerSubscriberName}</span>
           </div>
-        ))}
-      </div>
-      {available.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <select value={newSubId} onChange={(e) => setNewSubId(e.target.value)}
-            className="flex-1 min-w-[160px] px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
-            <option value="">— Üye seçin —</option>
-            {available.map((s) => <option key={s.id} value={s.id}>{s.organization ?? s.name}</option>)}
-          </select>
-          <input value={newRole} onChange={(e) => setNewRole(e.target.value)} placeholder="Rol (opsiyonel)"
-            className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu min-w-[120px]" />
-          <button onClick={() => { onAdd(newSubId, newRole); setNewSubId(""); setNewRole(""); }} disabled={!newSubId}
-            className="px-3 py-2 bg-eu text-white rounded-lg text-sm font-semibold disabled:opacity-40">+ Ekle</button>
+          {members.map((m) => (
+            <div key={m.subscriberId} className="flex items-center gap-3 p-2.5 bg-white border border-line rounded-lg">
+              <div className="flex-1">
+                <span className="text-sm font-medium text-ink">{m.subscriberName}</span>
+                {m.role && <span className="text-xs text-mist ml-2">— {m.role}</span>}
+              </div>
+              <button onClick={() => onRemove(m.subscriberId)} className="text-xs text-mist hover:text-tr">Çıkar</button>
+            </div>
+          ))}
         </div>
-      )}
+        {available.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <select value={newSubId} onChange={(e) => setNewSubId(e.target.value)}
+              className="flex-1 min-w-[160px] px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
+              <option value="">— Kurum seçin —</option>
+              {available.map((s) => <option key={s.id} value={s.id}>{s.organization ?? s.name}</option>)}
+            </select>
+            <input value={newRole} onChange={(e) => setNewRole(e.target.value)} placeholder="Rol (opsiyonel)"
+              className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu min-w-[120px]" />
+            <button onClick={() => { onAdd(newSubId, newRole); setNewSubId(""); setNewRole(""); }} disabled={!newSubId}
+              className="px-3 py-2 bg-eu text-white rounded-lg text-sm font-semibold disabled:opacity-40">+ Ekle</button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Ekip Uzmanları ── */}
+      <div className="border-t border-line pt-5">
+        <p className="text-xs text-mist mb-3">👤 Ekip uzmanları — projede görevlendirilen bireysel uzmanlar (ücretsiz uzman profilleri).</p>
+        <div className="space-y-2 mb-4">
+          {teamExperts.length === 0 && (
+            <p className="text-sm text-mist bg-surface rounded-lg px-3 py-2.5">Henüz ekip uzmanı atanmamış.</p>
+          )}
+          {teamExperts.map((te) => (
+            <div key={te.expertProfileId} className="flex items-center gap-3 p-2.5 bg-white border border-line rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-eu/10 flex items-center justify-center text-eu font-bold text-sm flex-shrink-0">
+                {te.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium text-ink">{te.name}</span>
+                {te.title && <span className="text-xs text-mist ml-2">— {te.title}</span>}
+              </div>
+              <button onClick={() => removeExpert(te.expertProfileId)} className="text-xs text-mist hover:text-tr flex-shrink-0">Çıkar</button>
+            </div>
+          ))}
+        </div>
+        {availableExperts.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            <select value={newExpertId} onChange={(e) => setNewExpertId(e.target.value)}
+              className="flex-1 min-w-[160px] px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-eu">
+              <option value="">— Uzman seçin —</option>
+              {availableExperts.map((e) => <option key={e.id} value={e.id}>{e.name} · {e.title}</option>)}
+            </select>
+            <input value={newExpertRole} onChange={(e) => setNewExpertRole(e.target.value)} placeholder="Projedeki rolü (opsiyonel)"
+              className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:border-eu min-w-[140px]" />
+            <button onClick={addExpert} disabled={!newExpertId}
+              className="px-3 py-2 bg-eu text-white rounded-lg text-sm font-semibold disabled:opacity-40">+ Ata</button>
+          </div>
+        ) : (
+          <p className="text-xs text-mist">Atanabilecek başka uzman yok.</p>
+        )}
+      </div>
     </div>
   );
 }

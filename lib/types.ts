@@ -55,6 +55,8 @@ export interface Project {
   ownerSubscriberName?: string;
   // Onaylanmış konsorsiyum üyeleri (yürütücü hariç)
   consortiumMembers?: ConsortiumMember[];
+  /** Projede ekibe atanmış uzmanlar (uzman profili olan ücretsiz üyeler) */
+  teamExperts?: ProjectTeamExpert[];
   // İletişim & sosyal medya
   contactEmail?: string;
   contactPhone?: string;
@@ -386,6 +388,18 @@ export interface ConsortiumMember {
 }
 
 /**
+ * Projeye ekibe atanmış uzman.
+ * Uzman profili olan ücretsiz üyeler bir projeye ekip üyesi olarak eklenebilir.
+ */
+export interface ProjectTeamExpert {
+  expertProfileId: string;
+  subscriberId: string;
+  name: string;
+  title?: string;          // uzmanın projedeki rolü/unvanı
+  addedAt: string;         // ISO
+}
+
+/**
  * Bir firma/STK'nın bir projeye katılma talebi.
  * - requestedRole: firmanın talep ettiği rol
  * - approverType: talebin kimin onayına gideceği (proje yürütücüsü var mı yok mu'ya göre belirlenir)
@@ -512,6 +526,9 @@ export interface ProjectWebsite {
   slug: string;
   templateId: WebsiteTemplateId;
   headerVersion: WebsiteHeaderVersion;
+  /** Header'da ortada gösterilecek logo — kütüphane anahtarı (finanse, es-finanse vb.) veya özel yüklenen görsel */
+  headerLogoKey?: string;       // logo-library anahtarı (dil-duyarlı)
+  headerLogoCustom?: string;    // özel yüklenen görsel (base64)
   /** TR için header içeriği */
   headerTr: {
     logoUrl?: string;

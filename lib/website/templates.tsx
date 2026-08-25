@@ -1,6 +1,7 @@
 "use client";
 import type { ProjectWebsite, Project, Sector, Donor } from "@/lib/types";
 import type { LibraryLogo } from "./logo-library";
+import { getLibraryLogo, getLogoUrlForLocale } from "./logo-library";
 
 // ─── Yardımcı tipler ─────────────────────────────────────────
 interface ResolvedLogo {
@@ -18,6 +19,16 @@ export interface TemplateProps {
   resolvedLogos: ResolvedLogo[];
   locale: "tr" | "en";
   preview?: boolean;
+}
+
+/** Header'da gösterilecek logoyu çöz — özel yükleme > kütüphane (dil-duyarlı) */
+function resolveHeaderLogo(website: ProjectWebsite, locale: "tr" | "en"): string | undefined {
+  if (website.headerLogoCustom) return website.headerLogoCustom;
+  if (website.headerLogoKey) {
+    const lib = getLibraryLogo(website.headerLogoKey);
+    if (lib) return getLogoUrlForLocale(lib, locale);
+  }
+  return undefined;
 }
 
 // ─── Navigasyon Menüsü ────────────────────────────────────────
@@ -109,76 +120,58 @@ interface HeaderProps {
 export function WebsiteHeader({ title, subtitle, tagline, logoUrl, version, accentColor }: HeaderProps) {
   const accent = accentColor ?? "#003399";
 
+  // Logo bloğu — ortada, 150px yükseklik
+  const LogoBlock = logoUrl ? (
+    <div className="flex items-center justify-center mb-6" style={{ height: 150 }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={logoUrl} alt="Proje Logosu" style={{ height: 150, maxWidth: "100%", objectFit: "contain" }} />
+    </div>
+  ) : null;
+
   if (version === 1) {
+    // Logo üstte ortada, başlık altında ortada
     return (
-      <header style={{ height: 250, background: "#fff", borderBottom: `3px solid ${accent}` }}
-        className="flex items-center px-10 gap-8">
-        {logoUrl && (
-          <div className="flex-shrink-0 w-40 h-28 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
+      <header style={{ background: "#fff", borderBottom: `3px solid ${accent}`, padding: "48px 40px" }}
+        className="flex flex-col items-center text-center">
+        {LogoBlock}
+        {tagline && (
+          <div className="text-xs font-bold uppercase tracking-[0.3em] mb-3" style={{ color: accent }}>
+            {tagline}
           </div>
         )}
-        <div className={`${logoUrl ? "flex-1" : "w-full text-center"}`}>
-          <div className="text-xs font-bold uppercase tracking-[0.3em] mb-3" style={{ color: accent }}>
-            {tagline ?? "AB Destekli Proje"}
-          </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 leading-tight mb-2">{title}</h1>
-          {subtitle && <p className="text-gray-500 text-base">{subtitle}</p>}
-        </div>
-        <div className="flex-shrink-0">
-          <svg viewBox="0 0 60 60" width={60} height={60}>
-            {Array.from({length:12},(_,i)=>{const a=(i*30-90)*Math.PI/180;const cx=30+18*Math.cos(a),cy=30+18*Math.sin(a);return <polygon key={i} transform={`translate(${cx},${cy})`} points="0,-3.5 0.9,-1.1 3.3,-1.1 1.3,0.7 2,3.1 0,1.5 -2,3.1 -1.3,0.7 -3.3,-1.1 -0.9,-1.1" fill="#FFCC00"/>;}) }
-          </svg>
-        </div>
+        <h1 className="text-3xl font-extrabold text-gray-900 leading-tight mb-2 max-w-3xl">{title}</h1>
+        {subtitle && <p className="text-gray-500 text-base max-w-2xl">{subtitle}</p>}
       </header>
     );
   }
 
   if (version === 2) {
+    // Sol renk şerit + logo ortada + başlık
     return (
-      <header style={{ height: 250, background: "#fff", borderLeft: `6px solid ${accent}` }}
-        className="flex items-stretch px-10">
-        <div className="flex-1 flex flex-col justify-center py-8">
-          <div className="text-xs font-bold uppercase tracking-[0.25em] mb-4" style={{ color: accent }}>
-            {tagline ?? "EU-Funded Project"}
+      <header style={{ background: "#fff", borderLeft: `6px solid ${accent}`, padding: "48px 40px" }}
+        className="flex flex-col items-center text-center">
+        {LogoBlock}
+        {tagline && (
+          <div className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: accent }}>
+            {tagline}
           </div>
-          <h1 className="text-4xl font-black text-gray-900 leading-none mb-3">{title}</h1>
-          {subtitle && <p className="text-gray-500 text-sm max-w-xl leading-relaxed">{subtitle}</p>}
-        </div>
-        <div className="flex flex-col items-center justify-center gap-4 w-52 border-l border-gray-100 pl-8 py-8">
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="Logo" className="max-w-36 max-h-24 object-contain" />
-          ) : (
-            <svg viewBox="0 0 80 80" width={80} height={80}>
-              <rect width="80" height="80" fill={accent} rx="4"/>
-              {Array.from({length:12},(_,i)=>{const a=(i*30-90)*Math.PI/180;const cx=40+24*Math.cos(a),cy=40+24*Math.sin(a);return <polygon key={i} transform={`translate(${cx},${cy})`} points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.9 2.6,4 0,2 -2.6,4 -1.7,0.9 -4.3,-1.4 -1.1,-1.4" fill="#FFCC00"/>;}) }
-            </svg>
-          )}
-          <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">IPA Project</div>
-        </div>
+        )}
+        <h1 className="text-4xl font-black text-gray-900 leading-none mb-3 max-w-3xl">{title}</h1>
+        {subtitle && <p className="text-gray-500 text-sm max-w-xl leading-relaxed">{subtitle}</p>}
       </header>
     );
   }
 
+  // version 3 — üst renk şerit + logo ortada
   return (
-    <header style={{ height: 250, background: "#fff" }} className="flex flex-col">
+    <header style={{ background: "#fff" }} className="flex flex-col">
       <div style={{ background: accent, height: 10 }} />
-      <div className="flex-1 flex items-center px-10 gap-8 py-6">
-        {logoUrl && (
-          <div className="w-32 h-20 flex items-center flex-shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
-          </div>
-        )}
-        <div className="flex-1">
-          <h1 className="text-3xl font-extrabold text-gray-900 leading-tight mb-2">{title}</h1>
-          {subtitle && <p className="text-gray-500 text-sm">{subtitle}</p>}
-        </div>
-        {tagline && <div className="text-right"><div className="text-xs uppercase tracking-widest font-bold" style={{ color: accent }}>{tagline}</div></div>}
+      <div style={{ padding: "40px" }} className="flex flex-col items-center text-center">
+        {LogoBlock}
+        <h1 className="text-3xl font-extrabold text-gray-900 leading-tight mb-2 max-w-3xl">{title}</h1>
+        {subtitle && <p className="text-gray-500 text-sm max-w-2xl">{subtitle}</p>}
+        {tagline && <div className="text-xs uppercase tracking-widest font-bold mt-3" style={{ color: accent }}>{tagline}</div>}
       </div>
-      <div style={{ background: accent, height: 4, opacity: 0.15 }} />
     </header>
   );
 }
@@ -330,7 +323,7 @@ export function TemplateMinimal({ website, project, sector, donor, resolvedLogos
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />
       ) : (
-        <WebsiteHeader {...h} version={website.headerVersion} accentColor={accent} />
+        <WebsiteHeader {...h} logoUrl={resolveHeaderLogo(website, locale)} version={website.headerVersion} accentColor={accent} />
       )}
       <main style={{ maxWidth: 820, margin: "0 auto", padding: "48px 24px" }}>
         <CommonContent website={website} project={project} sector={sector} donor={donor} locale={locale} accent={accent} />
@@ -352,7 +345,7 @@ export function TemplateBold({ website, project, sector, donor, resolvedLogos, l
         <HeroBanner website={website} accent={accent} locale={locale} />
       ) : (
         <div style={{ background: "#fff" }}>
-          <WebsiteHeader {...h} version={website.headerVersion} accentColor={accent} />
+          <WebsiteHeader {...h} logoUrl={resolveHeaderLogo(website, locale)} version={website.headerVersion} accentColor={accent} />
         </div>
       )}
       <div style={{ background: accent, padding: "24px 0" }}>
@@ -411,7 +404,7 @@ export function TemplateAcademic({ website, project, sector, donor, resolvedLogo
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />
       ) : (
-        <WebsiteHeader {...h} version={website.headerVersion} accentColor={accent} />
+        <WebsiteHeader {...h} logoUrl={resolveHeaderLogo(website, locale)} version={website.headerVersion} accentColor={accent} />
       )}
       <div style={{ maxWidth: 940, margin: "0 auto", padding: "40px 24px", display: "flex", gap: 40, alignItems: "flex-start" }}>
         <aside style={{ width: 220, flexShrink: 0 }}>
@@ -484,7 +477,7 @@ export function TemplateImpact({ website, project, sector, donor, resolvedLogos,
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />
       ) : (
-        <WebsiteHeader {...h} version={website.headerVersion} accentColor={accent} />
+        <WebsiteHeader {...h} logoUrl={resolveHeaderLogo(website, locale)} version={website.headerVersion} accentColor={accent} />
       )}
       {stats.length > 0 && (
         <div style={{ background: accent, padding: "28px 24px" }}>

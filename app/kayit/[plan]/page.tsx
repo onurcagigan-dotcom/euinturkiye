@@ -10,7 +10,7 @@ export default function KayitFormPage({ params }: { params: Promise<{ plan: stri
   const { t, locale } = useLocale();
   const isEn = locale === "en";
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", org: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", org: "", phone: "", profileKind: "firma" as "firma" | "stk" | "uzman" | "tedarikci" });
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
   const PLAN_LABELS: Record<string, string> = {
@@ -83,6 +83,35 @@ export default function KayitFormPage({ params }: { params: Promise<{ plan: stri
         <h1 className="text-2xl font-bold text-ink mb-6">{t("signup_register")}</h1>
 
         <div className="space-y-4">
+          {/* Ücretsiz kayıtta profil tipi seçimi */}
+          {plan === "uzman" && (
+            <div>
+              <label className="block text-sm font-semibold text-ink mb-2">
+                {isEn ? "Profile type *" : "Profil tipi *"}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { id: "firma", icon: "🏢", tr: "Firma", en: "Firm" },
+                  { id: "stk", icon: "🤝", tr: "STK / Vakıf", en: "NGO / Foundation" },
+                  { id: "tedarikci", icon: "⚙️", tr: "Tedarikçi", en: "Supplier" },
+                  { id: "uzman", icon: "👤", tr: "Bireysel Uzman", en: "Individual Expert" },
+                ] as const).map(pk => (
+                  <button key={pk.id} type="button"
+                    onClick={() => setForm(f => ({ ...f, profileKind: pk.id }))}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${form.profileKind === pk.id ? "border-eu bg-eu-pale text-eu" : "border-line text-slate hover:border-eu/40"}`}>
+                    <span className="text-lg">{pk.icon}</span>
+                    {isEn ? pk.en : pk.tr}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-mist mt-2">
+                {form.profileKind === "uzman"
+                  ? (isEn ? "Individual experts can be assigned to project teams and listed in the expert directory." : "Bireysel uzmanlar proje ekiplerine atanabilir ve uzman rehberinde listelenir.")
+                  : (isEn ? "Organizations get a profile and directory listing. Upgrade later for digital tools." : "Kurumlar profil ve rehber listelemesi alır. Dijital araçlar için sonra yükseltebilirsiniz.")}
+              </p>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-semibold text-ink mb-1">{t("signup_name")} *</label>
             <input
@@ -106,7 +135,11 @@ export default function KayitFormPage({ params }: { params: Promise<{ plan: stri
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-ink mb-1">{t("signup_org")}</label>
+            <label className="block text-sm font-semibold text-ink mb-1">
+              {plan === "uzman" && form.profileKind === "uzman"
+                ? (isEn ? "Organization (optional)" : "Bağlı olduğunuz kurum (opsiyonel)")
+                : t("signup_org")}
+            </label>
             <input
               type="text" value={form.org}
               onChange={(e) => setForm(f => ({ ...f, org: e.target.value }))}
