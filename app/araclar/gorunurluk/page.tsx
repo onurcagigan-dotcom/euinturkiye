@@ -150,18 +150,27 @@ export default function GorunurlukPage() {
         <Breadcrumb items={[
           { label: isEn ? "Home" : "Ana Sayfa", href: "/" },
           { label: isEn ? "Digital Tools" : "Dijital Araçlar", href: "/araclar" },
-          { label: isEn ? "Report Covers" : "Rapor Kapakları" },
+          { label: isEn ? "Visibility Material Production" : "Görünürlük Materyali Üretimi" },
         ]} />
 
-        <div className="flex items-center justify-between mb-5 mt-3">
-          <div>
-            <h1 className="text-2xl font-bold text-ink">{isEn ? "Report Covers" : "Rapor Kapakları"}</h1>
-            <p className="text-sm text-slate mt-0.5">
-              {isEn
-                ? "Produce EU-visibility-compliant TR & EN report covers as PDF."
-                : "AB görünürlük kurallarına uygun TR & EN rapor kapaklarını PDF olarak üretin."}
-            </p>
+        <div className="mb-5 mt-3">
+          <h1 className="text-2xl font-bold text-ink">{isEn ? "Visibility Material Production" : "Görünürlük Materyali Üretimi"}</h1>
+          <p className="text-sm text-slate mt-0.5">
+            {isEn
+              ? "Produce EU-visibility-compliant materials in TR & EN."
+              : "AB görünürlük kurallarına uygun materyalleri TR & EN üretin."}
+          </p>
+        </div>
+
+        {/* Materyal tipi seçici */}
+        <div className="flex items-center gap-2 mb-6 border-b border-line">
+          <div className="px-4 py-2.5 text-sm font-semibold border-b-2 border-eu text-eu -mb-px">
+            {isEn ? "Report Covers" : "Rapor Kapakları"}
           </div>
+          <Link href="/araclar/antetli"
+            className="px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate hover:text-eu -mb-px transition-colors">
+            {isEn ? "Letterheads" : "Antetli Grubu"}
+          </Link>
         </div>
 
         {/* Kapak listesi */}

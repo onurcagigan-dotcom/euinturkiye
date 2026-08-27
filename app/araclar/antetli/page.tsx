@@ -128,14 +128,26 @@ export default function AntetliPage() {
         <Breadcrumb items={[
           { label: isEn ? "Home" : "Ana Sayfa", href: "/" },
           { label: isEn ? "Digital Tools" : "Dijital Araçlar", href: "/araclar" },
+          { label: isEn ? "Visibility Material Production" : "Görünürlük Materyali Üretimi", href: "/araclar/gorunurluk" },
           { label: isEn ? "Letterheads" : "Antetli Grubu" },
         ]} />
 
         <div className="mb-5 mt-3">
-          <h1 className="text-2xl font-bold text-ink">{isEn ? "Letterheads" : "Antetli Grubu"}</h1>
+          <h1 className="text-2xl font-bold text-ink">{isEn ? "Visibility Material Production" : "Görünürlük Materyali Üretimi"}</h1>
           <p className="text-sm text-slate mt-0.5">
-            {isEn ? "Produce EU-compliant letterheads. Download as Word, PDF or Excel." : "AB kurallarına uygun antetli kağıt üretin. Word, PDF veya Excel indirin."}
+            {isEn ? "Produce EU-visibility-compliant materials in TR & EN." : "AB görünürlük kurallarına uygun materyalleri TR & EN üretin."}
           </p>
+        </div>
+
+        {/* Materyal tipi seçici */}
+        <div className="flex items-center gap-2 mb-6 border-b border-line">
+          <Link href="/araclar/gorunurluk"
+            className="px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate hover:text-eu -mb-px transition-colors">
+            {isEn ? "Report Covers" : "Rapor Kapakları"}
+          </Link>
+          <div className="px-4 py-2.5 text-sm font-semibold border-b-2 border-eu text-eu -mb-px">
+            {isEn ? "Letterheads" : "Antetli Grubu"}
+          </div>
         </div>
 
         {/* Liste */}
