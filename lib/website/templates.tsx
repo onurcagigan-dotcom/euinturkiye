@@ -31,6 +31,19 @@ function resolveHeaderLogo(website: ProjectWebsite, locale: "tr" | "en"): string
   return undefined;
 }
 
+/** Bağımsız logo bandı — her zaman tepede beyaz fonda, ortada, 100px.
+ *  Başlık ve bannerdan bağımsızdır; menü bunun altında yer alır. */
+function HeaderLogoBar({ website, locale }: { website: ProjectWebsite; locale: "tr" | "en" }) {
+  const logoUrl = resolveHeaderLogo(website, locale);
+  if (!logoUrl) return null;
+  return (
+    <div style={{ background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "18px 24px", borderBottom: "1px solid #f0f0f0" }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={logoUrl} alt="Proje Logosu" style={{ height: 100, maxWidth: "100%", objectFit: "contain" }} />
+    </div>
+  );
+}
+
 // ─── Navigasyon Menüsü ────────────────────────────────────────
 function WebsiteNav({ website, accent, locale }: {
   website: ProjectWebsite; accent: string; locale: "tr" | "en";
@@ -120,20 +133,11 @@ interface HeaderProps {
 export function WebsiteHeader({ title, subtitle, tagline, logoUrl, version, accentColor }: HeaderProps) {
   const accent = accentColor ?? "#003399";
 
-  // Logo bloğu — ortada, 150px yükseklik
-  const LogoBlock = logoUrl ? (
-    <div className="flex items-center justify-center mb-6" style={{ height: 150 }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={logoUrl} alt="Proje Logosu" style={{ height: 150, maxWidth: "100%", objectFit: "contain" }} />
-    </div>
-  ) : null;
-
   if (version === 1) {
-    // Logo üstte ortada, başlık altında ortada
+    // Başlık ortada
     return (
-      <header style={{ background: "#fff", borderBottom: `3px solid ${accent}`, padding: "48px 40px" }}
+      <header style={{ background: "#fff", borderBottom: `3px solid ${accent}`, padding: "40px" }}
         className="flex flex-col items-center text-center">
-        {LogoBlock}
         {tagline && (
           <div className="text-xs font-bold uppercase tracking-[0.3em] mb-3" style={{ color: accent }}>
             {tagline}
@@ -146,11 +150,10 @@ export function WebsiteHeader({ title, subtitle, tagline, logoUrl, version, acce
   }
 
   if (version === 2) {
-    // Sol renk şerit + logo ortada + başlık
+    // Sol renk şerit + başlık
     return (
-      <header style={{ background: "#fff", borderLeft: `6px solid ${accent}`, padding: "48px 40px" }}
+      <header style={{ background: "#fff", borderLeft: `6px solid ${accent}`, padding: "40px" }}
         className="flex flex-col items-center text-center">
-        {LogoBlock}
         {tagline && (
           <div className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: accent }}>
             {tagline}
@@ -162,12 +165,11 @@ export function WebsiteHeader({ title, subtitle, tagline, logoUrl, version, acce
     );
   }
 
-  // version 3 — üst renk şerit + logo ortada
+  // version 3 — üst renk şerit
   return (
     <header style={{ background: "#fff" }} className="flex flex-col">
       <div style={{ background: accent, height: 10 }} />
       <div style={{ padding: "40px" }} className="flex flex-col items-center text-center">
-        {LogoBlock}
         <h1 className="text-3xl font-extrabold text-gray-900 leading-tight mb-2 max-w-3xl">{title}</h1>
         {subtitle && <p className="text-gray-500 text-sm max-w-2xl">{subtitle}</p>}
         {tagline && <div className="text-xs uppercase tracking-widest font-bold mt-3" style={{ color: accent }}>{tagline}</div>}
@@ -319,6 +321,7 @@ export function TemplateMinimal({ website, project, sector, donor, resolvedLogos
   const h = locale === "tr" ? website.headerTr : website.headerEn;
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: "#fafafa", minHeight: "100vh" }}>
+      <HeaderLogoBar website={website} locale={locale} />
       <WebsiteNav website={website} accent={accent} locale={locale} />
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />
@@ -340,6 +343,7 @@ export function TemplateBold({ website, project, sector, donor, resolvedLogos, l
   const isEn = locale === "en";
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: "#111827", minHeight: "100vh", color: "#f9fafb" }}>
+      <HeaderLogoBar website={website} locale={locale} />
       <WebsiteNav website={website} accent={accent} locale={locale} />
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />
@@ -400,6 +404,7 @@ export function TemplateAcademic({ website, project, sector, donor, resolvedLogo
   const isEn = locale === "en";
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: "#fff", minHeight: "100vh" }}>
+      <HeaderLogoBar website={website} locale={locale} />
       <WebsiteNav website={website} accent={accent} locale={locale} />
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />
@@ -473,6 +478,7 @@ export function TemplateImpact({ website, project, sector, donor, resolvedLogos,
   ].filter(Boolean) as { value: string; label: string }[];
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: "#fff", minHeight: "100vh" }}>
+      <HeaderLogoBar website={website} locale={locale} />
       <WebsiteNav website={website} accent={accent} locale={locale} />
       {website.heroBanner?.enabled ? (
         <HeroBanner website={website} accent={accent} locale={locale} />

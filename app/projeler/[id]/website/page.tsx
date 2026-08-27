@@ -338,10 +338,10 @@ export default function WebsiteBuilderPage() {
           {/* ── BAŞLIK ── */}
           {activeSection === "header" && (
             <div className="space-y-4">
-              {/* Header Logosu — ortada, 150px */}
+              {/* Header Logosu — ortada, 100px */}
               <SectionTitle>Header Logosu</SectionTitle>
               <p className="text-xs text-mist bg-surface rounded-lg px-3 py-2">
-                Header'ın ortasında 150px yükseklikte gösterilir. AB finansman logolarından seçin veya kendi logonuzu yükleyin. Seçilen logo sitenin diline göre TR/EN varyantıyla görünür.
+                Sitenin en tepesinde beyaz zeminde, ortada, 100px yükseklikte her zaman görünür. Başlık ve bannerdan bağımsızdır; menü bu logonun altında yer alır. Seçilen logo sitenin diline göre TR/EN varyantıyla görünür.
               </p>
               {/* Kütüphane logoları */}
               <div className="grid grid-cols-2 gap-2">
