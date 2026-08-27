@@ -372,13 +372,14 @@ function LetterheadPreview({ lh, lang, title, bandLogoUrl, userLib }: {
   lh: Letterhead; lang: "tr" | "en"; title: string; bandLogoUrl?: string; userLib: UserLibraryImage[];
 }) {
   const portrait = lh.orientation === "portrait";
-  const W = portrait ? 400 : 560;
-  const H = portrait ? 566 : 396;
+  // Container'a tam sığacak boyut (A4 oranı korunur)
+  const W = portrait ? 340 : 480;
+  const H = portrait ? 481 : 340;
   const tpl = portrait ? TPL_PORTRAIT : TPL_LANDSCAPE;
-  // Bölge oranları (dikey: sarı 0-10, kırmızı 10-14, mavi alt 95-100 / yatay: sarı 0-15, kırmızı 15-20, mavi 92-100)
-  const bandTop = "1%", bandH = portrait ? "8.5%" : "13%";
-  const redTop = portrait ? "10%" : "15%", redH = portrait ? "4%" : "5%";
-  const footTop = portrait ? "95%" : "92%", footH = portrait ? "5%" : "8%";
+  // Bant oranları (%20 küçültülmüş — dikey: sarı 0-8, kırmızı 8-11, mavi 96-100 / yatay: sarı 0-11, kırmızı 11-15, mavi 94-100)
+  const bandTop = "0.5%", bandH = portrait ? "7%" : "10%";
+  const redTop = portrait ? "8%" : "11%", redH = portrait ? "3%" : "4%";
+  const footTop = portrait ? "96%" : "94%", footH = portrait ? "4%" : "6%";
 
   return (
     <div style={{ width: W, height: H, position: "relative", background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.15)", flexShrink: 0 }}>
@@ -392,7 +393,7 @@ function LetterheadPreview({ lh, lang, title, bandLogoUrl, userLib }: {
       {/* Kırmızı şerit: logo + başlık, ortalı */}
       <div style={{ position: "absolute", top: redTop, left: 0, right: 0, height: redH, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "0 8%" }}>
         {lh.projectLogo && <img src={lh.projectLogo} alt="" style={{ maxHeight: "80%", maxWidth: 40, objectFit: "contain" }} />}
-        {title && <span style={{ color: "#fff", fontSize: portrait ? 9 : 11, fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>{title}</span>}
+        {title && <span style={{ color: "#fff", fontSize: 9, fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>{title}</span>}
       </div>
       {/* Mavi alt şerit logoları */}
       <div style={{ position: "absolute", top: footTop, left: 0, right: 0, height: footH, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "0 6%" }}>
@@ -474,20 +475,20 @@ function exportPdf(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUrl
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const portrait = lh.orientation === "portrait";
 
-  const bandTop = "1%", bandH = portrait ? "8.5%" : "13%";
-  const redTop = portrait ? "10%" : "15%", redH = portrait ? "4%" : "5%";
-  const footTop = portrait ? "95%" : "92%", footH = portrait ? "5%" : "8%";
+  const bandTop = "0.5%", bandH = portrait ? "7%" : "10%";
+  const redTop = portrait ? "8%" : "11%", redH = portrait ? "3%" : "4%";
+  const footTop = portrait ? "96%" : "94%", footH = portrait ? "4%" : "6%";
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(lh.name)}</title>
 <style>
   @page { size: A4 ${portrait ? "portrait" : "landscape"}; margin: 0; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: Arial, sans-serif; }
-  .page { width: ${portrait ? "210mm" : "297mm"}; height: ${portrait ? "297mm" : "210mm"}; position: relative; overflow: hidden; }
+  .page { width: ${portrait ? "210mm" : "297mm"}; height: ${portrait ? "297mm" : "210mm"}; position: relative; overflow: hidden; background:#fff; }
   .bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .band { position:absolute; top:${bandTop}; left:0; right:0; height:${bandH}; display:flex; align-items:center; justify-content:center; padding:0 30%; }
   .red { position:absolute; top:${redTop}; left:0; right:0; height:${redH}; display:flex; align-items:center; justify-content:center; gap:10px; padding:0 8%; }
-  .red span { color:#fff; font-weight:bold; font-size:13pt; text-align:center; }
+  .red span { color:#fff; font-weight:bold; font-size:9pt; text-align:center; }
   .foot { position:absolute; top:${footTop}; left:0; right:0; height:${footH}; display:flex; align-items:center; justify-content:center; gap:20px; padding:0 6%; }
   @media print { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style></head>
@@ -516,7 +517,7 @@ function exportWord(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUr
   @page Section1 { size: ${portrait ? "21cm 29.7cm" : "29.7cm 21cm"}; margin: 3cm 2cm 3cm 2cm; mso-header-margin:1cm; mso-footer-margin:1cm; }
   div.Section1 { page:Section1; }
   .hdr { text-align:center; }
-  .red { background:#C41E3A; color:#fff; text-align:center; padding:6px; font-weight:bold; }
+  .red { background:#C41E3A; color:#fff; text-align:center; padding:6px; font-weight:bold; font-size:9pt; }
 </style></head>
 <body><div class="Section1">
   <div class="hdr">
@@ -543,7 +544,7 @@ function exportExcel(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoU
 </head><body>
 <table border="0" cellpadding="4" cellspacing="0">
   <tr><td colspan="4" align="center">${bandLogoUrl ? `<img src="${abs(bandLogoUrl)}" height="48" />` : ""}</td></tr>
-  <tr><td colspan="4" align="center" bgcolor="#C41E3A"><font color="#FFFFFF"><b>${esc(title)}</b></font></td></tr>
+  <tr><td colspan="4" align="center" bgcolor="#C41E3A"><font color="#FFFFFF" size="2"><b>${esc(title)}</b></font></td></tr>
   <tr><td colspan="4">&nbsp;</td></tr>
   <tr><td colspan="4">&nbsp;</td></tr>
   <tr><td colspan="4" align="center"><font color="#999999">[ ${lang === "tr" ? "Tablo içeriğini buraya girin" : "Enter your table content here"} ]</font></td></tr>
