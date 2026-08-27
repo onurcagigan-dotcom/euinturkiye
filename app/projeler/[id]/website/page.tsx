@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useLocale } from "@/lib/i18n/context";
 import { useFirma } from "@/lib/firma/context";
 import { getDataProvider } from "@/lib/data";
-import { LOGO_LIBRARY, LOGO_CATEGORIES, getLibraryLogo, getLogoUrlForLocale } from "@/lib/website/logo-library";
+import { LOGO_LIBRARY, getLibraryLogo, getLogoUrlForLocale } from "@/lib/website/logo-library";
+import { SYSTEM_LOGOS, SYSTEM_LOGO_CATEGORIES, resolveLogoSrc } from "@/lib/website/system-logos";
 import { renderTemplate, TEMPLATE_META } from "@/lib/website/templates";
 import type {
   Project, Sector, Donor, ProjectWebsite,
   WebsiteFooterLogo, WebsiteHeaderVersion, WebsiteTemplateId,
+  UserLibraryImage, Subscriber,
 } from "@/lib/types";
 
 function slugify(text: string) {
@@ -127,10 +129,34 @@ export default function WebsiteBuilderPage() {
   const [slugError, setSlugError] = useState("");
   const [slugOk, setSlugOk] = useState(false);
   const [showLogoLib, setShowLogoLib] = useState(false);
-  const [logoCategory, setLogoCategory] = useState("ab");
+  const [logoPickerTab, setLogoPickerTab] = useState<"system" | "user">("system");
+  const [systemCat, setSystemCat] = useState("bakanlik");
+  const [userLib, setUserLib] = useState<UserLibraryImage[]>([]);
   const [previewLocale, setPreviewLocale] = useState<"tr" | "en">("tr");
   const [previewMode, setPreviewMode] = useState<"editor" | "live">("editor");
   const [activeSection, setActiveSection] = useState<"template" | "header" | "hero" | "menu" | "footer" | "content" | "settings">("template");
+
+  // Kullanıcı logo kütüphanesini firma profilinden yükle
+  useEffect(() => {
+    if (firma) setUserLib(firma.userLogoLibrary ?? []);
+  }, [firma]);
+
+  // Kullanıcı kütüphanesine logo ekle (kalıcı — subscriber'a kaydet)
+  const addToUserLib = async (file: File) => {
+    if (!firma) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const img: UserLibraryImage = {
+        id: `ulib-${Date.now()}`, label: file.name.replace(/\.[^.]+$/, ""),
+        dataUrl: ev.target?.result as string, addedAt: new Date().toISOString(),
+      };
+      const nextLib = [...userLib, img];
+      setUserLib(nextLib);
+      const updated: Subscriber = { ...firma, userLogoLibrary: nextLib };
+      await db.saveSubscriber(updated);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -190,15 +216,14 @@ export default function WebsiteBuilderPage() {
   };
 
   const resolvedLogos = (website?.footerLogos ?? []).map(fl => {
-    const lib = fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined;
-    return {
-      id: fl.id,
-      imageUrl: fl.source === "custom"
-        ? fl.imageUrl
-        : (lib ? getLogoUrlForLocale(lib, previewLocale) : undefined),
-      label: fl.label,
-      libraryLogo: lib,
-    };
+    // Eski "library" kaynağı — dil-duyarlı finansman/bayrak logosu
+    const lib = (fl.source === "library" && (fl.libraryKey ?? fl.refKey))
+      ? getLibraryLogo(fl.libraryKey ?? fl.refKey!)
+      : undefined;
+    const imageUrl = lib
+      ? getLogoUrlForLocale(lib, previewLocale)
+      : resolveLogoSrc(fl, userLib);
+    return { id: fl.id, imageUrl, label: fl.label, libraryLogo: lib };
   });
 
   if (loading) return (
@@ -631,8 +656,8 @@ export default function WebsiteBuilderPage() {
               ) : (
                 <div className="space-y-1.5">
                   {[...website.footerLogos].sort((a,b)=>a.order-b.order).map((fl, idx) => {
-                    const lib = fl.libraryKey ? getLibraryLogo(fl.libraryKey) : undefined;
-                    const src = fl.source === "custom" ? fl.imageUrl : lib?.svgOrUrl;
+                    const src = resolveLogoSrc(fl, userLib);
+                    const lib = (fl.source === "library" && (fl.libraryKey ?? fl.refKey)) ? getLibraryLogo(fl.libraryKey ?? fl.refKey!) : undefined;
                     return (
                       <div key={fl.id} className="flex items-center gap-2 bg-surface rounded-lg px-2.5 py-2">
                         <div className="w-12 h-7 flex items-center justify-center bg-white rounded border border-line flex-shrink-0">
@@ -666,7 +691,7 @@ export default function WebsiteBuilderPage() {
                   const reader = new FileReader();
                   reader.onload = ev => {
                     const url = ev.target?.result as string;
-                    set({ footerLogos: [...website.footerLogos, { id: `fl-c-${Date.now()}`, source: "custom", imageUrl: url, label: file.name.replace(/\.[^.]+$/,""), order: website.footerLogos.length+1 }] });
+                    set({ footerLogos: [...website.footerLogos, { id: `fl-c-${Date.now()}`, source: "custom", imageUrl: url, dataUrl: url, label: file.name.replace(/\.[^.]+$/,""), order: website.footerLogos.length+1 }] });
                   };
                   reader.readAsDataURL(file);
                 }} />
@@ -790,43 +815,84 @@ export default function WebsiteBuilderPage() {
         </div>
       </div>
 
-      {/* Logo kütüphanesi modal */}
+      {/* Logo kütüphanesi modal — sistem + kullanıcı (tüm araçlarla ortak) */}
       {showLogoLib && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowLogoLib(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[70vh] flex flex-col overflow-hidden">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[75vh] flex flex-col overflow-hidden">
             <div className="px-5 py-4 border-b border-line flex items-center justify-between">
               <h3 className="font-bold text-ink">Logo Kütüphanesi</h3>
               <button onClick={() => setShowLogoLib(false)} className="text-mist hover:text-ink text-xl">×</button>
             </div>
-            <div className="px-4 py-2.5 border-b border-line flex gap-1.5 overflow-x-auto">
-              {LOGO_CATEGORIES.map(cat => (
-                <button key={cat.id} onClick={() => setLogoCategory(cat.id)}
-                  className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${logoCategory === cat.id ? "bg-eu text-white" : "bg-surface text-slate"}`}>
-                  {cat.label}
-                </button>
-              ))}
+            {/* Sekmeler: Sistem / Kullanıcı */}
+            <div className="px-5 pt-3 flex gap-2 border-b border-line">
+              <button onClick={() => setLogoPickerTab("system")}
+                className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${logoPickerTab === "system" ? "border-eu text-eu" : "border-transparent text-slate"}`}>
+                Sistem Kütüphanesi
+              </button>
+              <button onClick={() => setLogoPickerTab("user")}
+                className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${logoPickerTab === "user" ? "border-eu text-eu" : "border-transparent text-slate"}`}>
+                Kütüphanem
+              </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3">
-              {LOGO_LIBRARY.filter(l => l.category === logoCategory).map(lib => {
-                const already = website.footerLogos.some(fl => fl.libraryKey === lib.key);
-                return (
-                  <button key={lib.key} disabled={already}
-                    onClick={() => {
-                      set({ footerLogos: [...website.footerLogos, { id: `fl-${lib.key}-${Date.now()}`, source: "library", libraryKey: lib.key, label: lib.label, order: website.footerLogos.length+1 }] });
-                      setShowLogoLib(false);
-                    }}
-                    className={`border-2 rounded-xl p-3 flex flex-col items-center gap-2 transition-all ${already ? "border-line opacity-40 cursor-not-allowed" : "border-line hover:border-eu"}`}>
-                    <div className="w-16 h-10 flex items-center justify-center">
-                      <img src={lib.svgOrUrl} alt={lib.label} className="max-w-full max-h-full object-contain"
-                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    </div>
-                    <span className="text-[9px] text-slate text-center leading-tight">{lib.label}</span>
-                    {already && <span className="text-[9px] text-green-600">✓ Eklendi</span>}
-                  </button>
-                );
-              })}
-            </div>
+
+            {logoPickerTab === "system" ? (
+              <>
+                <div className="px-5 py-2.5 flex gap-1.5 overflow-x-auto border-b border-line">
+                  {SYSTEM_LOGO_CATEGORIES.map(cat => (
+                    <button key={cat.id} onClick={() => setSystemCat(cat.id)}
+                      className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${systemCat === cat.id ? "bg-eu text-white" : "bg-surface text-slate"}`}>
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3">
+                  {SYSTEM_LOGOS.filter(l => l.category === systemCat).map(logo => (
+                    <button key={logo.key}
+                      onClick={() => {
+                        set({ footerLogos: [...website.footerLogos, { id: `fl-${logo.key}-${Date.now()}`, source: "system", refKey: logo.key, label: logo.label, order: website.footerLogos.length+1 }] });
+                        setShowLogoLib(false);
+                      }}
+                      className="border-2 border-line rounded-xl p-3 flex flex-col items-center gap-2 hover:border-eu transition-all">
+                      <div className="w-16 h-10 flex items-center justify-center">
+                        <img src={logo.url} alt={logo.label} className="max-w-full max-h-full object-contain"
+                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      </div>
+                      <span className="text-[9px] text-slate text-center leading-tight">{logo.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="px-5 py-3 border-b border-line">
+                  <label className="block border-2 border-dashed border-line rounded-xl p-3 text-center cursor-pointer hover:border-eu transition-colors">
+                    <span className="text-xs text-eu font-semibold">+ Kütüphanene yeni logo yükle</span>
+                    <input type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) addToUserLib(file);
+                    }} />
+                  </label>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3">
+                  {userLib.length === 0 ? (
+                    <div className="col-span-3 text-center py-8 text-mist text-sm">Kütüphaneniz boş. Yukarıdan logo yükleyin.</div>
+                  ) : userLib.map(img => (
+                    <button key={img.id}
+                      onClick={() => {
+                        set({ footerLogos: [...website.footerLogos, { id: `fl-u-${Date.now()}`, source: "user", refKey: img.id, dataUrl: img.dataUrl, label: img.label, order: website.footerLogos.length+1 }] });
+                        setShowLogoLib(false);
+                      }}
+                      className="border-2 border-line rounded-xl p-3 flex flex-col items-center gap-2 hover:border-eu transition-all">
+                      <div className="w-16 h-10 flex items-center justify-center">
+                        <img src={img.dataUrl} alt={img.label} className="max-w-full max-h-full object-contain" />
+                      </div>
+                      <span className="text-[9px] text-slate text-center leading-tight truncate w-full">{img.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

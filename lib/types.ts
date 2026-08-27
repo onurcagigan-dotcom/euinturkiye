@@ -268,6 +268,78 @@ export interface Subscriber {
   isAdmin2?: boolean;              // Bu hesap admin2 yetkisine sahip mi
   admin2GrantedAt?: string;        // Admin2 yetkisi ne zaman verildi
   admin2GrantedBy?: string;        // Kim verdi (admin sub ID)
+
+  // --- Görünürlük materyalleri ---
+  /** Kullanıcının yüklediği logolar (kalıcı kişisel kütüphane) */
+  userLogoLibrary?: UserLibraryImage[];
+  /** Kaydedilmiş rapor kapakları */
+  reportCovers?: ReportCover[];
+  /** Kaydedilmiş antetli kağıtlar */
+  letterheads?: Letterhead[];
+}
+
+/** Kullanıcı kütüphanesindeki bir görsel (base64 saklanır) */
+export interface UserLibraryImage {
+  id: string;
+  label: string;
+  dataUrl: string;      // base64 data URL
+  addedAt: string;      // ISO
+}
+
+/** Rapor kapağı — ön ve arka kapak, TR + EN */
+export interface ReportCover {
+  id: string;
+  name: string;                    // kullanıcının verdiği ad (dosya adı)
+  updatedAt: string;
+
+  /** Sarı şeritteki finansman logosu — logo kütüphanesi anahtarı veya özel */
+  bandLogoKey?: string;            // logo-library anahtarı (finanse, es-finanse vb.)
+  bandLogoCustom?: string;         // özel yüklenen (base64)
+
+  /** Ön kapak orta alan metni (TR) */
+  frontTextTr: string;
+  /** Ön kapak orta alan metni (EN) */
+  frontTextEn: string;
+
+  /** Alt beyaz şeritteki logolar (sıralı) */
+  footerLogos: CoverFooterLogo[];
+
+  /** Arka kapak disclaimer metni (TR) */
+  backTextTr: string;
+  /** Arka kapak disclaimer metni (EN) */
+  backTextEn: string;
+}
+
+/** Kapak alt şeridindeki logo */
+export interface CoverFooterLogo {
+  id: string;
+  source: "system" | "user" | "custom";  // sistem kütüphanesi / kullanıcı kütüphanesi / anlık yükleme
+  refKey?: string;                        // system/user kaynağı için anahtar/id
+  dataUrl?: string;                       // custom veya user için base64
+  label?: string;
+  order: number;
+}
+
+/** Antetli kağıt (letterhead) — dikey veya yatay, TR + EN */
+export interface Letterhead {
+  id: string;
+  name: string;                    // dosya adı
+  updatedAt: string;
+  orientation: "portrait" | "landscape";
+
+  /** Sarı şeritteki finansman logosu */
+  bandLogoKey?: string;
+  bandLogoCustom?: string;
+
+  /** Kırmızı şerit: proje başlığı (otomatik gelir veya elle) */
+  projectId?: string;              // otomatik ad için proje referansı
+  titleTr: string;                 // gösterilecek başlık (TR)
+  titleEn: string;                 // gösterilecek başlık (EN)
+  /** Kırmızı şeritteki proje logosu */
+  projectLogo?: string;            // base64 veya kütüphane referansı
+
+  /** Mavi alt şerit logoları (website footer mantığı) */
+  footerLogos: CoverFooterLogo[];
 }
 
 /** Adres defteri grubu — firma kendi gruplarını oluşturur */
@@ -508,12 +580,22 @@ export type WebsiteHeaderVersion = 1 | 2 | 3;
 
 export interface WebsiteFooterLogo {
   id: string;
-  /** "library" = hazır kütüphaneden, "custom" = kullanıcı yükledi */
-  source: "library" | "custom";
-  /** Kütüphane logosu için tanımlayıcı (ör. "eu", "mfib", "tcdd") */
+  /**
+   * Logo kaynağı — tüm görünürlük araçlarıyla ortak:
+   * - "system": sistem kütüphanesi (bakanlık, kurum, finansman, bayrak)
+   * - "user": kullanıcının kişisel kütüphanesi (subscriber'da kalıcı)
+   * - "custom": o anda yüklenen (geçici)
+   * - "library": (eski) — finansman/bayrak kütüphanesi, geriye uyumluluk
+   */
+  source: "system" | "user" | "custom" | "library";
+  /** system/user kaynağı için anahtar/id; eski "library" için libraryKey */
+  refKey?: string;
+  /** Kütüphane logosu için tanımlayıcı (eski website verisi — geriye uyumluluk) */
   libraryKey?: string;
-  /** Custom yükleme için base64 veya URL */
+  /** custom/user için base64 veya URL */
   imageUrl?: string;
+  /** custom/user için base64 (yeni araçlarla ortak alan adı) */
+  dataUrl?: string;
   label?: string;   // isteğe bağlı alt yazı
   order: number;
 }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<circle cx="100" cy="70" r="42" fill="none" stroke="#1a7a3c" stroke-width="3"/>
+<circle cx="100" cy="70" r="30" fill="#1a7a3c" opacity="0.12"/>
+<text x="100" y="78" font-family="Arial" font-size="28" font-weight="800" fill="#1a7a3c" text-anchor="middle">★</text>
+<text x="100" y="130" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#1a7a3c" text-anchor="middle">T.C. Tarım ve</text><text x="100" y="152" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#1a7a3c" text-anchor="middle">Orman Bakanlığı</text>
+</svg>
