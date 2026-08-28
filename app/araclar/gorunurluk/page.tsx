@@ -129,9 +129,25 @@ export default function GorunurlukPage() {
   if (!current) {
     return (
       <PageShell>
-        <div className="max-w-2xl mx-auto py-16 text-center">
-          <p className="text-slate mb-4">{isEn ? "Please sign in to use this tool." : "Bu aracı kullanmak için giriş yapın."}</p>
-          <Link href="/kayit" className="text-eu font-semibold hover:underline">{isEn ? "Sign up" : "Kayıt Ol"}</Link>
+        <div className="max-w-lg mx-auto py-16 text-center">
+          <div className="text-4xl mb-4">🎭</div>
+          <h2 className="text-lg font-bold text-ink mb-2">
+            {isEn ? "Choose a role to explore this tool" : "Bu aracı denemek için bir rol seçin"}
+          </h2>
+          <p className="text-slate mb-6 text-sm">
+            {isEn
+              ? "This tool is available to firms, NGOs and programme authorities. Pick a demo role to continue — no login required."
+              : "Bu araç firma, STK ve program otoritelerine açıktır. Devam etmek için bir demo rolü seçin — giriş gerekmez."}
+          </p>
+          <button
+            onClick={() => {
+              try { window.localStorage.removeItem("eu_demo_role"); } catch {}
+              document.cookie = "eu_firma_session=; path=/; max-age=0";
+              window.location.reload();
+            }}
+            className="px-5 py-2.5 bg-eu text-white rounded-xl font-semibold text-sm hover:bg-blue-800">
+            {isEn ? "Select a role" : "Rol Seç"}
+          </button>
         </div>
       </PageShell>
     );

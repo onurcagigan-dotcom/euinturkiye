@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { DEMO_ROLES, getDemoRole, setDemoRole, DemoRoleId } from "@/lib/demo-role";
+import { setDemoVerified } from "@/lib/demo-access";
 
 export function DemoRoleModal() {
   const [open, setOpen] = useState(false);
@@ -21,12 +22,17 @@ export function DemoRoleModal() {
 
   const choose = (id: DemoRoleId) => {
     setDemoRole(id);
+    // Rol seçimi = demo erişimi. Ayrı bir doğrulama istenmez, veri hemen açılır.
+    setDemoVerified(true);
     setOpen(false);
-    // Panel gerektiren roller için sayfa yenile (subscriber context'i yüklemek için)
+    // Panel gerektiren roller için subscriber oturumunu da aç
     const role = DEMO_ROLES.find((r) => r.id === id);
     if (role?.subscriberId) {
-      window.location.reload();
+      document.cookie = `eu_firma_session=${role.subscriberId}; path=/; max-age=604800`;
+    } else {
+      document.cookie = `eu_firma_session=; path=/; max-age=0`;
     }
+    window.location.reload();
   };
 
   if (!open) return null;
