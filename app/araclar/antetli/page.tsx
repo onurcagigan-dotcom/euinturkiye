@@ -504,52 +504,137 @@ function exportPdf(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUrl
   if (w) { w.document.write(html); w.document.close(); }
 }
 
-function exportWord(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUrl: string | undefined, userLib: UserLibraryImage[]) {
+// SVG/görsel URL'sini PNG data-url'e çevir (Word/Excel SVG'yi kötü render eder)
+async function toPngDataUrl(src: string, maxH = 120): Promise<string> {
+  return new Promise((resolve) => {
+    if (!src) { resolve(""); return; }
+    // Zaten raster data-url ise (png/jpeg) dokunma
+    if (src.startsWith("data:image/png") || src.startsWith("data:image/jpeg") || src.startsWith("data:image/jpg")) {
+      resolve(src); return;
+    }
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const scale = maxH / (img.naturalHeight || maxH);
+        const w = Math.round((img.naturalWidth || maxH) * scale);
+        const h = Math.round((img.naturalHeight || maxH) * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(src); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/png"));
+      } catch {
+        resolve(src);
+      }
+    };
+    img.onerror = () => resolve(src);
+    img.src = src;
+  });
+}
+
+async function exportWord(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUrl: string | undefined, userLib: UserLibraryImage[]) {
   const origin = window.location.origin;
   const abs = (u?: string) => !u ? "" : (u.startsWith("data:") ? u : origin + u);
-  const footerImgs = [...lh.footerLogos].sort((a, b) => a.order - b.order).map((fl) => abs(resolveFooterLogoSrc(fl, userLib))).filter(Boolean) as string[];
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const portrait = lh.orientation === "portrait";
 
-  // Word: header'da band+red, footer'da mavi logolar. Gövde boş (kullanıcı doldurur).
-  const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8">
+  // Logoları PNG'ye çevir (Word SVG'yi bozuyor)
+  const bandPng = bandLogoUrl ? await toPngDataUrl(abs(bandLogoUrl), 96) : "";
+  const projectPng = lh.projectLogo ? await toPngDataUrl(abs(lh.projectLogo), 48) : "";
+  const footerSrcs = [...lh.footerLogos].sort((a, b) => a.order - b.order).map((fl) => abs(resolveFooterLogoSrc(fl, userLib))).filter(Boolean) as string[];
+  const footerPngs = await Promise.all(footerSrcs.map((s) => toPngDataUrl(s, 72)));
+
+  const pageW = portrait ? "21cm" : "29.7cm";
+  const pageH = portrait ? "29.7cm" : "21cm";
+
+  const bandImg = bandPng
+    ? `<p style="text-align:center;margin:0;"><img src="${bandPng}" style="height:48px;" alt="" /></p>`
+    : "";
+  const redBar = (title || projectPng)
+    ? `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:4px;"><tr><td bgcolor="#C41E3A" align="center" style="padding:5px;">${projectPng ? `<img src="${projectPng}" style="height:20px;vertical-align:middle;" alt="" />&nbsp;` : ""}<span style="color:#ffffff;font-weight:bold;font-size:9pt;">${esc(title)}</span></td></tr></table>`
+    : "";
+
+  const footerCells = footerPngs.map((s) => `<td align="center" valign="middle" style="padding:0 8px;"><img src="${s}" style="height:30px;" alt="" /></td>`).join("");
+  const footerTable = footerPngs.length
+    ? `<table align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>${footerCells}</tr></table>`
+    : "";
+
+  const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8">
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
 <style>
-  @page Section1 { size: ${portrait ? "21cm 29.7cm" : "29.7cm 21cm"}; margin: 3cm 2cm 3cm 2cm; mso-header-margin:1cm; mso-footer-margin:1cm; }
-  div.Section1 { page:Section1; }
-  .hdr { text-align:center; }
-  .red { background:#C41E3A; color:#fff; text-align:center; padding:6px; font-weight:bold; font-size:9pt; }
-</style></head>
-<body><div class="Section1">
-  <div class="hdr">
-    ${bandLogoUrl ? `<p class="hdr"><img src="${abs(bandLogoUrl)}" height="50" /></p>` : ""}
-    ${(title || lh.projectLogo) ? `<p class="red">${lh.projectLogo ? `<img src="${abs(lh.projectLogo)}" height="24" />&nbsp;` : ""}${esc(title)}</p>` : ""}
+  @page Section1 {
+    size: ${pageW} ${pageH};
+    margin: 3cm 2cm 3cm 2cm;
+    mso-header-margin: 1cm;
+    mso-footer-margin: 1cm;
+    mso-header: h1;
+    mso-footer: f1;
+  }
+  div.Section1 { page: Section1; }
+  p, td, span { font-family: Arial, sans-serif; }
+  p.MsoHeader, p.MsoFooter { margin: 0; }
+  table { mso-table-lspace: 0; mso-table-rspace: 0; }
+</style>
+</head>
+<body>
+<div class="Section1">
+  <p style="color:#999999;text-align:center;">[ ${lang === "tr" ? "Belge içeriğini buraya yazın" : "Type your document content here"} ]</p>
+
+  <!-- Üstbilgi -->
+  <div style="mso-element:header" id="h1">
+    ${bandImg ? `<p class="MsoHeader" style="text-align:center;">${bandImg}</p>` : ""}
+    ${redBar ? `<p class="MsoHeader">${redBar}</p>` : ""}
   </div>
-  <p>&nbsp;</p><p>&nbsp;</p>
-  <p style="text-align:center;color:#999;">[ ${lang === "tr" ? "Belge içeriğini buraya yazın" : "Type your document content here"} ]</p>
-  <p>&nbsp;</p><p>&nbsp;</p>
-  <div class="hdr">${footerImgs.map((s) => `<img src="${s}" height="36" style="margin:0 10px;" />`).join("")}</div>
-</div></body></html>`;
+
+  <!-- Altbilgi -->
+  <div style="mso-element:footer" id="f1">
+    <p class="MsoFooter" style="text-align:center;">${footerTable}</p>
+  </div>
+</div>
+</body></html>`;
   downloadBlob(html, `${lh.name}-${lang.toUpperCase()}.doc`, "application/msword");
 }
 
-function exportExcel(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUrl: string | undefined, userLib: UserLibraryImage[]) {
+async function exportExcel(lh: Letterhead, lang: "tr" | "en", title: string, bandLogoUrl: string | undefined, userLib: UserLibraryImage[]) {
   const origin = window.location.origin;
   const abs = (u?: string) => !u ? "" : (u.startsWith("data:") ? u : origin + u);
-  const footerImgs = [...lh.footerLogos].sort((a, b) => a.order - b.order).map((fl) => abs(resolveFooterLogoSrc(fl, userLib))).filter(Boolean) as string[];
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const portrait = lh.orientation === "portrait";
 
-  // Excel HTML tablosu — header satırlarında logolar ve başlık
+  // SVG → PNG (Excel de SVG'yi bozar)
+  const bandPng = bandLogoUrl ? await toPngDataUrl(abs(bandLogoUrl), 96) : "";
+  const projectPng = lh.projectLogo ? await toPngDataUrl(abs(lh.projectLogo), 48) : "";
+  const footerSrcs = [...lh.footerLogos].sort((a, b) => a.order - b.order).map((fl) => abs(resolveFooterLogoSrc(fl, userLib))).filter(Boolean) as string[];
+  const footerPngs = await Promise.all(footerSrcs.map((s) => toPngDataUrl(s, 72)));
+
   const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8">
-<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>${esc(lh.name)}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+<!--[if gte mso 9]><xml>
+<x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+<x:Name>${esc(lh.name)}</x:Name>
+<x:WorksheetOptions>
+  <x:Print>
+    <x:PaperSizeIndex>9</x:PaperSizeIndex>
+    ${portrait ? "" : "<x:Orientation>Landscape</x:Orientation>"}
+    <x:LeftMargin>0.79</x:LeftMargin><x:RightMargin>0.79</x:RightMargin>
+    <x:TopMargin>0.79</x:TopMargin><x:BottomMargin>0.79</x:BottomMargin>
+    <x:HorizontalResolution>600</x:HorizontalResolution>
+  </x:Print>
+  <x:DisplayGridlines/>
+</x:WorksheetOptions>
+</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+<style>td,span{font-family:Arial,sans-serif;}</style>
 </head><body>
-<table border="0" cellpadding="4" cellspacing="0">
-  <tr><td colspan="4" align="center">${bandLogoUrl ? `<img src="${abs(bandLogoUrl)}" height="48" />` : ""}</td></tr>
-  <tr><td colspan="4" align="center" bgcolor="#C41E3A"><font color="#FFFFFF" size="2"><b>${esc(title)}</b></font></td></tr>
-  <tr><td colspan="4">&nbsp;</td></tr>
-  <tr><td colspan="4">&nbsp;</td></tr>
-  <tr><td colspan="4" align="center"><font color="#999999">[ ${lang === "tr" ? "Tablo içeriğini buraya girin" : "Enter your table content here"} ]</font></td></tr>
-  <tr><td colspan="4">&nbsp;</td></tr>
-  <tr><td colspan="4" align="center">${footerImgs.map((s) => `<img src="${s}" height="32" />`).join("&nbsp;&nbsp;")}</td></tr>
+<table border="0" cellpadding="4" cellspacing="0" width="100%">
+  <tr><td colspan="6" align="center">${bandPng ? `<img src="${bandPng}" height="48" />` : ""}</td></tr>
+  <tr><td colspan="6" align="center" bgcolor="#C41E3A">${projectPng ? `<img src="${projectPng}" height="20" style="vertical-align:middle;" />&nbsp;` : ""}<font color="#FFFFFF" size="2"><b>${esc(title)}</b></font></td></tr>
+  <tr><td colspan="6" height="20">&nbsp;</td></tr>
+  <tr><td colspan="6" align="center"><font color="#999999">[ ${lang === "tr" ? "Tablo içeriğini buraya girin" : "Enter your table content here"} ]</font></td></tr>
+  <tr><td colspan="6" height="20">&nbsp;</td></tr>
+  <tr><td colspan="6" align="center">${footerPngs.map((s) => `<img src="${s}" height="30" />`).join("&nbsp;&nbsp;&nbsp;")}</td></tr>
 </table>
 </body></html>`;
   downloadBlob(html, `${lh.name}-${lang.toUpperCase()}.xls`, "application/vnd.ms-excel");
